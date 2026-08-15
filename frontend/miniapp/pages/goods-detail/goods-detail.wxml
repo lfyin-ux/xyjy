@@ -1,0 +1,34 @@
+<view class="page">
+  <view class="goods-cover">
+    <image wx:if="{{goods.cover}}" src="{{imgBase}}{{goods.cover}}" mode="aspectFill" class="cover-img" />
+    <text wx:else>🛍️</text>
+  </view>
+
+  <view class="card">
+    <view class="goods-name">{{goods.name}}</view>
+    <view class="goods-price">¥ {{goods.price}}</view>
+    <view class="goods-sales">库存 {{goods.stock}} · 已售 {{goods.sales}}</view>
+  </view>
+
+  <view wx:if="{{specList.length>0}}" class="card">
+    <view class="card-title">选择规格</view>
+    <view class="spec-list">
+      <view class="spec {{spec===item?'on':''}}" wx:for="{{specList}}" wx:key="*this" bindtap="pickSpec" data-s="{{item}}">{{item}}</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">商品详情</view>
+    <view class="goods-detail">{{goods.detail}}</view>
+  </view>
+
+  <view class="buy-bar">
+    <view class="qty">
+      <text class="qty-btn" bindtap="minus">-</text>
+      <text class="qty-num">{{quantity}}</text>
+      <text class="qty-btn" bindtap="plus">+</text>
+    </view>
+    <button class="cart-btn" bindtap="addCart">加入购物车</button>
+    <button class="buy-btn" bindtap="buyNow">立即购买</button>
+  </view>
+</view>

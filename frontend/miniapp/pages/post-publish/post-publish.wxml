@@ -1,0 +1,31 @@
+<view class="page">
+  <view class="card">
+    <view class="field">
+      <text class="label">动态内容</text>
+      <textarea placeholder="分享你的校园生活…" value="{{content}}" bindinput="onContent" maxlength="500" />
+    </view>
+
+    <view class="field">
+      <text class="label">添加图片</text>
+      <view class="img-grid">
+        <view class="img-item" wx:for="{{images}}" wx:key="*this">
+          <image src="{{imgBase}}{{item}}" mode="aspectFill" class="grid-img" />
+          <text class="img-del" catchtap="delImg" data-idx="{{index}}">×</text>
+        </view>
+        <view wx:if="{{images.length<9}}" class="img-add" bindtap="addImg">＋</view>
+      </view>
+    </view>
+
+    <view class="field">
+      <text class="label">话题标签</text>
+      <input placeholder="如 摄影 / 运动 / 学习" value="{{topic}}" bindinput="onTopic" />
+    </view>
+
+    <view class="field">
+      <text class="label">位置</text>
+      <input placeholder="如 图书馆 / 操场" value="{{place}}" bindinput="onPlace" />
+    </view>
+
+    <button class="primary" bindtap="publish">发布动态</button>
+  </view>
+</view>

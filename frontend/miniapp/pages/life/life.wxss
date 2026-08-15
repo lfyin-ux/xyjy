@@ -1,0 +1,98 @@
+.banner {
+  margin: 0 32rpx 44rpx;
+  border-radius: 52rpx;
+  padding: 40rpx;
+  background: var(--lime);
+  min-height: 240rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+.banner-title {
+  font-size: 48rpx;
+  font-weight: 800;
+  margin-bottom: 10rpx;
+}
+
+.banner-sub {
+  color: #59653d;
+  font-size: 26rpx;
+}
+
+.banner-emoji {
+  position: absolute;
+  right: 28rpx;
+  bottom: -20rpx;
+  font-size: 160rpx;
+}
+
+.service-grid {
+  display: flex;
+  padding: 0 32rpx 40rpx;
+  gap: 20rpx;
+}
+
+.service {
+  flex: 1;
+  background: #fff;
+  border-radius: 40rpx;
+  padding: 28rpx 8rpx 24rpx;
+  text-align: center;
+  box-shadow: 0 14rpx 40rpx rgba(39, 31, 73, 0.05);
+}
+
+.service-icon {
+  width: 90rpx;
+  height: 90rpx;
+  border-radius: 32rpx;
+  background: #f0edff;
+  font-size: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16rpx;
+}
+
+.service-name {
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.list-card {
+  margin: 0 32rpx 28rpx;
+  padding: 30rpx;
+  background: #fff;
+  border-radius: 44rpx;
+  display: flex;
+  gap: 26rpx;
+  align-items: center;
+}
+
+.list-pic {
+  width: 138rpx;
+  height: 138rpx;
+  border-radius: 38rpx;
+  background: #ede9ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 70rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.list-img {
+  width: 100%;
+  height: 100%;
+}
+
+.list-name {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.list-sub {
+  margin: 10rpx 0;
+  color: var(--muted);
+  font-size: 24rpx;
+}

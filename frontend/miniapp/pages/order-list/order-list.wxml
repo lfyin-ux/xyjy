@@ -1,0 +1,46 @@
+<wxs module="fmt">
+function statusText(s) {
+  var map = { '1': '待付款', '2': '待备货', '3': '配送中', '4': '已完成', '5': '退款售后' }
+  return map[s] || ''
+}
+module.exports = { statusText: statusText }
+</wxs>
+
+<view class="page">
+  <scroll-view scroll-x class="tab-bar">
+    <view class="tab {{status===null?'on':''}}" bindtap="pick" data-s="">全部</view>
+    <view class="tab {{status===1?'on':''}}" bindtap="pick" data-s="1">待付款</view>
+    <view class="tab {{status===2?'on':''}}" bindtap="pick" data-s="2">待备货</view>
+    <view class="tab {{status===3?'on':''}}" bindtap="pick" data-s="3">配送中</view>
+    <view class="tab {{status===4?'on':''}}" bindtap="pick" data-s="4">已完成</view>
+    <view class="tab {{status===5?'on':''}}" bindtap="pick" data-s="5">退款售后</view>
+  </scroll-view>
+
+  <view class="order" wx:for="{{orders}}" wx:key="id">
+    <view class="order-head">
+      <text class="order-no">{{item.order.orderNo}}</text>
+      <text class="order-status">{{fmt.statusText(item.order.status)}}</text>
+    </view>
+    <view class="order-goods" wx:for="{{item.items}}" wx:for-item="g" wx:key="id">
+      <view class="g-pic">
+        <image wx:if="{{g.goodsCover}}" src="{{imgBase}}{{g.goodsCover}}" mode="aspectFill" class="g-img" />
+        <text wx:else>🛍️</text>
+      </view>
+      <view class="g-main">
+        <view class="g-name">{{g.goodsName}}</view>
+        <view class="g-spec">{{g.spec}} × {{g.quantity}}</view>
+      </view>
+      <text class="price">¥ {{g.price}}</text>
+    </view>
+    <view class="order-foot">
+      <text class="order-total">合计 <text class="price">¥ {{item.order.totalAmount}}</text></text>
+      <view class="order-btns">
+        <button wx:if="{{item.order.status===1}}" class="o-btn primary-btn" bindtap="pay" data-id="{{item.order.id}}">去支付</button>
+        <button wx:if="{{item.order.status===1}}" class="o-btn" bindtap="cancel" data-id="{{item.order.id}}">取消</button>
+        <button wx:if="{{item.order.status===3}}" class="o-btn primary-btn" bindtap="confirm" data-id="{{item.order.id}}">确认收货</button>
+        <button wx:if="{{item.order.status===4}}" class="o-btn" bindtap="refund" data-id="{{item.order.id}}">申请售后</button>
+      </view>
+    </view>
+  </view>
+  <view wx:if="{{orders.length===0}}" class="empty">暂无订单</view>
+</view>

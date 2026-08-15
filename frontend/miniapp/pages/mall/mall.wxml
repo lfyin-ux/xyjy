@@ -1,0 +1,44 @@
+<view class="page">
+  <view class="top">
+    <view class="brand">青春<i>好物</i></view>
+    <button class="icon-btn" bindtap="goCart">🛒</button>
+  </view>
+
+  <view class="banner">
+    <view class="banner-title">把热爱带进日常</view>
+    <view class="banner-sub">本周校园限定好物</view>
+    <view class="banner-emoji">🎁</view>
+  </view>
+
+  <!-- 搜索 -->
+  <view class="search-row">
+    <input class="search-input" placeholder="搜索好物" value="{{keyword}}" bindinput="onInput" bindconfirm="search" />
+    <button class="search-btn" bindtap="search">搜索</button>
+  </view>
+
+  <!-- 分类 -->
+  <scroll-view scroll-x class="cate-bar">
+    <view class="cate {{categoryId===null?'on':''}}" bindtap="pickCate" data-id="">全部</view>
+    <view class="cate {{categoryId===item.id?'on':''}}" wx:for="{{categories}}" wx:key="id" bindtap="pickCate" data-id="{{item.id}}">{{item.name}}</view>
+  </scroll-view>
+
+  <view class="section-title">
+    <h2>同学都在买</h2>
+    <text class="more">全部好物</text>
+  </view>
+
+  <view class="goods-grid">
+    <view class="goods-item" wx:for="{{goods}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
+      <view class="goods-pic">
+        <image wx:if="{{item.cover}}" src="{{imgBase}}{{item.cover}}" mode="aspectFill" class="goods-img" />
+        <text wx:else>🛍️</text>
+      </view>
+      <view class="goods-name">{{item.name}}</view>
+      <view class="goods-foot">
+        <text class="price">¥ {{item.price}}</text>
+        <text class="goods-sales">已售{{item.sales}}</text>
+      </view>
+    </view>
+  </view>
+  <view wx:if="{{goods.length===0}}" class="empty">暂无商品</view>
+</view>

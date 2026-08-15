@@ -1,0 +1,29 @@
+<view class="page">
+  <view class="card">
+    <view class="field">
+      <text class="label">需要什么帮助</text>
+      <input placeholder="例如：帮取东门快递 3 件" value="{{title}}" bindinput="onTitle" />
+    </view>
+    <view class="field">
+      <text class="label">取件地点</text>
+      <input placeholder="请输入起点" value="{{fromPlace}}" bindinput="onFrom" />
+    </view>
+    <view class="field">
+      <text class="label">送达地点</text>
+      <input placeholder="请输入终点" value="{{toPlace}}" bindinput="onTo" />
+    </view>
+    <view class="field">
+      <text class="label">完成时间要求</text>
+      <input placeholder="例如：40 分钟内" value="{{finishTime}}" bindinput="onTime" />
+    </view>
+    <view class="field">
+      <text class="label">赏金（元）</text>
+      <input type="number" placeholder="请输入赏金金额" value="{{fee}}" bindinput="onFee" />
+    </view>
+    <view class="field">
+      <text class="label">补充说明</text>
+      <textarea placeholder="物品信息等" value="{{content}}" bindinput="onContent" />
+    </view>
+    <button class="primary" bindtap="publish">确认发单</button>
+  </view>
+</view>

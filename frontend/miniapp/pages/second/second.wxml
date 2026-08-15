@@ -1,0 +1,24 @@
+<view class="page">
+  <view wx:if="{{mode!=='my'}}" class="search-row">
+    <input class="search-input" placeholder="搜索二手好物" value="{{keyword}}" bindinput="onInput" bindconfirm="search" />
+    <button class="search-btn" bindtap="search">搜索</button>
+  </view>
+
+  <view class="goods-grid">
+    <view class="goods-item" wx:for="{{list}}" wx:key="id" bindtap="contact" data-item="{{item}}">
+      <view class="goods-pic">
+        <image wx:if="{{item.firstImg}}" src="{{imgBase}}{{item.firstImg}}" mode="aspectFill" class="goods-img" />
+        <text wx:else>📦</text>
+      </view>
+      <view class="goods-name">{{item.name}}</view>
+      <view class="goods-cond">{{item.conditionDesc}}</view>
+      <view class="goods-foot">
+        <text class="price">¥ {{item.price}}</text>
+        <text wx:if="{{mode==='my'}}" class="status-tag">{{item.status===1?'在售':item.status===0?'待审核':'已下架'}}</text>
+      </view>
+    </view>
+  </view>
+  <view wx:if="{{list.length===0}}" class="empty">暂无二手商品</view>
+
+  <button wx:if="{{mode!=='my'}}" class="fab" bindtap="goPublish">＋</button>
+</view>

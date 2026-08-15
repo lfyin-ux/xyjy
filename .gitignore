@@ -1,0 +1,28 @@
+# 依赖目录
+node_modules/
+**/node_modules/
+
+# 前端构建产物
+frontend/admin/dist/
+dist/
+
+# 后端构建产物
+backend/target/
+**/target/
+
+# 用户上传文件 保留目录说明 忽略实际上传内容
+uploads/**
+!uploads/readme.txt
+
+# IDE 与系统文件
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
+
+# Python 缓存
+__pycache__/
+*.pyc

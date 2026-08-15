@@ -1,0 +1,49 @@
+<wxs module="fmt">
+function statusText(s) {
+  var map = { '1': '招募中', '2': '已满员', '3': '已结束' }
+  return map[s] || ''
+}
+module.exports = { statusText: statusText }
+</wxs>
+
+<view class="page">
+  <view class="team" wx:for="{{teams}}" wx:key="id">
+    <view class="team-head">
+      <text class="team-name">🎮 {{item.gameName}}</text>
+      <text class="status-tag {{item.status===1?'on':''}}">{{fmt.statusText(item.status)}}</text>
+    </view>
+    <view class="team-info">时间：{{item.playTime}}</view>
+    <view class="team-info">要求：{{item.requireDesc}}</view>
+    <view class="team-foot">
+      <text class="team-num">{{item.joinedNum}} / {{item.needNum}} 人</text>
+      <button wx:if="{{item.status===1}}" class="join-btn" bindtap="join" data-id="{{item.id}}">申请加入</button>
+    </view>
+  </view>
+  <view wx:if="{{teams.length===0}}" class="empty">暂无组局，发起一个吧</view>
+
+  <button class="fab" bindtap="openCreate">＋</button>
+
+  <!-- 发起组局弹窗 -->
+  <view wx:if="{{showCreate}}" class="mask" bindtap="closeCreate">
+    <view class="dialog" catchtap="noop">
+      <view class="dialog-title">发起新组局</view>
+      <view class="field">
+        <text class="label">游戏名称</text>
+        <input placeholder="如 王者荣耀" value="{{gameName}}" bindinput="onName" />
+      </view>
+      <view class="field">
+        <text class="label">时间</text>
+        <input placeholder="如 今晚 20:00" value="{{playTime}}" bindinput="onTime" />
+      </view>
+      <view class="field">
+        <text class="label">需要人数</text>
+        <input type="number" placeholder="如 5" value="{{needNum}}" bindinput="onNum" />
+      </view>
+      <view class="field">
+        <text class="label">参与要求</text>
+        <input placeholder="如 有麦，钻石以上" value="{{requireDesc}}" bindinput="onReq" />
+      </view>
+      <button class="primary" bindtap="create">确认发起</button>
+    </view>
+  </view>
+</view>

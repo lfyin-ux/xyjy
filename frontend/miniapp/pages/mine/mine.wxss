@@ -1,0 +1,139 @@
+.auth-banner {
+  margin: 0 32rpx 28rpx;
+  padding: 32rpx;
+  background: #fff5e6;
+  border: 2rpx solid #ffe0ad;
+  border-radius: 44rpx;
+  display: flex;
+  gap: 24rpx;
+  align-items: center;
+}
+
+.auth-icon {
+  font-size: 60rpx;
+}
+
+.auth-banner-main {
+  flex: 1;
+}
+
+.auth-banner-title {
+  font-weight: 800;
+  font-size: 30rpx;
+}
+
+.auth-banner-sub {
+  margin-top: 8rpx;
+  color: #9a6a23;
+  font-size: 24rpx;
+}
+
+.auth-arrow {
+  color: #d0a668;
+  font-size: 40rpx;
+}
+
+.profile-top {
+  margin: 0 32rpx 28rpx;
+  padding: 40rpx;
+  background: linear-gradient(145deg, #2b2548, #6951be);
+  border-radius: 56rpx;
+  color: #fff;
+}
+
+.profile-user {
+  display: flex;
+  gap: 28rpx;
+  align-items: center;
+}
+
+.profile-avatar {
+  width: 136rpx;
+  height: 136rpx;
+  border-radius: 46rpx;
+  background: linear-gradient(145deg, #ffd5d2, #9c88e9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 78rpx;
+  border: 6rpx solid #fff;
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+}
+
+.profile-name {
+  font-size: 40rpx;
+  font-weight: 800;
+}
+
+.profile-gender {
+  font-size: 26rpx;
+  color: #d5d0ec;
+  font-weight: 400;
+}
+
+.profile-auth {
+  margin-top: 10rpx;
+  color: #d5d0ec;
+  font-size: 24rpx;
+}
+
+.stats {
+  display: flex;
+  margin-top: 40rpx;
+  padding-top: 34rpx;
+  border-top: 2rpx solid rgba(255, 255, 255, 0.14);
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-num {
+  font-size: 40rpx;
+  font-weight: 800;
+}
+
+.stat-label {
+  font-size: 22rpx;
+  color: #d7d2e9;
+  margin-top: 6rpx;
+}
+
+.menu {
+  margin: 0 32rpx 28rpx;
+  background: #fff;
+  border-radius: 50rpx;
+  padding: 14rpx 32rpx;
+}
+
+.menu-row {
+  padding: 30rpx 4rpx;
+  display: flex;
+  align-items: center;
+  border-bottom: 2rpx solid var(--line);
+}
+
+.menu-row:last-child {
+  border-bottom: 0;
+}
+
+.menu-icon {
+  font-size: 42rpx;
+  width: 74rpx;
+}
+
+.menu-name {
+  font-size: 30rpx;
+  flex: 1;
+}
+
+.menu-val {
+  color: #b1aebd;
+  font-size: 26rpx;
+}

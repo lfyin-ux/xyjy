@@ -1,0 +1,106 @@
+.page {
+  padding: 32rpx;
+}
+
+.team {
+  background: #fff;
+  border-radius: 44rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+.team-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team-name {
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.status-tag {
+  background: #f0f0f5;
+  color: var(--muted);
+  font-size: 22rpx;
+  padding: 8rpx 18rpx;
+  border-radius: 20rpx;
+}
+
+.status-tag.on {
+  background: #edebff;
+  color: var(--purple);
+}
+
+.team-info {
+  color: var(--muted);
+  font-size: 26rpx;
+  margin-top: 12rpx;
+}
+
+.team-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20rpx;
+}
+
+.team-num {
+  color: var(--purple);
+  font-weight: 700;
+  font-size: 28rpx;
+}
+
+.join-btn {
+  border: 0;
+  border-radius: 24rpx;
+  padding: 0 30rpx;
+  background: var(--purple);
+  color: #fff;
+  font-size: 26rpx;
+  line-height: 68rpx;
+  margin: 0;
+}
+
+.fab {
+  position: fixed;
+  right: 40rpx;
+  bottom: 60rpx;
+  width: 108rpx;
+  height: 108rpx;
+  border-radius: 40rpx;
+  background: var(--purple);
+  color: #fff;
+  font-size: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 20rpx 50rpx rgba(108, 92, 231, 0.4);
+  padding: 0;
+  line-height: 1;
+}
+
+.mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.dialog {
+  width: 620rpx;
+  background: #fff;
+  border-radius: 40rpx;
+  padding: 40rpx;
+}
+
+.dialog-title {
+  font-size: 34rpx;
+  font-weight: 800;
+  margin-bottom: 24rpx;
+  text-align: center;
+}

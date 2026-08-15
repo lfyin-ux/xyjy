@@ -1,0 +1,25 @@
+<view class="page">
+  <view class="top">
+    <view class="brand">聊天<i>消息</i></view>
+    <button class="icon-btn" bindtap="noop">⌕</button>
+  </view>
+
+  <view class="chat-list">
+    <view class="chat-row" wx:for="{{sessions}}" wx:key="id" bindtap="openChat" data-item="{{item}}">
+      <view class="chat-avatar">
+        <image wx:if="{{item.other.avatar}}" src="{{imgBase}}{{item.other.avatar}}" mode="aspectFill" class="avatar-img" />
+        <text wx:else>🧑</text>
+        <text wx:if="{{item.unread>0}}" class="unread">{{item.unread}}</text>
+      </view>
+      <view class="chat-main">
+        <view class="chat-line">
+          <text class="chat-name">{{item.other.nickname}}</text>
+          <text class="chat-time">{{item.timeText}}</text>
+        </view>
+        <view class="chat-last">{{item.session.lastMsg}}</view>
+      </view>
+      <text class="status {{item.session.locked?'':'ok'}}">{{item.session.locked?'待回复':'可聊天'}}</text>
+    </view>
+    <view wx:if="{{sessions.length===0}}" class="empty">还没有聊天，去匹配认识新朋友吧</view>
+  </view>
+</view>

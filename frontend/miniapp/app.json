@@ -1,0 +1,47 @@
+{
+  "pages": [
+    "pages/match/match",
+    "pages/life/life",
+    "pages/mall/mall",
+    "pages/chat/chat",
+    "pages/mine/mine",
+    "pages/auth/auth",
+    "pages/personal-auth/personal-auth",
+    "pages/school-auth/school-auth",
+    "pages/profile/profile",
+    "pages/chat-detail/chat-detail",
+    "pages/post-publish/post-publish",
+    "pages/post-detail/post-detail",
+    "pages/errand/errand",
+    "pages/errand-publish/errand-publish",
+    "pages/second/second",
+    "pages/second-publish/second-publish",
+    "pages/game/game",
+    "pages/goods-detail/goods-detail",
+    "pages/cart/cart",
+    "pages/order-list/order-list",
+    "pages/edit-profile/edit-profile"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#f6f6fa",
+    "navigationBarTitleText": "碰个面",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f6f6fa"
+  },
+  "tabBar": {
+    "color": "#bbb9c4",
+    "selectedColor": "#171527",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/match/match", "text": "遇见" },
+      { "pagePath": "pages/life/life", "text": "生活" },
+      { "pagePath": "pages/mall/mall", "text": "商城" },
+      { "pagePath": "pages/chat/chat", "text": "聊天" },
+      { "pagePath": "pages/mine/mine", "text": "我的" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

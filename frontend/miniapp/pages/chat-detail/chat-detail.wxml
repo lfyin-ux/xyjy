@@ -1,0 +1,12 @@
+<view class="chat-page">
+  <scroll-view scroll-y class="chat-box" scroll-into-view="msg-{{lastId}}">
+    <view wx:if="{{locked}}" class="chat-note">对方向你打了招呼；你回复后，对方才能继续发送</view>
+    <view wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}"
+      class="bubble {{item.fromId===myId?'me':''}}">{{item.content}}</view>
+  </scroll-view>
+
+  <view class="chat-input">
+    <input placeholder="说点什么…" value="{{text}}" bindinput="onInput" confirm-type="send" bindconfirm="send" />
+    <button class="send-btn" bindtap="send">发送</button>
+  </view>
+</view>

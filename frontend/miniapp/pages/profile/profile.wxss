@@ -1,0 +1,108 @@
+.page {
+  padding: 32rpx;
+}
+
+.big-profile {
+  text-align: center;
+  padding: 50rpx;
+  background: linear-gradient(145deg, #2d274d, #6c5ce7);
+  color: #fff;
+  border-radius: 54rpx;
+  margin-bottom: 28rpx;
+}
+
+.face {
+  width: 180rpx;
+  height: 180rpx;
+  margin: 0 auto;
+  border-radius: 60rpx;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 120rpx;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.face-img {
+  width: 100%;
+  height: 100%;
+}
+
+.big-name {
+  font-size: 44rpx;
+  font-weight: 800;
+  margin: 20rpx 0 10rpx;
+}
+
+.big-school {
+  font-size: 26rpx;
+  color: #d8d3ee;
+  margin-bottom: 20rpx;
+}
+
+.chips-center {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.chips-center .chip {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  margin-bottom: 16rpx;
+}
+
+.intro {
+  font-size: 28rpx;
+  line-height: 1.7;
+  color: #555;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  background: #fff;
+  border-radius: 40rpx;
+  padding: 26rpx;
+  margin-bottom: 20rpx;
+}
+
+.user-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 32rpx;
+  background: #eeeaff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52rpx;
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+}
+
+.user-name {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.user-sub {
+  color: var(--muted);
+  font-size: 24rpx;
+  margin-top: 8rpx;
+}

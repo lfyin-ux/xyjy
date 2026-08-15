@@ -1,0 +1,108 @@
+<view class="page">
+  <view class="top">
+    <view class="brand">我的<i>空间</i></view>
+    <button class="icon-btn" bindtap="noop">⚙</button>
+  </view>
+
+  <!-- 认证提示条 未双认证时显示 -->
+  <view wx:if="{{!fullAccess}}" class="auth-banner" bindtap="goAuth">
+    <text class="auth-icon">🛡️</text>
+    <view class="auth-banner-main">
+      <view class="auth-banner-title">完成认证后解锁全部功能</view>
+      <view class="auth-banner-sub">{{authSummary}}</view>
+    </view>
+    <text class="auth-arrow">›</text>
+  </view>
+
+  <!-- 个人卡片 -->
+  <view class="profile-top">
+    <view class="profile-user">
+      <view class="profile-avatar">
+        <image wx:if="{{user.avatar}}" src="{{imgBase}}{{user.avatar}}" mode="aspectFill" class="avatar-img" />
+        <text wx:else>🧑‍🎓</text>
+      </view>
+      <view>
+        <view class="profile-name">{{user.nickname}} <text class="profile-gender">{{genderText}} {{user.age}}</text></view>
+        <view class="profile-auth">{{fullAccess ? user.school + ' · 双认证已通过 ✓' : '账号已注册 · 待完成认证'}}</view>
+      </view>
+    </view>
+    <view class="stats">
+      <view class="stat-item">
+        <view class="stat-num">{{likeMeCount}}</view>
+        <view class="stat-label">喜欢我的</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-num">{{matchCount}}</view>
+        <view class="stat-label">我的匹配</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-num">{{visitorCount}}</view>
+        <view class="stat-label">主页访客</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="menu">
+    <view class="menu-row" bindtap="goAuth">
+      <text class="menu-icon">🛡️</text>
+      <text class="menu-name">认证中心</text>
+      <text class="menu-val">{{fullAccess ? '已认证 ✓' : '待认证'}} ›</text>
+    </view>
+    <view class="menu-row" bindtap="goEditProfile">
+      <text class="menu-icon">🪪</text>
+      <text class="menu-name">编辑个人资料</text>
+      <text class="menu-val">›</text>
+    </view>
+    <view class="menu-row" bindtap="goChat">
+      <text class="menu-icon">💬</text>
+      <text class="menu-name">我的聊天</text>
+      <text class="menu-val">›</text>
+    </view>
+    <view class="menu-row" bindtap="goWhoLikesMe">
+      <text class="menu-icon">💜</text>
+      <text class="menu-name">谁喜欢我</text>
+      <text class="menu-val">{{likeMeCount}} ›</text>
+    </view>
+    <view class="menu-row" bindtap="goVisitors">
+      <text class="menu-icon">👀</text>
+      <text class="menu-name">我的访客</text>
+      <text class="menu-val">{{visitorCount}} ›</text>
+    </view>
+  </view>
+
+  <view class="menu">
+    <view class="menu-row" bindtap="goMyPosts">
+      <text class="menu-icon">📝</text>
+      <text class="menu-name">我的动态</text>
+      <text class="menu-val">›</text>
+    </view>
+    <view class="menu-row" bindtap="goMyErrand">
+      <text class="menu-icon">🏃</text>
+      <text class="menu-name">我的跑腿订单</text>
+      <text class="menu-val">›</text>
+    </view>
+    <view class="menu-row" bindtap="goMySecond">
+      <text class="menu-icon">♻️</text>
+      <text class="menu-name">我的二手商品</text>
+      <text class="menu-val">›</text>
+    </view>
+    <view class="menu-row" bindtap="goOrders">
+      <text class="menu-icon">🛍️</text>
+      <text class="menu-name">我的商城订单</text>
+      <text class="menu-val">›</text>
+    </view>
+  </view>
+
+  <view class="menu">
+    <view class="menu-row" bindtap="goBlacklist">
+      <text class="menu-icon">🚫</text>
+      <text class="menu-name">黑名单管理</text>
+      <text class="menu-val">›</text>
+    </view>
+    <view class="menu-row" bindtap="feedback">
+      <text class="menu-icon">💡</text>
+      <text class="menu-name">意见反馈</text>
+      <text class="menu-val">›</text>
+    </view>
+  </view>
+</view>

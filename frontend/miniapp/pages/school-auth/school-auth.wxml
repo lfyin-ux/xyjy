@@ -1,0 +1,41 @@
+<view class="page">
+  <view class="notice">学校认证决定你所属的校园社区。审核通过后，只能查看和联系本校用户。</view>
+
+  <view class="card">
+    <view class="field">
+      <text class="label">学校名称</text>
+      <input placeholder="请输入学校全称" value="{{schoolName}}" bindinput="onSchool" />
+    </view>
+    <view class="field">
+      <text class="label">证明材料类型</text>
+      <picker range="{{docTypes}}" bindchange="onDocType">
+        <view class="picker-val">{{docType}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <text class="label">院系</text>
+      <input placeholder="请输入院系" value="{{college}}" bindinput="onCollege" />
+    </view>
+    <view class="field">
+      <text class="label">学号</text>
+      <input placeholder="请输入学号" value="{{studentNo}}" bindinput="onStudentNo" />
+    </view>
+
+    <view class="upload {{docImg?'has':''}}" bindtap="uploadDoc">
+      <block wx:if="{{docImg}}">
+        <image src="{{imgBase}}{{docImg}}" mode="aspectFill" class="upload-img" />
+      </block>
+      <block wx:else>
+        <view class="upload-icon">📄</view>
+        <text>上传学校证明材料照片</text>
+      </block>
+    </view>
+
+    <view class="field">
+      <text class="label">补充说明（选填）</text>
+      <textarea placeholder="可填写年级等辅助审核信息" value="{{remark}}" bindinput="onRemark" />
+    </view>
+
+    <button class="primary" bindtap="submit">提交学校认证审核</button>
+  </view>
+</view>

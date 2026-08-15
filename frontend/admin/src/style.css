@@ -1,0 +1,59 @@
+/* 管理后台全局样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #app {
+  height: 100%;
+}
+
+body {
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f0f2f5;
+  color: #303133;
+}
+
+.page-container {
+  padding: 16px;
+}
+
+.search-bar {
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.table-card {
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.pagination-wrap {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 数据统计卡片 */
+.stat-card {
+  border-radius: 12px;
+  color: #fff;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card .num {
+  font-size: 30px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.stat-card .label {
+  font-size: 14px;
+  opacity: 0.92;
+}

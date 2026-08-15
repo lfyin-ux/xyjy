@@ -1,0 +1,49 @@
+<view class="page">
+  <view class="card">
+    <view class="avatar-row" bindtap="uploadAvatar">
+      <view class="avatar-box">
+        <image wx:if="{{form.avatar}}" src="{{imgBase}}{{form.avatar}}" mode="aspectFill" class="avatar-img" />
+        <text wx:else>🧑‍🎓</text>
+      </view>
+      <text class="avatar-tip">点击更换头像</text>
+    </view>
+
+    <view class="field">
+      <text class="label">昵称</text>
+      <input placeholder="请输入昵称" value="{{form.nickname}}" bindinput="onNickname" />
+    </view>
+    <view class="field">
+      <text class="label">性别</text>
+      <radio-group bindchange="onGender">
+        <label class="radio"><radio value="1" checked="{{form.gender===1}}" />男</label>
+        <label class="radio"><radio value="2" checked="{{form.gender===2}}" />女</label>
+      </radio-group>
+    </view>
+    <view class="field">
+      <text class="label">年龄</text>
+      <input type="number" placeholder="请输入年龄" value="{{form.age}}" bindinput="onAge" />
+    </view>
+    <view class="field">
+      <text class="label">身高（cm）</text>
+      <input type="number" placeholder="请输入身高" value="{{form.height}}" bindinput="onHeight" />
+    </view>
+    <view class="field">
+      <text class="label">个人简介</text>
+      <textarea placeholder="介绍一下自己吧" value="{{form.intro}}" bindinput="onIntro" />
+    </view>
+    <view class="field">
+      <text class="label">兴趣标签（逗号分隔）</text>
+      <input placeholder="如 摄影,音乐,运动" value="{{form.tags}}" bindinput="onTags" />
+    </view>
+    <view class="field">
+      <text class="label">搭子类型</text>
+      <input placeholder="如 运动搭子,学习搭子" value="{{form.partnerType}}" bindinput="onPartner" />
+    </view>
+    <view class="field">
+      <text class="label">交友期待</text>
+      <input placeholder="如 认真交友" value="{{form.expect}}" bindinput="onExpect" />
+    </view>
+
+    <button class="primary" bindtap="save">保存资料</button>
+  </view>
+</view>

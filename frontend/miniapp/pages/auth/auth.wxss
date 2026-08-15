@@ -1,0 +1,100 @@
+.page {
+  padding: 32rpx;
+}
+
+.notice {
+  padding: 24rpx 28rpx;
+  border-radius: 30rpx;
+  background: #f3f1ff;
+  color: #625a91;
+  font-size: 24rpx;
+  line-height: 1.6;
+  margin-bottom: 28rpx;
+}
+
+.auth-steps {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 28rpx;
+}
+
+.auth-step {
+  flex: 1;
+  background: #fff;
+  border: 2rpx solid var(--line);
+  border-radius: 40rpx;
+  padding: 28rpx;
+}
+
+.auth-step.done {
+  border-color: #a8e8c5;
+  background: #f1fff7;
+}
+
+.auth-step.pending {
+  border-color: #ffe0ad;
+  background: #fffaf0;
+}
+
+.step-title {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.step-status {
+  color: var(--muted);
+  margin-top: 10rpx;
+  font-size: 24rpx;
+}
+
+.row-item {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 26rpx 0;
+  border-bottom: 2rpx solid var(--line);
+}
+
+.row-item:last-child {
+  border-bottom: 0;
+}
+
+.row-icon {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 32rpx;
+  background: #eeeaff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52rpx;
+}
+
+.row-main {
+  flex: 1;
+}
+
+.row-name {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.row-sub {
+  color: var(--muted);
+  font-size: 24rpx;
+  margin-top: 6rpx;
+}
+
+.pill {
+  font-size: 22rpx;
+  background: #eeeaff;
+  color: var(--purple);
+  padding: 10rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.reject-tip {
+  color: var(--pink);
+  font-size: 24rpx;
+  padding: 16rpx 8rpx;
+}

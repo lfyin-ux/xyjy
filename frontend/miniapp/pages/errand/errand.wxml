@@ -1,0 +1,49 @@
+<wxs module="fmt">
+function statusText(s) {
+  var map = { '1': '待接单', '2': '进行中', '3': '已完成', '4': '已取消' }
+  return map[s] || ''
+}
+module.exports = { statusText: statusText }
+</wxs>
+
+<view class="page">
+  <view class="dual">
+    <view class="mode-btn {{mode==='take'?'active':''}}" bindtap="switchMode" data-m="take">我要接单</view>
+    <view class="mode-btn {{mode==='mine'?'active':''}}" bindtap="switchMode" data-m="mine">我的订单</view>
+  </view>
+
+  <!-- 可接单 -->
+  <block wx:if="{{mode==='take'}}">
+    <view class="task" wx:for="{{tasks}}" wx:key="id">
+      <view class="task-head">
+        <text class="task-title">{{item.title}}</text>
+        <text class="price">¥ {{item.fee}}</text>
+      </view>
+      <view class="task-route">{{item.fromPlace}} → {{item.toPlace}}</view>
+      <view class="task-time">{{item.finishTime}}</view>
+      <view class="task-foot">
+        <text class="task-sub">发布于刚刚</text>
+        <button class="accept" bindtap="accept" data-id="{{item.id}}">立即接单</button>
+      </view>
+    </view>
+    <view wx:if="{{tasks.length===0}}" class="empty">本校暂无可接订单</view>
+    <button class="fab" bindtap="goPublish">＋</button>
+  </block>
+
+  <!-- 我的订单 -->
+  <block wx:else>
+    <view class="task" wx:for="{{myTasks}}" wx:key="id">
+      <view class="task-head">
+        <text class="task-title">{{item.title}}</text>
+        <text class="status-tag">{{fmt.statusText(item.status)}}</text>
+      </view>
+      <view class="task-route">{{item.fromPlace}} → {{item.toPlace}}</view>
+      <view class="task-foot">
+        <text class="price">¥ {{item.fee}}</text>
+        <button wx:if="{{item.status===1}}" class="accept" bindtap="cancel" data-id="{{item.id}}">取消订单</button>
+        <button wx:elif="{{item.status===2}}" class="accept" bindtap="finish" data-id="{{item.id}}">确认完成</button>
+      </view>
+    </view>
+    <view wx:if="{{myTasks.length===0}}" class="empty">你还没有发布订单</view>
+  </block>
+</view>

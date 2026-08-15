@@ -1,0 +1,61 @@
+.page {
+  padding: 32rpx;
+}
+
+.notice {
+  padding: 24rpx 28rpx;
+  border-radius: 30rpx;
+  background: #f3f1ff;
+  color: #625a91;
+  font-size: 24rpx;
+  line-height: 1.6;
+  margin-bottom: 28rpx;
+}
+
+.sms-row {
+  display: flex;
+  gap: 16rpx;
+}
+
+.sms-row input {
+  flex: 1;
+}
+
+.sms-btn {
+  border: 0;
+  border-radius: 26rpx;
+  background: #eeeaff;
+  color: var(--purple);
+  padding: 0 24rpx;
+  font-size: 26rpx;
+  line-height: 90rpx;
+  margin: 0;
+}
+
+.upload {
+  border: 3rpx dashed #c9c5dd;
+  border-radius: 34rpx;
+  padding: 40rpx;
+  text-align: center;
+  background: #fafafd;
+  color: #6d687d;
+  margin-bottom: 24rpx;
+  font-size: 28rpx;
+}
+
+.upload.has {
+  border-style: solid;
+  border-color: var(--purple);
+  padding: 0;
+  overflow: hidden;
+}
+
+.upload-icon {
+  font-size: 62rpx;
+  margin-bottom: 10rpx;
+}
+
+.upload-img {
+  width: 100%;
+  height: 320rpx;
+}

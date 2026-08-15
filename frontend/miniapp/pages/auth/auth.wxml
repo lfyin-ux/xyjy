@@ -1,0 +1,36 @@
+<view class="page">
+  <view class="notice">两项认证均由后台人工审核。只有个人认证与学校认证全部通过后，匹配、动态、校园生活、商城和聊天才会解锁。</view>
+
+  <view class="auth-steps">
+    <view class="auth-step {{personalStatus===2?'done':personalStatus===1?'pending':''}}">
+      <view class="step-title">① 个人认证</view>
+      <view class="step-status">{{personalText}}</view>
+    </view>
+    <view class="auth-step {{schoolStatus===2?'done':schoolStatus===1?'pending':''}}">
+      <view class="step-title">② 学校认证</view>
+      <view class="step-status">{{schoolText}}</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="row-item" bindtap="goPersonal">
+      <view class="row-icon">🪪</view>
+      <view class="row-main">
+        <view class="row-name">个人身份认证</view>
+        <view class="row-sub">手机验证码、身份证人像面与国徽面</view>
+      </view>
+      <text class="pill">{{personalText}}</text>
+    </view>
+    <view class="row-item" bindtap="goSchool">
+      <view class="row-icon">🎓</view>
+      <view class="row-main">
+        <view class="row-name">学校身份认证</view>
+        <view class="row-sub">填写学校并上传有效证明材料</view>
+      </view>
+      <text class="pill">{{schoolText}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{personalReject}}" class="reject-tip">个人认证驳回原因：{{personalReject}}</view>
+  <view wx:if="{{schoolReject}}" class="reject-tip">学校认证驳回原因：{{schoolReject}}</view>
+</view>

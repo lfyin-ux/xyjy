@@ -1,0 +1,170 @@
+package com.xyjy.controller;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.xyjy.common.BusinessException;
+import com.xyjy.common.Result;
+import com.xyjy.entity.AppUser;
+import com.xyjy.entity.ChatMessage;
+import com.xyjy.entity.ChatSession;
+import com.xyjy.mapper.AppUserMapper;
+import com.xyjy.mapper.ChatMessageMapper;
+import com.xyjy.mapper.ChatSessionMapper;
+import com.xyjy.service.FilterService;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * 用户端 即时聊天接口
+ */
+@RestController
+@RequestMapping("/chat")
+public class ChatController {
+
+    @Resource
+    private ChatSessionMapper chatSessionMapper;
+    @Resource
+    private ChatMessageMapper chatMessageMapper;
+    @Resource
+    private AppUserMapper appUserMapper;
+    @Resource
+    private FilterService filterService;
+
+    /**
+     * 会话列表
+     */
+    @GetMapping("/sessions/{userId}")
+    public Result<List<Map<String, Object>>> sessions(@PathVariable Long userId) {
+        List<ChatSession> list = chatSessionMapper.selectList(new LambdaQueryWrapper<ChatSession>()
+                .eq(ChatSession::getStatus, 1)
+                .and(w -> w.eq(ChatSession::getUserA, userId).or().eq(ChatSession::getUserB, userId))
+                .orderByDesc(ChatSession::getLastTime));
+        List<Map<String, Object>> vos = list.stream().map(s -> {
+            Map<String, Object> map = new HashMap<>();
+            Long otherId = s.getUserA().equals(userId) ? s.getUserB() : s.getUserA();
+            AppUser other = appUserMapper.selectById(otherId);
+            map.put("session", s);
+            map.put("other", other);
+            // 未读数
+            Long unread = chatMessageMapper.selectCount(new LambdaQueryWrapper<ChatMessage>()
+                    .eq(ChatMessage::getSessionId, s.getId())
+                    .eq(ChatMessage::getToId, userId)
+                    .eq(ChatMessage::getIsRead, 0));
+            map.put("unread", unread);
+            return map;
+        }).collect(Collectors.toList());
+        return Result.success(vos);
+    }
+
+    /**
+     * 会话消息记录 并将对方发来的消息标记已读
+     */
+    @GetMapping("/messages/{sessionId}")
+    public Result<List<ChatMessage>> messages(@PathVariable Long sessionId, @RequestParam Long userId) {
+        List<ChatMessage> list = chatMessageMapper.selectList(new LambdaQueryWrapper<ChatMessage>()
+                .eq(ChatMessage::getSessionId, sessionId).orderByAsc(ChatMessage::getCreateTime));
+        // 标记已读
+        list.stream().filter(m -> m.getToId().equals(userId) && m.getIsRead() == 0).forEach(m -> {
+            m.setIsRead(1);
+            chatMessageMapper.updateById(m);
+        });
+        return Result.success(list);
+    }
+
+    /**
+     * 发送消息 敏感词过滤与准入规则校验
+     */
+    @PostMapping("/send")
+    public Result<ChatMessage> send(@RequestBody ChatMessage msg) {
+        if (msg.getSessionId() == null || msg.getFromId() == null) {
+            throw new BusinessException("参数缺失");
+        }
+        ChatSession session = chatSessionMapper.selectById(msg.getSessionId());
+        if (session == null) {
+            throw new BusinessException("会话不存在");
+        }
+        // 账号限制发言校验
+        AppUser sender = appUserMapper.selectById(msg.getFromId());
+        if (sender != null && sender.getStatus() != null && sender.getStatus() != 1) {
+            throw new BusinessException("账号已被限制发言");
+        }
+        // 敏感词过滤
+        FilterService.FilterResult fr = filterService.check(msg.getContent(), "聊天", msg.getFromId());
+        if (fr.level == 2) {
+            throw new BusinessException(fr.tip);
+        }
+        // 准入规则 会话锁定时 发起方在对方回复前不能继续发送
+        if (session.getLocked() != null && session.getLocked() == 1) {
+            if (session.getInitiator() != null && session.getInitiator().equals(msg.getFromId())) {
+                throw new BusinessException("对方回复前不能继续发送消息");
+            } else {
+                // 接收方回复 解除锁定
+                session.setLocked(0);
+            }
+        }
+        // 确定接收方
+        Long toId = session.getUserA().equals(msg.getFromId()) ? session.getUserB() : session.getUserA();
+        msg.setToId(toId);
+        if (msg.getMsgType() == null) {
+            msg.setMsgType(1);
+        }
+        msg.setIsRead(0);
+        chatMessageMapper.insert(msg);
+        // 更新会话
+        session.setLastMsg(msg.getContent());
+        session.setLastTime(LocalDateTime.now());
+        chatSessionMapper.updateById(session);
+        return Result.success(msg);
+    }
+
+    /**
+     * 打招呼 首次创建会话 会话锁定待对方回复
+     */
+    @PostMapping("/hello")
+    public Result<ChatSession> hello(@RequestParam Long fromId, @RequestParam Long toId,
+                                     @RequestParam String content) {
+        // 查询是否已有会话
+        ChatSession session = chatSessionMapper.selectOne(new LambdaQueryWrapper<ChatSession>()
+                .and(w -> w.eq(ChatSession::getUserA, fromId).eq(ChatSession::getUserB, toId))
+                .or(w -> w.eq(ChatSession::getUserA, toId).eq(ChatSession::getUserB, fromId)));
+        if (session == null) {
+            session = new ChatSession();
+            session.setUserA(fromId);
+            session.setUserB(toId);
+            session.setLocked(1);
+            session.setInitiator(fromId);
+            session.setStatus(1);
+            session.setLastMsg(content);
+            session.setLastTime(LocalDateTime.now());
+            chatSessionMapper.insert(session);
+            // 首条消息
+            ChatMessage msg = new ChatMessage();
+            msg.setSessionId(session.getId());
+            msg.setFromId(fromId);
+            msg.setToId(toId);
+            msg.setMsgType(1);
+            msg.setContent(content);
+            msg.setIsRead(0);
+            chatMessageMapper.insert(msg);
+        }
+        return Result.success(session);
+    }
+
+    /**
+     * 删除会话
+     */
+    @DeleteMapping("/session/{id}")
+    public Result<Void> deleteSession(@PathVariable Long id) {
+        ChatSession session = chatSessionMapper.selectById(id);
+        if (session != null) {
+            session.setStatus(0);
+            chatSessionMapper.updateById(session);
+        }
+        return Result.success();
+    }
+}

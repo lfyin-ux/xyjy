@@ -1,0 +1,62 @@
+<view class="page">
+  <view class="top">
+    <view class="brand">校园<i>生活</i></view>
+    <button class="icon-btn" bindtap="noop">⌕</button>
+  </view>
+
+  <view class="banner">
+    <view class="banner-title">今天，需要帮忙吗？</view>
+    <view class="banner-sub">同校同学互助，让生活的小事更简单</view>
+    <view class="banner-emoji">🛵</view>
+  </view>
+
+  <view class="service-grid">
+    <view class="service" bindtap="goErrand">
+      <view class="service-icon">🏃</view>
+      <view class="service-name">校园跑腿</view>
+    </view>
+    <view class="service" bindtap="goSecond">
+      <view class="service-icon">♻️</view>
+      <view class="service-name">二手市场</view>
+    </view>
+    <view class="service" bindtap="goGame">
+      <view class="service-icon">🎮</view>
+      <view class="service-name">游戏组局</view>
+    </view>
+    <view class="service" bindtap="noop">
+      <view class="service-icon">✨</view>
+      <view class="service-name">更多服务</view>
+    </view>
+  </view>
+
+  <view class="section-title">
+    <h2>本校新鲜事</h2>
+    <text class="more" bindtap="goSecond">查看全部 →</text>
+  </view>
+
+  <view class="list-card" wx:for="{{goods}}" wx:key="id" bindtap="goSecond">
+    <view class="list-pic">
+      <image wx:if="{{item.images}}" src="{{imgBase}}{{item.firstImg}}" mode="aspectFill" class="list-img" />
+      <text wx:else>🎁</text>
+    </view>
+    <view class="list-main">
+      <view class="list-name">{{item.name}}</view>
+      <view class="list-sub">{{item.conditionDesc}} · 可当面验货</view>
+      <text class="price">¥ {{item.price}}</text>
+    </view>
+  </view>
+
+  <view class="section-title">
+    <h2>待接跑腿</h2>
+    <text class="more" bindtap="goErrand">全部订单 →</text>
+  </view>
+
+  <view class="list-card" wx:for="{{tasks}}" wx:key="id" bindtap="goErrand">
+    <view class="list-pic">📦</view>
+    <view class="list-main">
+      <view class="list-name">{{item.title}}</view>
+      <view class="list-sub">{{item.fromPlace}} → {{item.toPlace}} · {{item.finishTime}}</view>
+      <text class="price">赏金 ¥ {{item.fee}}</text>
+    </view>
+  </view>
+</view>
