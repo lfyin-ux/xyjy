@@ -4,6 +4,17 @@
     <button class="icon-btn cart-btn" bindtap="goCart">🛒<text wx:if="{{cartCount>0}}" class="cart-badge">{{cartCount}}</text></button>
   </view>
 
+  <block wx:if="{{locked}}">
+    <view class="gate">
+      <view class="gate-icon">🔐</view>
+      <view class="gate-title">功能暂未解锁</view>
+      <view class="gate-desc">完成个人认证和学校认证后才能使用商城功能。</view>
+      <button class="primary" bindtap="goAuth">前往认证中心</button>
+    </view>
+  </block>
+
+  <block wx:else>
+
   <!-- 顶部宣传卡 -->
   <view class="mall-hero">
     <text class="hero-small">本周校园限定</text>
@@ -63,9 +74,10 @@
       <view class="product-name">{{item.name}}</view>
       <view class="product-foot">
         <text class="price">¥{{item.price}}</text>
-        <button class="add" catchtap="quickAdd" data-item="{{item}}">＋</button>
+        <view class="add" catchtap="quickAdd" data-item="{{item}}">＋</view>
       </view>
     </view>
   </view>
   <view wx:if="{{goods.length===0}}" class="empty">暂无商品</view>
+  </block>
 </view>

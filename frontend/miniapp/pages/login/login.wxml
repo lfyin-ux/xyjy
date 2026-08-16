@@ -1,0 +1,37 @@
+<view class="page">
+  <!-- 开发模式 显示用户列表选择登录 -->
+  <block wx:if="{{mode==='dev'}}">
+    <view class="login-header">
+      <view class="login-brand">碰个<i>面</i></view>
+      <view class="login-sub">开发模式 · 选择一个用户登录</view>
+    </view>
+
+    <view class="user-list">
+      <view class="user-card {{currentId===item.id?'selected':''}}" wx:for="{{users}}" wx:key="id" bindtap="selectUser" data-item="{{item}}">
+        <view class="uc-avatar">
+          <image wx:if="{{item.avatar}}" src="{{imgBase}}{{item.avatar}}" mode="aspectFill" class="uc-img" />
+          <text wx:else>🧑</text>
+        </view>
+        <view class="uc-main">
+          <view class="uc-name">{{item.nickname}}</view>
+          <view class="uc-info">{{item.school}} · {{item.college}}</view>
+        </view>
+        <view wx:if="{{currentId===item.id}}" class="uc-check">✓</view>
+      </view>
+    </view>
+
+    <button class="login-btn" bindtap="devLogin" disabled="{{!currentId}}">登录该用户</button>
+    <view class="dev-tip">切换不同用户可测试聊天等双人交互功能</view>
+  </block>
+
+  <!-- 生产模式 微信一键授权登录 -->
+  <block wx:else>
+    <view class="wx-login">
+      <view class="login-brand">碰个<i>面</i></view>
+      <view class="login-slogan">认真交友，从一次心动开始</view>
+      <view class="wx-icon">💬</view>
+      <button class="login-btn wx" bindtap="wxLogin">微信一键登录</button>
+      <view class="wx-tip">授权后将使用微信账号登录</view>
+    </view>
+  </block>
+</view>

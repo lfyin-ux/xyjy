@@ -1,0 +1,74 @@
+.page {
+  padding: 32rpx;
+}
+
+.title {
+  font-size: 34rpx;
+  font-weight: 700;
+  margin-bottom: 24rpx;
+}
+
+.refund-item {
+  background: #fff;
+  border-radius: 32rpx;
+  padding: 26rpx;
+  margin-bottom: 20rpx;
+}
+
+.ri-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.ri-name {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.ri-status {
+  font-size: 24rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 14rpx;
+}
+
+.ri-status.pending {
+  background: #fff7e6;
+  color: #d4800f;
+}
+
+.ri-status.success {
+  background: #e8f8ef;
+  color: #0d9d4e;
+}
+
+.ri-status.rejected {
+  background: #fff0f0;
+  color: #e53935;
+}
+
+.ri-info {
+  display: flex;
+  gap: 30rpx;
+  color: var(--muted);
+  font-size: 24rpx;
+  margin-bottom: 10rpx;
+}
+
+.ri-amount {
+  font-size: 28rpx;
+  margin-top: 8rpx;
+}
+
+.ri-reason {
+  color: #666;
+  font-size: 24rpx;
+  margin-top: 10rpx;
+}
+
+.ri-reject {
+  color: #e53935;
+  font-size: 24rpx;
+  margin-top: 10rpx;
+}

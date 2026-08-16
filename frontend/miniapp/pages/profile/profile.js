@@ -7,7 +7,9 @@ Page({
     user: {},
     tagList: [],
     list: [],
-    imgBase: ''
+    imgBase: '',
+    album: [],
+    previewUrl: ''
   },
 
   onLoad(options) {
@@ -18,6 +20,9 @@ Page({
       if (options.list === 'likeMe') {
         wx.setNavigationBarTitle({ title: '谁喜欢我' })
         api.get('/match/whoLikesMe/' + app.globalData.userId).then((list) => this.setData({ list }))
+      } else if (options.list === 'stars') {
+        wx.setNavigationBarTitle({ title: '特别关注' })
+        api.get('/match/myStars/' + app.globalData.userId).then((list) => this.setData({ list }))
       } else {
         wx.setNavigationBarTitle({ title: '我的访客' })
         api.get('/user/visitors/' + app.globalData.userId).then((visits) => {
@@ -41,6 +46,10 @@ Page({
         tagList: user.tags ? user.tags.split(',') : []
       })
     })
+    // 加载相册（只显示审核通过的）
+    api.get('/user/photos/' + id).then((list) => {
+      this.setData({ album: list.filter((p) => p.auditStatus === 1) })
+    })
   },
 
   viewUser(e) {
@@ -49,6 +58,14 @@ Page({
 
   follow() {
     wx.showToast({ title: '已关注 TA', icon: 'none' })
+  },
+
+  previewPhoto(e) {
+    this.setData({ previewUrl: e.currentTarget.dataset.url })
+  },
+
+  closePreview() {
+    this.setData({ previewUrl: '' })
   },
 
   sayHi() {

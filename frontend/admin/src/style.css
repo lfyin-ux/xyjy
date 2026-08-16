@@ -32,6 +32,11 @@ body {
   border-radius: 8px;
 }
 
+/* 表格铺满容器宽度 */
+.table-card .el-table {
+  width: 100% !important;
+}
+
 .pagination-wrap {
   margin-top: 16px;
   display: flex;

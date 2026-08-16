@@ -1,4 +1,9 @@
 <view class="page">
+  <!-- 全屏预览 -->
+  <view wx:if="{{previewUrl}}" class="preview-mask" bindtap="closePreview">
+    <image src="{{previewUrl}}" mode="aspectFit" class="preview-img" />
+  </view>
+
   <!-- 个人主页 -->
   <block wx:if="{{mode==='detail'}}">
     <view class="big-profile">
@@ -16,6 +21,14 @@
       <view class="card-title">关于 TA</view>
       <view class="intro">{{user.intro || '这位同学还没有填写简介'}}</view>
     </view>
+
+    <view class="card" wx:if="{{album.length>0}}">
+      <view class="card-title">相册</view>
+      <view class="profile-album">
+        <image wx:for="{{album}}" wx:key="id" src="{{imgBase}}{{item.imgUrl}}" mode="aspectFill" class="profile-photo" data-url="{{imgBase}}{{item.imgUrl}}" bindtap="previewPhoto" />
+      </view>
+    </view>
+
     <view class="profile-actions">
       <button class="secondary" bindtap="follow">＋ 关注</button>
       <button class="primary" bindtap="sayHi">👋 打招呼</button>

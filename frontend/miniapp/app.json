@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/login/login",
     "pages/match/match",
     "pages/life/life",
     "pages/mall/mall",
@@ -14,6 +15,7 @@
     "pages/post-detail/post-detail",
     "pages/errand/errand",
     "pages/errand-publish/errand-publish",
+    "pages/errand-accept/errand-accept",
     "pages/second/second",
     "pages/second-publish/second-publish",
     "pages/game/game",
@@ -22,7 +24,11 @@
     "pages/order-list/order-list",
     "pages/edit-profile/edit-profile",
     "pages/blacklist/blacklist",
-    "pages/feedback/feedback"
+    "pages/feedback/feedback",
+    "pages/address/address",
+    "pages/refund-apply/refund-apply",
+    "pages/refund-detail/refund-detail",
+    "pages/album/album"
   ],
   "window": {
     "backgroundTextStyle": "dark",

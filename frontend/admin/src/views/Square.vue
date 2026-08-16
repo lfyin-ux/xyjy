@@ -23,7 +23,6 @@
         </div>
         <div class="table-card">
           <el-table :data="postList" v-loading="loading" stripe>
-            <el-table-column prop="id" label="ID" width="70" />
             <el-table-column prop="userId" label="用户ID" width="90" />
             <el-table-column prop="content" label="内容" />
             <el-table-column prop="topic" label="话题" width="90" />
@@ -55,7 +54,6 @@
         </div>
         <div class="table-card">
           <el-table :data="topics" stripe>
-            <el-table-column prop="id" label="ID" width="70" />
             <el-table-column prop="name" label="标签名称" />
             <el-table-column prop="postCount" label="关联动态数" width="120" />
             <el-table-column label="操作" width="160" fixed="right">

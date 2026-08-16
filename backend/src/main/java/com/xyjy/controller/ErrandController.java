@@ -55,16 +55,23 @@ public class ErrandController {
         if (order.getFee() == null || order.getFee().doubleValue() <= 0) {
             throw new BusinessException("请设置赏金");
         }
+        if (order.getPublisherContact() == null || order.getPublisherContact().isEmpty()) {
+            throw new BusinessException("请填写联系方式");
+        }
         order.setStatus(1);
         errandOrderMapper.insert(order);
         return Result.success();
     }
 
     /**
-     * 接单
+     * 接单 需填写接单人联系方式
      */
     @PostMapping("/accept")
-    public Result<Void> accept(@RequestParam Long id, @RequestParam Long takerId) {
+    public Result<Void> accept(@RequestParam Long id, @RequestParam Long takerId,
+                               @RequestParam String contact) {
+        if (contact == null || contact.isEmpty()) {
+            throw new BusinessException("请填写联系方式");
+        }
         ErrandOrder order = errandOrderMapper.selectById(id);
         if (order == null) {
             throw new BusinessException("订单不存在");
@@ -73,6 +80,7 @@ public class ErrandController {
             throw new BusinessException("订单已被接取或已取消");
         }
         order.setTakerId(takerId);
+        order.setTakerContact(contact);
         order.setStatus(2);
         errandOrderMapper.updateById(order);
         return Result.success();

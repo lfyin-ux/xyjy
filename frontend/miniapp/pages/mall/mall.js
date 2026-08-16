@@ -9,7 +9,8 @@ Page({
     categoryId: null,
     cartCount: 0,
     orderStat: { unpaid: 0, prepare: 0, shipping: 0, aftersale: 0 },
-    imgBase: ''
+    imgBase: '',
+    locked: false
   },
 
   onLoad() {
@@ -18,9 +19,28 @@ Page({
   },
 
   onShow() {
-    this.loadGoods()
-    this.loadCart()
-    this.loadOrderStat()
+    this.checkAuth()
+    app.updateChatBadge()
+  },
+
+  checkAuth() {
+    const userId = app.globalData.userId
+    if (!userId) {
+      this.setData({ locked: true })
+      return
+    }
+    api.get('/auth/status/' + userId).then((res) => {
+      if (res.fullAccess) {
+        this.setData({ locked: false })
+        this.loadGoods()
+        this.loadCart()
+        this.loadOrderStat()
+      } else {
+        this.setData({ locked: true })
+      }
+    }).catch(() => {
+      this.setData({ locked: true })
+    })
   },
 
   loadCategories() {
@@ -76,6 +96,10 @@ Page({
 
   explore() {
     wx.showToast({ title: '正在探索本周新品', icon: 'none' })
+  },
+
+  goAuth() {
+    wx.navigateTo({ url: '/pages/auth/auth' })
   },
 
   goDetail(e) {

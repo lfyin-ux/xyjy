@@ -24,7 +24,6 @@
 
     <div class="table-card">
       <el-table :data="list" v-loading="loading" stripe>
-        <el-table-column prop="id" label="ID" width="70" />
         <el-table-column label="头像" width="80">
           <template #default="{ row }">
             <el-avatar :src="row.avatar" shape="square">{{ row.nickname?.charAt(0) }}</el-avatar>

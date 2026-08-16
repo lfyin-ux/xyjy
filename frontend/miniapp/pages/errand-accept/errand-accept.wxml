@@ -1,0 +1,17 @@
+<view class="page">
+  <view class="card">
+    <view class="order-title">{{order.title}}</view>
+    <view class="order-route">{{order.fromPlace}} → {{order.toPlace}}</view>
+    <view class="order-time">{{order.finishTime}}</view>
+    <view class="order-fee">赏金 <text class="price">¥ {{order.fee}}</text></view>
+    <view wx:if="{{order.remark}}" class="order-remark">备注：{{order.remark}}</view>
+  </view>
+
+  <view class="card">
+    <view class="field">
+      <text class="label">你的联系方式（必填）</text>
+      <input placeholder="请输入手机号或微信号" value="{{contact}}" bindinput="onContact" />
+    </view>
+    <button class="primary" bindtap="confirm">确认接单</button>
+  </view>
+</view>

@@ -5,7 +5,8 @@ Page({
   data: {
     goods: [],
     tasks: [],
-    imgBase: ''
+    imgBase: '',
+    locked: false
   },
 
   onLoad() {
@@ -13,8 +14,27 @@ Page({
   },
 
   onShow() {
-    this.loadGoods()
-    this.loadTasks()
+    this.checkAuth()
+    app.updateChatBadge()
+  },
+
+  checkAuth() {
+    const userId = app.globalData.userId
+    if (!userId) {
+      this.setData({ locked: true })
+      return
+    }
+    api.get('/auth/status/' + userId).then((res) => {
+      if (res.fullAccess) {
+        this.setData({ locked: false })
+        this.loadGoods()
+        this.loadTasks()
+      } else {
+        this.setData({ locked: true })
+      }
+    }).catch(() => {
+      this.setData({ locked: true })
+    })
   },
 
   // 二手商品预览
@@ -49,5 +69,9 @@ Page({
 
   noop() {
     wx.showToast({ title: '更多服务即将开放', icon: 'none' })
+  },
+
+  goAuth() {
+    wx.navigateTo({ url: '/pages/auth/auth' })
   }
 })

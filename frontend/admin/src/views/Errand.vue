@@ -12,7 +12,6 @@
 
     <div class="table-card">
       <el-table :data="list" v-loading="loading" stripe>
-        <el-table-column prop="id" label="ID" width="70" />
         <el-table-column prop="title" label="任务标题" />
         <el-table-column prop="publisherId" label="发单人" width="90" />
         <el-table-column prop="takerId" label="接单人" width="90" />

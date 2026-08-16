@@ -1,8 +1,18 @@
 <view class="page">
   <view class="top">
     <view class="brand">校园<i>生活</i></view>
-    <button class="icon-btn" bindtap="noop">⌕</button>
   </view>
+
+  <block wx:if="{{locked}}">
+    <view class="gate">
+      <view class="gate-icon">🔐</view>
+      <view class="gate-title">功能暂未解锁</view>
+      <view class="gate-desc">完成个人认证和学校认证后才能使用校园生活功能。</view>
+      <button class="primary" bindtap="goAuth">前往认证中心</button>
+    </view>
+  </block>
+
+  <block wx:else>
 
   <view class="banner">
     <view class="banner-title">今天，需要帮忙吗？</view>
@@ -59,4 +69,5 @@
       <text class="price">赏金 ¥ {{item.fee}}</text>
     </view>
   </view>
+  </block>
 </view>

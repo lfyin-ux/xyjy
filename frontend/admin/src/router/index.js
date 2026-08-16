@@ -21,6 +21,7 @@ const routes = [
       { path: 'second', name: '二手市场管理', component: () => import('../views/Second.vue') },
       { path: 'goods', name: '商品管理', component: () => import('../views/Goods.vue') },
       { path: 'orders', name: '商城订单管理', component: () => import('../views/Orders.vue') },
+      { path: 'refund', name: '退款管理', component: () => import('../views/Refund.vue') },
       { path: 'admins', name: '管理员管理', component: () => import('../views/Admins.vue') }
     ]
   }

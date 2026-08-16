@@ -1,7 +1,7 @@
 <wxs module="fmt">
 function statusText(s) {
   var map = { '0': '草稿', '1': '审核中', '3': '已发布', '4': '审核驳回', '5': '违规拦截', '6': '已删除' }
-  return map[s] || ''
+  return map['' + s] || ''
 }
 module.exports = { statusText: statusText }
 </wxs>
@@ -9,13 +9,18 @@ module.exports = { statusText: statusText }
 <view class="page">
   <!-- 我的动态列表 -->
   <block wx:if="{{mode==='my'}}">
-    <view class="post" wx:for="{{myPosts}}" wx:key="id">
-      <view class="post-text">{{item.content}}</view>
-      <view class="post-meta">
-        <text class="status-tag">{{fmt.statusText(item.status)}}</text>
-        <text class="post-time">👍 {{item.likeCount}} · 💬 {{item.commentCount}}</text>
+    <view class="my-post" wx:for="{{myPosts}}" wx:key="id" bindtap="viewPost" data-id="{{item.id}}">
+      <view class="my-post-content">{{item.content}}</view>
+      <image wx:if="{{item.images}}" src="{{imgBase}}{{item.firstImg}}" mode="aspectFill" class="my-post-img" />
+      <view class="my-post-footer">
+        <text class="status-tag" wx:if="{{fmt.statusText(item.status)}}">{{fmt.statusText(item.status)}}</text>
+        <view class="my-post-stats">
+          <text class="stat-item">♥ {{item.likeCount}}</text>
+          <text class="stat-item">💬 {{item.commentCount}}</text>
+        </view>
+        <text class="del-btn" catchtap="delPost" data-id="{{item.id}}">删除</text>
       </view>
-      <text class="del-btn" catchtap="delPost" data-id="{{item.id}}">删除</text>
+      <view wx:if="{{item.topic}}" class="my-post-topic">#{{item.topic}}</view>
     </view>
     <view wx:if="{{myPosts.length===0}}" class="empty">你还没有发布动态</view>
   </block>
@@ -35,6 +40,19 @@ module.exports = { statusText: statusText }
       </view>
       <view class="post-text">{{post.post.content}}</view>
       <image wx:if="{{post.firstImg}}" src="{{imgBase}}{{post.firstImg}}" mode="widthFix" class="detail-img" />
+    </view>
+
+    <view class="card" wx:if="{{likeUsers.length>0}}">
+      <view class="card-title">♥ 点赞 {{likeUsers.length}}</view>
+      <view class="like-users">
+        <view class="like-user" wx:for="{{likeUsers}}" wx:key="id" bindtap="viewLikeUser" data-id="{{item.user.id}}">
+          <view class="like-avatar">
+            <image wx:if="{{item.user.avatar}}" src="{{imgBase}}{{item.user.avatar}}" mode="aspectFill" class="like-avatar-img" />
+            <text wx:else>🧑</text>
+          </view>
+          <text class="like-name">{{item.user.nickname}}</text>
+        </view>
+      </view>
     </view>
 
     <view class="card">

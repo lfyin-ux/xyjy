@@ -9,7 +9,8 @@ Page({
     commentText: '',
     myPosts: [],
     postId: null,
-    imgBase: ''
+    imgBase: '',
+    likeUsers: []
   },
 
   onLoad(options) {
@@ -22,6 +23,7 @@ Page({
       this.setData({ postId: options.id })
       this.loadDetail(options.id)
       this.loadComments(options.id)
+      this.loadLikeUsers(options.id)
     }
   },
 
@@ -38,8 +40,21 @@ Page({
     })
   },
 
+  loadLikeUsers(id) {
+    api.get('/square/likeUsers/' + id).then((list) => {
+      this.setData({ likeUsers: list })
+    })
+  },
+
+  viewLikeUser(e) {
+    wx.navigateTo({ url: '/pages/profile/profile?id=' + e.currentTarget.dataset.id })
+  },
+
   loadMyPosts() {
     api.get('/square/my/' + app.globalData.userId).then((list) => {
+      list.forEach((item) => {
+        item.firstImg = item.images ? item.images.split(',')[0] : ''
+      })
       this.setData({ myPosts: list })
     })
   },
@@ -78,5 +93,13 @@ Page({
         }
       }
     })
+  },
+
+  viewPost(e) {
+    const id = e.currentTarget.dataset.id
+    this.setData({ mode: 'detail', postId: id })
+    this.loadDetail(id)
+    this.loadComments(id)
+    this.loadLikeUsers(id)
   }
 })

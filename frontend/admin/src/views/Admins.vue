@@ -6,7 +6,6 @@
 
     <div class="table-card">
       <el-table :data="list" v-loading="loading" stripe>
-        <el-table-column prop="id" label="ID" width="70" />
         <el-table-column prop="username" label="账号" />
         <el-table-column prop="nickname" label="姓名" />
         <el-table-column prop="phone" label="手机号" width="140" />

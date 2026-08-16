@@ -34,9 +34,27 @@ Page({
   },
 
   pay(e) {
-    api.post('/mall/order/pay/' + e.currentTarget.dataset.id).then(() => {
-      wx.showToast({ title: '支付成功', icon: 'success' })
-      this.load()
+    const orderId = e.currentTarget.dataset.id
+    api.post('/pay/create/' + orderId).then((payResult) => {
+      if (payResult.mode === 'dev') {
+        wx.showToast({ title: '支付成功', icon: 'success' })
+        this.load()
+      } else {
+        wx.requestPayment({
+          timeStamp: payResult.timeStamp,
+          nonceStr: payResult.nonceStr,
+          package: payResult.package,
+          signType: payResult.signType,
+          paySign: payResult.paySign,
+          success: () => {
+            wx.showToast({ title: '支付成功', icon: 'success' })
+            this.load()
+          },
+          fail: () => {
+            wx.showToast({ title: '支付取消', icon: 'none' })
+          }
+        })
+      }
     })
   },
 
@@ -55,9 +73,12 @@ Page({
   },
 
   refund(e) {
-    api.post('/mall/order/refund/' + e.currentTarget.dataset.id).then(() => {
-      wx.showToast({ title: '已申请售后', icon: 'none' })
-      this.load()
-    })
+    const orderId = e.currentTarget.dataset.id
+    wx.navigateTo({ url: '/pages/refund-apply/refund-apply?orderId=' + orderId })
+  },
+
+  viewRefund(e) {
+    const orderId = e.currentTarget.dataset.id
+    wx.navigateTo({ url: '/pages/refund-detail/refund-detail?orderId=' + orderId })
   }
 })

@@ -3,27 +3,100 @@ const app = getApp()
 
 Page({
   data: {
-    teams: [],
+    tab: 'all',
+    allList: [],
+    createdList: [],
+    joinedList: [],
+    currentList: [],
     showCreate: false,
+    showDetail: false,
+    members: [],
     gameName: '',
     playTime: '',
     needNum: '',
-    requireDesc: ''
+    requireDesc: '',
+    imgBase: '',
+    myId: 0
+  },
+
+  onLoad() {
+    this.setData({ imgBase: app.globalData.baseUrl, myId: Number(app.globalData.userId) })
   },
 
   onShow() {
-    this.load()
+    this.loadAll()
   },
 
-  load() {
-    api.get('/game/list').then((list) => this.setData({ teams: list }))
+  switchTab(e) {
+    const tab = e.currentTarget.dataset.t
+    this.setData({ tab })
+    this.updateList()
+  },
+
+  loadAll() {
+    api.get('/game/list').then((list) => this.setData({ allList: list }))
+    api.get('/game/myCreated/' + app.globalData.userId).then((list) => this.setData({ createdList: list }))
+    api.get('/game/myJoined/' + app.globalData.userId).then((list) => {
+      this.setData({ joinedList: list })
+      this.updateList()
+    })
+  },
+
+  updateList() {
+    const tab = this.data.tab
+    if (tab === 'all') this.setData({ currentList: this.data.allList })
+    else if (tab === 'created') this.setData({ currentList: this.data.createdList })
+    else this.setData({ currentList: this.data.joinedList })
+  },
+
+  // 查看组局成员详情
+  viewDetail(e) {
+    const id = e.currentTarget.dataset.id
+    api.get('/game/members/' + id).then((list) => {
+      this.setData({ members: list, showDetail: true })
+    })
+  },
+
+  closeDetail() {
+    this.setData({ showDetail: false })
+  },
+
+  viewProfile(e) {
+    wx.navigateTo({ url: '/pages/profile/profile?id=' + e.currentTarget.dataset.id })
+  },
+
+  // 给成员发消息 打招呼创建会话
+  sendMsg(e) {
+    const user = e.currentTarget.dataset.user
+    this.setData({ showDetail: false })
+    api.post('/chat/hello?fromId=' + app.globalData.userId + '&toId=' + user.id + '&content=' + encodeURIComponent('嗨，一起组队吧 🎮')).then((session) => {
+      wx.navigateTo({
+        url: '/pages/chat-detail/chat-detail?sessionId=' + session.id + '&otherId=' + user.id + '&name=' + user.nickname
+      })
+    })
   },
 
   join(e) {
     const id = e.currentTarget.dataset.id
     api.post('/game/join?teamId=' + id + '&userId=' + app.globalData.userId).then(() => {
       wx.showToast({ title: '加入成功', icon: 'success' })
-      this.load()
+      this.loadAll()
+    })
+  },
+
+  quit(e) {
+    const id = e.currentTarget.dataset.id
+    wx.showModal({
+      title: '提示',
+      content: '确定退出该组局吗？',
+      success: (res) => {
+        if (res.confirm) {
+          api.post('/game/quit?teamId=' + id + '&userId=' + app.globalData.userId).then(() => {
+            wx.showToast({ title: '已退出', icon: 'success' })
+            this.loadAll()
+          })
+        }
+      }
     })
   },
 
@@ -57,7 +130,7 @@ Page({
     }).then(() => {
       wx.showToast({ title: '组局已发起', icon: 'success' })
       this.setData({ showCreate: false, gameName: '', playTime: '', needNum: '', requireDesc: '' })
-      this.load()
+      this.loadAll()
     })
   }
 })

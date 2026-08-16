@@ -1,7 +1,7 @@
 <wxs module="fmt">
 function statusText(s) {
   var map = { '1': '待付款', '2': '待备货', '3': '配送中', '4': '已完成', '5': '退款售后' }
-  return map[s] || ''
+  return map['' + s] || ''
 }
 module.exports = { statusText: statusText }
 </wxs>
@@ -33,12 +33,17 @@ module.exports = { statusText: statusText }
       <text class="price">¥ {{g.price}}</text>
     </view>
     <view class="order-foot">
-      <text class="order-total">合计 <text class="price">¥ {{item.order.totalAmount}}</text></text>
+      <view class="order-left">
+        <text class="order-total">合计 <text class="price">¥{{item.order.totalAmount}}</text></text>
+        <view wx:if="{{item.order.refundStatus===1}}" class="refund-tag pending" bindtap="viewRefund" data-id="{{item.order.id}}">退款申请中 ›</view>
+        <view wx:if="{{item.order.refundStatus===2}}" class="refund-tag success" bindtap="viewRefund" data-id="{{item.order.id}}">已退款 查看详情 ›</view>
+        <view wx:if="{{item.order.refundStatus===3}}" class="refund-tag rejected" bindtap="viewRefund" data-id="{{item.order.id}}">退款已拒绝 查看详情 ›</view>
+      </view>
       <view class="order-btns">
-        <button wx:if="{{item.order.status===1}}" class="o-btn primary-btn" bindtap="pay" data-id="{{item.order.id}}">去支付</button>
-        <button wx:if="{{item.order.status===1}}" class="o-btn" bindtap="cancel" data-id="{{item.order.id}}">取消</button>
-        <button wx:if="{{item.order.status===3}}" class="o-btn primary-btn" bindtap="confirm" data-id="{{item.order.id}}">确认收货</button>
-        <button wx:if="{{item.order.status===4}}" class="o-btn" bindtap="refund" data-id="{{item.order.id}}">申请售后</button>
+        <view wx:if="{{item.order.status===1}}" class="o-btn primary-btn" bindtap="pay" data-id="{{item.order.id}}">去支付</view>
+        <view wx:if="{{item.order.status===1}}" class="o-btn" bindtap="cancel" data-id="{{item.order.id}}">取消</view>
+        <view wx:if="{{item.order.status===3}}" class="o-btn primary-btn" bindtap="confirm" data-id="{{item.order.id}}">确认收货</view>
+        <view wx:if="{{item.order.status===4 && item.order.refundStatus===0}}" class="o-btn" bindtap="refund" data-id="{{item.order.id}}">申请售后</view>
       </view>
     </view>
   </view>

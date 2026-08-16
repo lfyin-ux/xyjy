@@ -20,6 +20,8 @@ Page({
   onShow() {
     this.loadUser()
     this.loadStats()
+    // 刷新聊天未读角标
+    app.updateChatBadge()
   },
 
   loadUser() {
@@ -45,7 +47,12 @@ Page({
     const uid = app.globalData.userId
     api.get('/match/whoLikesMe/' + uid).then((list) => this.setData({ likeMeCount: list.length }))
     api.get('/match/list/' + uid).then((list) => this.setData({ matchCount: list.length }))
-    api.get('/user/visitors/' + uid).then((list) => this.setData({ visitorCount: list.length }))
+    api.get('/user/visitors/' + uid).then((list) => {
+      // 按userId去重计算独立访客数
+      const uniqueIds = []
+      list.forEach((v) => { if (uniqueIds.indexOf(v.userId) === -1) uniqueIds.push(v.userId) })
+      this.setData({ visitorCount: uniqueIds.length })
+    })
   },
 
   goAuth() {
@@ -56,12 +63,20 @@ Page({
     wx.navigateTo({ url: '/pages/edit-profile/edit-profile' })
   },
 
+  goAlbum() {
+    wx.navigateTo({ url: '/pages/album/album' })
+  },
+
   goChat() {
     wx.switchTab({ url: '/pages/chat/chat' })
   },
 
   goWhoLikesMe() {
     wx.navigateTo({ url: '/pages/profile/profile?list=likeMe' })
+  },
+
+  goStars() {
+    wx.navigateTo({ url: '/pages/profile/profile?list=stars' })
   },
 
   goVisitors() {
@@ -88,11 +103,35 @@ Page({
     wx.navigateTo({ url: '/pages/blacklist/blacklist' })
   },
 
+  goAddress() {
+    wx.navigateTo({ url: '/pages/address/address' })
+  },
+
   feedback() {
     wx.navigateTo({ url: '/pages/feedback/feedback' })
   },
 
   noop() {
     wx.showToast({ title: '账号设置已打开', icon: 'none' })
+  },
+
+  logout() {
+    wx.showModal({
+      title: '提示',
+      content: '确定退出登录吗？退出后可切换其他用户登录',
+      success: (res) => {
+        if (res.confirm) {
+          // 关闭WebSocket连接
+          app.disconnectWs()
+          // 清除登录状态
+          app.globalData.userInfo = null
+          app.globalData.userId = null
+          wx.removeStorageSync('userInfo')
+          wx.removeStorageSync('userId')
+          // 跳转登录页
+          wx.redirectTo({ url: '/pages/login/login' })
+        }
+      }
+    })
   }
 })

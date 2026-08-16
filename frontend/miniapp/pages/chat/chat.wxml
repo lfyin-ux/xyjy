@@ -1,25 +1,39 @@
 <view class="page">
   <view class="top">
     <view class="brand">聊天<i>消息</i></view>
-    <button class="icon-btn" bindtap="noop">⌕</button>
   </view>
 
+  <block wx:if="{{locked}}">
+    <view class="gate">
+      <view class="gate-icon">🔐</view>
+      <view class="gate-title">功能暂未解锁</view>
+      <view class="gate-desc">完成个人认证和学校认证后才能使用聊天功能。</view>
+      <button class="primary" bindtap="goAuth">前往认证中心</button>
+    </view>
+  </block>
+
+  <block wx:else>
   <view class="chat-list">
-    <view class="chat-row" wx:for="{{sessions}}" wx:key="id" bindtap="openChat" data-item="{{item}}">
-      <view class="chat-avatar">
-        <image wx:if="{{item.other.avatar}}" src="{{imgBase}}{{item.other.avatar}}" mode="aspectFill" class="avatar-img" />
-        <text wx:else>🧑</text>
-        <text wx:if="{{item.unread>0}}" class="unread">{{item.unread}}</text>
-      </view>
-      <view class="chat-main">
-        <view class="chat-line">
-          <text class="chat-name">{{item.other.nickname}}</text>
-          <text class="chat-time">{{item.timeText}}</text>
+    <view class="chat-swipe" wx:for="{{sessions}}" wx:key="id"
+      data-idx="{{index}}" bindtouchstart="touchStart" bindtouchmove="touchMove" bindtouchend="touchEnd">
+      <view class="chat-row" style="transform: translateX({{item.offset || 0}}rpx);" bindtap="openChat" data-item="{{item}}">
+        <view class="chat-avatar">
+          <image wx:if="{{item.other.avatar}}" src="{{imgBase}}{{item.other.avatar}}" mode="aspectFill" class="avatar-img" />
+          <text wx:else>🧑</text>
+          <text wx:if="{{item.unread>0}}" class="unread">{{item.unread}}</text>
         </view>
-        <view class="chat-last">{{item.session.lastMsg}}</view>
+        <view class="chat-main">
+          <view class="chat-line">
+            <text class="chat-name">{{item.other.nickname}}</text>
+            <text class="chat-time">{{item.timeText}}</text>
+          </view>
+          <view class="chat-last">{{item.session.displayMsg}}</view>
+        </view>
+        <text class="status {{item.session.locked?'':'ok'}}">{{item.session.locked?'待回复':'可聊天'}}</text>
       </view>
-      <text class="status {{item.session.locked?'':'ok'}}">{{item.session.locked?'待回复':'可聊天'}}</text>
+      <view class="chat-del" catchtap="deleteSession" data-id="{{item.session.id}}" data-idx="{{index}}">删除</view>
     </view>
     <view wx:if="{{sessions.length===0}}" class="empty">还没有聊天，去匹配认识新朋友吧</view>
   </view>
+  </block>
 </view>

@@ -20,7 +20,6 @@
 
     <div class="table-card">
       <el-table :data="list" v-loading="loading" stripe>
-        <el-table-column prop="id" label="ID" width="70" />
         <el-table-column prop="word" label="词语" width="140" />
         <el-table-column label="类型" width="100">
           <template #default="{ row }">

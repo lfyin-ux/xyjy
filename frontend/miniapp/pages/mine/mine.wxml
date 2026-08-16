@@ -1,7 +1,6 @@
 <view class="page">
   <view class="top">
     <view class="brand">我的<i>空间</i></view>
-    <button class="icon-btn" bindtap="noop">⚙</button>
   </view>
 
   <!-- 认证提示条 未双认证时显示 -->
@@ -53,15 +52,20 @@
       <text class="menu-name">编辑个人资料</text>
       <text class="menu-val">›</text>
     </view>
-    <view class="menu-row" bindtap="goChat">
-      <text class="menu-icon">💬</text>
-      <text class="menu-name">我的聊天</text>
+    <view class="menu-row" bindtap="goAlbum">
+      <text class="menu-icon">🖼️</text>
+      <text class="menu-name">我的相册</text>
       <text class="menu-val">›</text>
     </view>
     <view class="menu-row" bindtap="goWhoLikesMe">
       <text class="menu-icon">💜</text>
       <text class="menu-name">谁喜欢我</text>
       <text class="menu-val">{{likeMeCount}} ›</text>
+    </view>
+    <view class="menu-row" bindtap="goStars">
+      <text class="menu-icon">⭐</text>
+      <text class="menu-name">特别关注</text>
+      <text class="menu-val">›</text>
     </view>
     <view class="menu-row" bindtap="goVisitors">
       <text class="menu-icon">👀</text>
@@ -99,9 +103,19 @@
       <text class="menu-name">黑名单管理</text>
       <text class="menu-val">›</text>
     </view>
+    <view class="menu-row" bindtap="goAddress">
+      <text class="menu-icon">📍</text>
+      <text class="menu-name">收货地址管理</text>
+      <text class="menu-val">›</text>
+    </view>
     <view class="menu-row" bindtap="feedback">
       <text class="menu-icon">💡</text>
       <text class="menu-name">意见反馈</text>
+      <text class="menu-val">›</text>
+    </view>
+    <view class="menu-row" bindtap="logout">
+      <text class="menu-icon">🚪</text>
+      <text class="menu-name">退出登录</text>
       <text class="menu-val">›</text>
     </view>
   </view>

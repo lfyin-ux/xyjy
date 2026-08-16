@@ -1,0 +1,90 @@
+.page {
+  padding: 32rpx;
+}
+
+.addr-item {
+  background: #fff;
+  border-radius: 36rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  border: 3rpx solid transparent;
+}
+
+.addr-item.default {
+  border-color: var(--purple);
+  background: #faf8ff;
+}
+
+.addr-top {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.addr-name {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.addr-phone {
+  color: var(--muted);
+  font-size: 26rpx;
+}
+
+.addr-default-tag {
+  background: var(--purple);
+  color: #fff;
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 12rpx;
+}
+
+.addr-detail {
+  font-size: 28rpx;
+  color: #444;
+  line-height: 1.5;
+}
+
+.addr-actions {
+  display: flex;
+  gap: 30rpx;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 2rpx solid var(--line);
+}
+
+.addr-act {
+  font-size: 24rpx;
+  color: var(--purple);
+}
+
+.addr-act.del {
+  color: var(--pink);
+}
+
+.add-btn {
+  text-align: center;
+  padding: 28rpx;
+  background: #fff;
+  border-radius: 36rpx;
+  color: var(--purple);
+  font-weight: 700;
+  font-size: 30rpx;
+  margin-top: 20rpx;
+}
+
+.switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28rpx;
+  font-size: 28rpx;
+}
+
+.cancel-link {
+  text-align: center;
+  color: var(--muted);
+  font-size: 26rpx;
+  margin-top: 20rpx;
+}

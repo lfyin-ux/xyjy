@@ -32,3 +32,33 @@ mybatis-plus:
 file:
   upload-dir: ../uploads
   access-prefix: /uploads
+
+# 微信小程序配置
+wechat:
+  # 正式AppID和AppSecret 注册后填入
+  app-id: wx0000000000000000
+  app-secret: your_app_secret_here
+
+# 微信支付配置
+wxpay:
+  # 商户号
+  mch-id: your_mch_id_here
+  # API密钥（V2）
+  api-key: your_api_key_here
+  # 支付结果回调地址 部署后改为正式域名
+  notify-url: https://your-domain.com/api/pay/notify
+
+# 应用模式 dev开发模式 prod生产模式
+app:
+  mode: dev
+
+# 短信服务配置 支持阿里云短信
+sms:
+  # 阿里云AccessKeyId
+  access-key-id: your_access_key_id
+  # 阿里云AccessKeySecret
+  access-key-secret: your_access_key_secret
+  # 短信签名
+  sign-name: 碰个面
+  # 验证码模板编号
+  template-code: SMS_000000000

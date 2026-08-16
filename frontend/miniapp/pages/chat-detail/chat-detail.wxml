@@ -1,12 +1,39 @@
 <view class="chat-page">
-  <scroll-view scroll-y class="chat-box" scroll-into-view="msg-{{lastId}}">
+  <scroll-view scroll-y class="chat-box" scroll-into-view="{{lastId}}" scroll-with-animation
+    bindscrolltoupper="loadMore" upper-threshold="50">
+    <view wx:if="{{loadingMore}}" class="loading-more">加载中...</view>
+    <view wx:elif="{{!hasMore && messages.length>0}}" class="loading-more">没有更多消息了</view>
     <view wx:if="{{locked}}" class="chat-note">对方向你打了招呼；你回复后，对方才能继续发送</view>
-    <view wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}"
-      class="bubble {{item.fromId===myId?'me':''}}">{{item.content}}</view>
+    <view wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}" class="msg-row {{item.fromId===myId?'me':''}}">
+      <!-- 对方头像 -->
+      <view wx:if="{{item.fromId!==myId}}" class="msg-avatar">
+        <image wx:if="{{otherAvatar}}" src="{{otherAvatar}}" mode="aspectFill" class="avatar-img" />
+        <text wx:else>🧑</text>
+      </view>
+      <!-- 消息内容 文字或图片 -->
+      <block wx:if="{{item.msgType===3}}">
+        <image src="{{imgBase}}{{item.content}}" mode="widthFix" class="bubble-img" catchtap="previewImg" data-url="{{imgBase}}{{item.content}}" />
+      </block>
+      <block wx:else>
+        <view class="bubble">{{item.content}}</view>
+      </block>
+      <!-- 自己头像 -->
+      <view wx:if="{{item.fromId===myId}}" class="msg-avatar">
+        <image wx:if="{{myAvatar}}" src="{{myAvatar}}" mode="aspectFill" class="avatar-img" />
+        <text wx:else>🧑</text>
+      </view>
+    </view>
   </scroll-view>
 
+  <!-- emoji面板 -->
+  <view wx:if="{{showEmoji}}" class="emoji-panel">
+    <text class="emoji-item" wx:for="{{emojis}}" wx:key="*this" bindtap="insertEmoji" data-e="{{item}}">{{item}}</text>
+  </view>
+
   <view class="chat-input">
+    <view class="input-btn" bindtap="toggleEmoji">😊</view>
     <input placeholder="说点什么…" value="{{text}}" bindinput="onInput" confirm-type="send" bindconfirm="send" />
-    <button class="send-btn" bindtap="send">发送</button>
+    <view class="input-btn" bindtap="sendImage">📷</view>
+    <view class="send-btn" bindtap="send">发送</view>
   </view>
 </view>

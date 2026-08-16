@@ -8,7 +8,8 @@ Page({
     current: null,
     posts: [],
     filterGender: null,
-    imgBase: ''
+    imgBase: '',
+    locked: false
   },
 
   onLoad() {
@@ -17,8 +18,27 @@ Page({
   },
 
   onShow() {
-    this.loadRecommend()
-    this.loadPosts()
+    this.checkAuth()
+    app.updateChatBadge()
+  },
+
+  checkAuth() {
+    const userId = app.globalData.userId
+    if (!userId) {
+      this.setData({ locked: true })
+      return
+    }
+    api.get('/auth/status/' + userId).then((res) => {
+      if (res.fullAccess) {
+        this.setData({ locked: false })
+        this.loadRecommend()
+        this.loadPosts()
+      } else {
+        this.setData({ locked: true })
+      }
+    }).catch(() => {
+      this.setData({ locked: true })
+    })
   },
 
   switchTab(e) {
@@ -124,6 +144,10 @@ Page({
 
   goChat() {
     wx.switchTab({ url: '/pages/chat/chat' })
+  },
+
+  goAuth() {
+    wx.navigateTo({ url: '/pages/auth/auth' })
   },
 
   goPublish() {

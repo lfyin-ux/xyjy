@@ -1,0 +1,32 @@
+<view class="page">
+  <view class="tip">选择需要退货的商品和数量</view>
+
+  <view class="item" wx:for="{{items}}" wx:key="id">
+    <view class="item-check" bindtap="toggle" data-idx="{{index}}">
+      <view class="checkbox {{item.checked?'on':''}}">{{item.checked?'✓':''}}</view>
+    </view>
+    <view class="item-main">
+      <view class="item-name">{{item.goodsName}}</view>
+      <view class="item-spec">{{item.spec}} · 单价 ¥{{item.price}}</view>
+      <view class="item-qty" wx:if="{{item.checked}}">
+        <text>退货数量：</text>
+        <text class="qty-btn" catchtap="minus" data-idx="{{index}}">-</text>
+        <text class="qty-num">{{item.refundQty}}</text>
+        <text class="qty-btn" catchtap="plus" data-idx="{{index}}">+</text>
+        <text class="qty-max">/ {{item.quantity}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="field" style="margin-top: 20rpx;">
+    <text class="label">退款原因</text>
+    <textarea placeholder="请输入退款原因（选填）" value="{{reason}}" bindinput="onReason" />
+  </view>
+
+  <view class="summary">
+    <text>退款金额：</text>
+    <text class="price">¥ {{refundTotal}}</text>
+  </view>
+
+  <button class="primary" bindtap="submit">提交退款申请</button>
+</view>

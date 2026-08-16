@@ -84,6 +84,38 @@
   background: #fff;
 }
 
+/* 收货地址选择 */
+.addr-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.addr-info {
+  flex: 1;
+}
+
+.addr-receiver {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.addr-text {
+  font-size: 24rpx;
+  color: #666;
+  margin-top: 8rpx;
+}
+
+.addr-empty {
+  color: var(--pink);
+  font-size: 28rpx;
+}
+
+.addr-arrow {
+  color: #ccc;
+  font-size: 40rpx;
+}
+
 .qty {
   display: flex;
   align-items: center;

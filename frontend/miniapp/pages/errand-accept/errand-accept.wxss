@@ -1,0 +1,32 @@
+.page {
+  padding: 32rpx;
+}
+
+.order-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  margin-bottom: 16rpx;
+}
+
+.order-route {
+  font-size: 28rpx;
+  color: #555;
+  margin-bottom: 10rpx;
+}
+
+.order-time {
+  font-size: 24rpx;
+  color: var(--muted);
+  margin-bottom: 16rpx;
+}
+
+.order-fee {
+  font-size: 32rpx;
+  margin-bottom: 10rpx;
+}
+
+.order-remark {
+  font-size: 24rpx;
+  color: #666;
+  margin-top: 10rpx;
+}

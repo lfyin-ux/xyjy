@@ -1,0 +1,143 @@
+.page {
+  padding: 32rpx;
+  min-height: 100vh;
+}
+
+.login-header {
+  text-align: center;
+  padding: 60rpx 0 40rpx;
+}
+
+.login-brand {
+  font-size: 56rpx;
+  font-weight: 900;
+  letter-spacing: -2rpx;
+}
+
+.login-brand i {
+  color: var(--purple);
+  font-style: normal;
+}
+
+.login-sub {
+  color: var(--muted);
+  font-size: 26rpx;
+  margin-top: 16rpx;
+}
+
+.user-list {
+  margin-bottom: 36rpx;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  background: #fff;
+  border-radius: 36rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  border: 3rpx solid transparent;
+  transition: border-color 0.2s;
+}
+
+.user-card.selected {
+  border-color: var(--purple);
+  background: #f8f6ff;
+}
+
+.uc-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 30rpx;
+  background: #eeeaff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 46rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.uc-img {
+  width: 100%;
+  height: 100%;
+}
+
+.uc-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.uc-name {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.uc-info {
+  color: var(--muted);
+  font-size: 24rpx;
+  margin-top: 6rpx;
+}
+
+.uc-check {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: var(--purple);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+}
+
+.login-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  border: 0;
+  border-radius: 30rpx;
+  background: var(--purple);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.login-btn[disabled] {
+  opacity: 0.5;
+}
+
+.dev-tip {
+  text-align: center;
+  color: var(--muted);
+  font-size: 24rpx;
+  margin-top: 20rpx;
+}
+
+/* 生产模式微信登录 */
+.wx-login {
+  text-align: center;
+  padding-top: 200rpx;
+}
+
+.login-slogan {
+  color: var(--muted);
+  font-size: 28rpx;
+  margin: 16rpx 0 80rpx;
+}
+
+.wx-icon {
+  font-size: 120rpx;
+  margin-bottom: 60rpx;
+}
+
+.login-btn.wx {
+  background: #07c160;
+}
+
+.wx-tip {
+  color: var(--muted);
+  font-size: 24rpx;
+  margin-top: 20rpx;
+}

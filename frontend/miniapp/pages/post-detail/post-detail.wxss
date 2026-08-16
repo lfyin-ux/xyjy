@@ -132,3 +132,88 @@
   color: var(--pink);
   font-size: 26rpx;
 }
+
+/* 我的动态卡片 */
+.my-post {
+  background: #fff;
+  border-radius: 36rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  position: relative;
+}
+
+.my-post-content {
+  font-size: 30rpx;
+  line-height: 1.6;
+  margin-bottom: 16rpx;
+}
+
+.my-post-img {
+  width: 100%;
+  height: 280rpx;
+  border-radius: 24rpx;
+  margin-bottom: 16rpx;
+}
+
+.my-post-footer {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.my-post-stats {
+  flex: 1;
+  display: flex;
+  gap: 24rpx;
+}
+
+.stat-item {
+  font-size: 26rpx;
+  color: #777487;
+}
+
+.my-post-topic {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: var(--purple);
+}
+
+/* 点赞用户列表 */
+.like-users {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.like-user {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.like-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 20rpx;
+  background: #eeeaff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  overflow: hidden;
+}
+
+.like-avatar-img {
+  width: 100%;
+  height: 100%;
+}
+
+.like-name {
+  font-size: 20rpx;
+  color: var(--muted);
+  max-width: 80rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

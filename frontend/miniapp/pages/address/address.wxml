@@ -1,0 +1,45 @@
+<view class="page">
+  <!-- 地址列表模式 -->
+  <block wx:if="{{!editing}}">
+    <view class="addr-item {{item.isDefault?'default':''}}" wx:for="{{list}}" wx:key="id"
+      bindtap="{{selectMode ? 'selectAddr' : ''}}" data-item="{{item}}">
+      <view class="addr-top">
+        <text class="addr-name">{{item.receiver}}</text>
+        <text class="addr-phone">{{item.phone}}</text>
+        <text wx:if="{{item.isDefault}}" class="addr-default-tag">默认</text>
+      </view>
+      <view class="addr-detail">{{item.address}}</view>
+      <view class="addr-actions" wx:if="{{!selectMode}}">
+        <text class="addr-act" catchtap="edit" data-item="{{item}}">编辑</text>
+        <text class="addr-act" catchtap="setDefault" data-id="{{item.id}}" wx:if="{{!item.isDefault}}">设为默认</text>
+        <text class="addr-act del" catchtap="del" data-id="{{item.id}}">删除</text>
+      </view>
+    </view>
+    <view wx:if="{{list.length===0}}" class="empty">还没有收货地址，请添加</view>
+    <view class="add-btn" bindtap="showEdit">＋ 新增收货地址</view>
+  </block>
+
+  <!-- 编辑/新增模式 -->
+  <block wx:else>
+    <view class="card">
+      <view class="field">
+        <text class="label">收货人</text>
+        <input placeholder="请输入收货人姓名" value="{{form.receiver}}" bindinput="onReceiver" />
+      </view>
+      <view class="field">
+        <text class="label">联系电话</text>
+        <input type="number" maxlength="11" placeholder="请输入手机号" value="{{form.phone}}" bindinput="onPhone" />
+      </view>
+      <view class="field">
+        <text class="label">收货地址</text>
+        <textarea placeholder="请输入详细地址（如学校+宿舍楼+门牌号）" value="{{form.address}}" bindinput="onAddress" />
+      </view>
+      <view class="switch-row">
+        <text>设为默认地址</text>
+        <switch checked="{{form.isDefault===1}}" bindchange="onDefault" color="#6c5ce7" />
+      </view>
+      <button class="primary" bindtap="saveAddr">保存地址</button>
+      <view class="cancel-link" bindtap="cancelEdit">取消</view>
+    </view>
+  </block>
+</view>

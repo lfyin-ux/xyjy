@@ -1,0 +1,31 @@
+<wxs module="fmt">
+function statusText(s) {
+  var map = { '0': '申请中', '1': '已同意退款', '2': '已拒绝' }
+  return map['' + s] || ''
+}
+function statusClass(s) {
+  var map = { '0': 'pending', '1': 'success', '2': 'rejected' }
+  return map['' + s] || ''
+}
+module.exports = { statusText: statusText, statusClass: statusClass }
+</wxs>
+
+<view class="page">
+  <view class="title">退款详情</view>
+
+  <view class="refund-item" wx:for="{{refunds}}" wx:key="id">
+    <view class="ri-head">
+      <text class="ri-name">{{item.goodsName}}</text>
+      <text class="ri-status {{fmt.statusClass(item.status)}}">{{fmt.statusText(item.status)}}</text>
+    </view>
+    <view class="ri-info">
+      <text>规格：{{item.spec || '-'}}</text>
+      <text>退货数量：{{item.quantity}}</text>
+    </view>
+    <view class="ri-amount">退款金额：<text class="price">¥{{item.refundAmount}}</text></view>
+    <view wx:if="{{item.reason}}" class="ri-reason">原因：{{item.reason}}</view>
+    <view wx:if="{{item.rejectReason}}" class="ri-reject">拒绝原因：{{item.rejectReason}}</view>
+  </view>
+
+  <view wx:if="{{refunds.length===0}}" class="empty">暂无退款记录</view>
+</view>

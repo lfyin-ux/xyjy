@@ -6,8 +6,10 @@
 
 .chat-box {
   flex: 1;
-  padding: 24rpx 32rpx;
+  padding: 24rpx 28rpx 10rpx;
   overflow-y: auto;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .chat-note {
@@ -20,31 +22,60 @@
   border-radius: 20rpx;
 }
 
-.bubble {
-  max-width: 70%;
-  padding: 22rpx 26rpx;
-  border-radius: 32rpx;
-  margin: 12rpx 0;
-  background: #fff;
-  font-size: 28rpx;
-  display: inline-block;
-  clear: both;
-  float: left;
-  word-break: break-all;
+.msg-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.bubble.me {
+.msg-row.me {
+  justify-content: flex-end;
+}
+
+.msg-avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 24rpx;
+  background: #eeeaff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+}
+
+.bubble {
+  max-width: 60%;
+  padding: 22rpx 28rpx;
+  border-radius: 32rpx;
+  background: #fff;
+  font-size: 28rpx;
+  word-break: break-all;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.msg-row.me .bubble {
   background: var(--purple);
   color: #fff;
-  float: right;
 }
 
 .chat-input {
   display: flex;
-  gap: 16rpx;
+  gap: 12rpx;
   padding: 20rpx 24rpx;
   background: #fff;
   align-items: center;
+  border-top: 2rpx solid var(--line);
 }
 
 .chat-input input {
@@ -57,12 +88,53 @@
   font-size: 28rpx;
 }
 
+.input-btn {
+  font-size: 44rpx;
+  width: 60rpx;
+  text-align: center;
+  flex-shrink: 0;
+}
+
 .send-btn {
   background: var(--purple);
   color: #fff;
   border-radius: 28rpx;
-  font-size: 28rpx;
-  padding: 0 36rpx;
-  line-height: 76rpx;
-  margin: 0;
+  font-size: 26rpx;
+  padding: 0 28rpx;
+  line-height: 72rpx;
+  height: 72rpx;
+  flex-shrink: 0;
+}
+
+/* emoji面板 */
+.emoji-panel {
+  background: #fff;
+  padding: 20rpx 24rpx;
+  border-top: 2rpx solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  max-height: 300rpx;
+  overflow-y: auto;
+}
+
+.emoji-item {
+  width: 60rpx;
+  height: 60rpx;
+  font-size: 44rpx;
+  text-align: center;
+  line-height: 60rpx;
+}
+
+/* 图片消息气泡 */
+.bubble-img {
+  max-width: 55%;
+  border-radius: 24rpx;
+  min-width: 160rpx;
+}
+
+.loading-more {
+  text-align: center;
+  color: var(--muted);
+  font-size: 24rpx;
+  padding: 20rpx 0;
 }

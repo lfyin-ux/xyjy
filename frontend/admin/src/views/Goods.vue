@@ -15,7 +15,6 @@
 
     <div class="table-card">
       <el-table :data="list" v-loading="loading" stripe>
-        <el-table-column prop="id" label="ID" width="70" />
         <el-table-column label="封面" width="90">
           <template #default="{ row }">
             <el-image v-if="row.cover" :src="row.cover" fit="cover" style="width: 60px; height: 45px" />

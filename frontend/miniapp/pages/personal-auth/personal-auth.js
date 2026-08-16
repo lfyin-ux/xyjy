@@ -57,12 +57,12 @@ Page({
 
   submit() {
     const d = this.data
-    if (!/^1\d{10}$/.test(d.phone) || d.code !== '123456' || !d.realName
+    if (!/^1\d{10}$/.test(d.phone) || !d.code || !d.realName
       || !/^[1-9]\d{16}[\dXx]$/.test(d.idCard) || !d.idFrontImg || !d.idBackImg) {
       wx.showToast({ title: '请完整填写信息并上传身份证正反面', icon: 'none' })
       return
     }
-    api.post('/auth/personal/submit', {
+    api.post('/auth/personal/submit?smsCode=' + encodeURIComponent(d.code), {
       userId: app.globalData.userId,
       phone: d.phone,
       realName: d.realName,

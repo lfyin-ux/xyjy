@@ -5,57 +5,109 @@ Page({
   data: {
     mode: 'take',
     tasks: [],
-    myTasks: []
+    myPublish: [],
+    myTaken: [],
+    imgBase: ''
   },
 
   onLoad(options) {
+    this.setData({ imgBase: app.globalData.baseUrl })
     if (options.my) {
-      this.setData({ mode: 'mine' })
+      this.setData({ mode: 'publish' })
     }
   },
 
   onShow() {
-    this.loadTasks()
-    this.loadMyTasks()
+    this.loadAll()
   },
 
   switchMode(e) {
     this.setData({ mode: e.currentTarget.dataset.m })
   },
 
+  loadAll() {
+    this.loadTasks()
+    this.loadMyPublish()
+    this.loadMyTaken()
+  },
+
+  // 可接单列表
   loadTasks() {
     api.get('/errand/available').then((list) => this.setData({ tasks: list }))
   },
 
-  loadMyTasks() {
-    api.get('/errand/my/publish/' + app.globalData.userId).then((list) => this.setData({ myTasks: list }))
+  // 我发布的
+  loadMyPublish() {
+    api.get('/errand/my/publish/' + app.globalData.userId).then((list) => {
+      // 加载接单人信息
+      const tasks = list.map((item) => {
+        item.takerInfo = null
+        if (item.takerId) {
+          api.get('/user/detail/' + item.takerId).then((user) => {
+            item.takerInfo = user
+            this.setData({ myPublish: this.data.myPublish })
+          })
+        }
+        return item
+      })
+      this.setData({ myPublish: tasks })
+    })
   },
 
+  // 我接取的
+  loadMyTaken() {
+    api.get('/errand/my/take/' + app.globalData.userId).then((list) => this.setData({ myTaken: list }))
+  },
+
+  // 接单 跳转到确认接单页
   accept(e) {
     const id = e.currentTarget.dataset.id
-    api.post('/errand/accept?id=' + id + '&takerId=' + app.globalData.userId).then(() => {
-      wx.showToast({ title: '接单成功', icon: 'success' })
-      this.loadTasks()
-    })
+    wx.navigateTo({ url: '/pages/errand-accept/errand-accept?id=' + id })
   },
 
-  cancel(e) {
-    const id = e.currentTarget.dataset.id
-    api.post('/errand/updateStatus?id=' + id + '&status=4').then(() => {
-      wx.showToast({ title: '已取消', icon: 'none' })
-      this.loadMyTasks()
-    })
-  },
-
+  // 发单人确认完成
   finish(e) {
     const id = e.currentTarget.dataset.id
     api.post('/errand/updateStatus?id=' + id + '&status=3').then(() => {
-      wx.showToast({ title: '已完成', icon: 'success' })
-      this.loadMyTasks()
+      wx.showToast({ title: '已确认完成', icon: 'success' })
+      this.loadAll()
+    })
+  },
+
+  // 接单人标记完成
+  finishTaken(e) {
+    const id = e.currentTarget.dataset.id
+    api.post('/errand/updateStatus?id=' + id + '&status=3').then(() => {
+      wx.showToast({ title: '已标记完成', icon: 'success' })
+      this.loadAll()
+    })
+  },
+
+  // 取消订单
+  cancel(e) {
+    const id = e.currentTarget.dataset.id
+    wx.showModal({
+      title: '提示',
+      content: '确定取消该订单吗？',
+      success: (res) => {
+        if (res.confirm) {
+          api.post('/errand/updateStatus?id=' + id + '&status=4').then(() => {
+            wx.showToast({ title: '已取消', icon: 'none' })
+            this.loadAll()
+          })
+        }
+      }
     })
   },
 
   goPublish() {
     wx.navigateTo({ url: '/pages/errand-publish/errand-publish' })
+  },
+
+  viewTaker(e) {
+    const id = e.currentTarget.dataset.id
+    if (id) {
+      wx.navigateTo({ url: '/pages/profile/profile?id=' + id })
+    }
   }
 })

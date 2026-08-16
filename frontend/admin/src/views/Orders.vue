@@ -32,24 +32,27 @@
             </el-table>
           </template>
         </el-table-column>
-        <el-table-column label="订单号" width="180">
+        <el-table-column label="订单号" min-width="180" show-overflow-tooltip>
           <template #default="{ row }">{{ row.order.orderNo }}</template>
         </el-table-column>
-        <el-table-column label="用户ID" width="90">
-          <template #default="{ row }">{{ row.order.userId }}</template>
+        <el-table-column label="金额" width="80">
+          <template #default="{ row }">¥{{ row.order.totalAmount }}</template>
         </el-table-column>
-        <el-table-column label="金额" width="100">
-          <template #default="{ row }">¥ {{ row.order.totalAmount }}</template>
-        </el-table-column>
-        <el-table-column label="收货人" width="120">
+        <el-table-column label="收货人" width="80">
           <template #default="{ row }">{{ row.order.receiver }}</template>
         </el-table-column>
-        <el-table-column label="状态" width="100">
+        <el-table-column label="收货电话" width="120">
+          <template #default="{ row }">{{ row.order.phone }}</template>
+        </el-table-column>
+        <el-table-column label="收货地址" min-width="150">
+          <template #default="{ row }">{{ row.order.address }}</template>
+        </el-table-column>
+        <el-table-column label="状态" width="80">
           <template #default="{ row }">
             <el-tag :type="statusType(row.order.status)">{{ statusText(row.order.status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="退款" width="100">
+        <el-table-column label="退款" width="80">
           <template #default="{ row }">
             <el-tag v-if="row.order.refundStatus > 0" :type="refundType(row.order.refundStatus)">
               {{ refundText(row.order.refundStatus) }}
@@ -57,14 +60,11 @@
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="100">
           <template #default="{ row }">
             <el-button size="small" type="primary" @click="doShip(row.order.id)"
               v-if="row.order.status === 2">发货</el-button>
-            <template v-if="row.order.refundStatus === 1">
-              <el-button size="small" type="success" @click="doRefund(row.order.id, true)">同意退款</el-button>
-              <el-button size="small" @click="doRefund(row.order.id, false)">拒绝</el-button>
-            </template>
+            <span v-if="row.order.refundStatus === 1" style="color: #e6a23c; font-size: 12px">退款审核中 →退款管理处理</span>
           </template>
         </el-table-column>
       </el-table>

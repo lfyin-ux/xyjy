@@ -33,6 +33,8 @@ public class MatchController {
     private UserBlacklistMapper userBlacklistMapper;
     @Resource
     private ChatSessionMapper chatSessionMapper;
+    @Resource
+    private com.xyjy.service.AuthCheckService authCheckService;
 
     /**
      * 推荐列表 排除本人 已喜欢 已跳过 黑名单 封禁用户 支持筛选
@@ -42,6 +44,8 @@ public class MatchController {
                                            @RequestParam(required = false) Integer gender,
                                            @RequestParam(required = false) String tag,
                                            @RequestParam(required = false) String partnerType) {
+        // 必须双认证才能使用匹配
+        authCheckService.requireFullAuth(userId);
         AppUser me = appUserMapper.selectById(userId);
         if (me == null) {
             throw new BusinessException("用户不存在");
@@ -177,6 +181,20 @@ public class MatchController {
         List<UserLike> likes = userLikeMapper.selectList(new LambdaQueryWrapper<UserLike>()
                 .eq(UserLike::getTargetId, userId));
         List<Long> ids = likes.stream().map(UserLike::getUserId).distinct().collect(Collectors.toList());
+        if (ids.isEmpty()) {
+            return Result.success(new ArrayList<>());
+        }
+        return Result.success(appUserMapper.selectBatchIds(ids));
+    }
+
+    /**
+     * 我的特别关注列表
+     */
+    @GetMapping("/myStars/{userId}")
+    public Result<List<AppUser>> myStars(@PathVariable Long userId) {
+        List<UserLike> stars = userLikeMapper.selectList(new LambdaQueryWrapper<UserLike>()
+                .eq(UserLike::getUserId, userId).eq(UserLike::getType, 2));
+        List<Long> ids = stars.stream().map(UserLike::getTargetId).distinct().collect(Collectors.toList());
         if (ids.isEmpty()) {
             return Result.success(new ArrayList<>());
         }

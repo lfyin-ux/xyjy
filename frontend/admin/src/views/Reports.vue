@@ -11,7 +11,6 @@
 
     <div class="table-card">
       <el-table :data="list" v-loading="loading" stripe>
-        <el-table-column prop="id" label="ID" width="70" />
         <el-table-column prop="reporterId" label="举报人ID" width="100" />
         <el-table-column label="举报类型" width="110">
           <template #default="{ row }">{{ typeText(row.targetType) }}</template>

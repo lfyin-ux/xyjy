@@ -19,7 +19,6 @@
 
     <div class="table-card">
       <el-table :data="list" v-loading="loading" stripe>
-        <el-table-column prop="id" label="ID" width="70" />
         <el-table-column prop="word" label="命中词" width="120" />
         <el-table-column prop="content" label="命中内容" />
         <el-table-column prop="userId" label="用户ID" width="90" />

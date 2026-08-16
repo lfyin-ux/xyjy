@@ -5,11 +5,13 @@ Page({
   data: {
     items: [],
     total: 0,
-    imgBase: ''
+    imgBase: '',
+    selectedAddress: null
   },
 
   onLoad() {
     this.setData({ imgBase: app.globalData.baseUrl })
+    this.loadDefaultAddress()
   },
 
   onShow() {
@@ -20,6 +22,14 @@ Page({
     api.get('/mall/cart/' + app.globalData.userId).then((items) => {
       this.setData({ items })
       this.calcTotal()
+    })
+  },
+
+  loadDefaultAddress() {
+    api.get('/address/default/' + app.globalData.userId).then((addr) => {
+      if (addr) {
+        this.setData({ selectedAddress: addr })
+      }
     })
   },
 
@@ -50,7 +60,16 @@ Page({
     })
   },
 
+  chooseAddress() {
+    wx.navigateTo({ url: '/pages/address/address?select=1' })
+  },
+
   settle() {
+    const addr = this.data.selectedAddress
+    if (!addr) {
+      wx.showToast({ title: '请先选择收货地址', icon: 'none' })
+      return
+    }
     const items = this.data.items.map((it) => ({
       goodsId: it.cart.goodsId,
       quantity: it.cart.quantity,
@@ -58,16 +77,36 @@ Page({
     }))
     api.post('/mall/order/submit', {
       userId: app.globalData.userId,
-      address: '华南理工大学',
-      receiver: (app.globalData.userInfo && app.globalData.userInfo.nickname) || '同学',
-      phone: (app.globalData.userInfo && app.globalData.userInfo.phone) || '',
+      address: addr.address,
+      receiver: addr.receiver,
+      phone: addr.phone,
       items
     }).then((order) => {
-      api.post('/mall/order/pay/' + order.id).then(() => {
-        // 清空购物车项
-        this.data.items.forEach((it) => api.del('/mall/cart/' + it.cart.id))
-        wx.showToast({ title: '下单支付成功', icon: 'success' })
-        setTimeout(() => wx.navigateTo({ url: '/pages/order-list/order-list' }), 800)
+      // 调用支付接口
+      api.post('/pay/create/' + order.id).then((payResult) => {
+        if (payResult.mode === 'dev') {
+          // 开发模式 直接支付成功 清空购物车
+          this.data.items.forEach((it) => api.del('/mall/cart/' + it.cart.id))
+          wx.showToast({ title: '下单支付成功', icon: 'success' })
+          setTimeout(() => wx.navigateTo({ url: '/pages/order-list/order-list' }), 800)
+        } else {
+          // 生产模式 拉起微信支付
+          wx.requestPayment({
+            timeStamp: payResult.timeStamp,
+            nonceStr: payResult.nonceStr,
+            package: payResult.package,
+            signType: payResult.signType,
+            paySign: payResult.paySign,
+            success: () => {
+              this.data.items.forEach((it) => api.del('/mall/cart/' + it.cart.id))
+              wx.showToast({ title: '支付成功', icon: 'success' })
+              setTimeout(() => wx.navigateTo({ url: '/pages/order-list/order-list' }), 800)
+            },
+            fail: () => {
+              wx.showToast({ title: '支付取消', icon: 'none' })
+            }
+          })
+        }
       })
     })
   }

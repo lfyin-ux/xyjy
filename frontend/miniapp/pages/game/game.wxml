@@ -1,27 +1,55 @@
 <wxs module="fmt">
 function statusText(s) {
   var map = { '1': '招募中', '2': '已满员', '3': '已结束' }
-  return map[s] || ''
+  return map['' + s] || ''
 }
 module.exports = { statusText: statusText }
 </wxs>
 
 <view class="page">
-  <view class="team" wx:for="{{teams}}" wx:key="id">
+  <view class="dual">
+    <view class="mode-btn {{tab==='all'?'active':''}}" bindtap="switchTab" data-t="all">全部组局</view>
+    <view class="mode-btn {{tab==='created'?'active':''}}" bindtap="switchTab" data-t="created">我发起的</view>
+    <view class="mode-btn {{tab==='joined'?'active':''}}" bindtap="switchTab" data-t="joined">我加入的</view>
+  </view>
+
+  <view class="team" wx:for="{{currentList}}" wx:key="id" bindtap="viewDetail" data-id="{{item.id}}">
     <view class="team-head">
       <text class="team-name">🎮 {{item.gameName}}</text>
-      <text class="status-tag {{item.status===1?'on':''}}">{{fmt.statusText(item.status)}}</text>
+      <text class="status-tag" wx:if="{{fmt.statusText(item.status)}}">{{fmt.statusText(item.status)}}</text>
     </view>
     <view class="team-info">时间：{{item.playTime}}</view>
     <view class="team-info">要求：{{item.requireDesc}}</view>
     <view class="team-foot">
       <text class="team-num">{{item.joinedNum}} / {{item.needNum}} 人</text>
-      <button wx:if="{{item.status===1}}" class="join-btn" bindtap="join" data-id="{{item.id}}">申请加入</button>
+      <view wx:if="{{item.status===1 && tab==='all'}}" class="join-btn" catchtap="join" data-id="{{item.id}}">申请加入</view>
+      <view wx:if="{{tab==='joined' && item.status!==3}}" class="quit-btn" catchtap="quit" data-id="{{item.id}}">退出组局</view>
     </view>
   </view>
-  <view wx:if="{{teams.length===0}}" class="empty">暂无组局，发起一个吧</view>
+  <view wx:if="{{currentList.length===0}}" class="empty">暂无组局</view>
 
-  <button class="fab" bindtap="openCreate">＋</button>
+  <view class="fab" bindtap="openCreate">＋</view>
+
+  <!-- 组局详情弹窗 显示成员 -->
+  <view wx:if="{{showDetail}}" class="mask" bindtap="closeDetail">
+    <view class="dialog" catchtap="noop">
+      <view class="dialog-title">组局成员</view>
+      <view class="member-row" wx:for="{{members}}" wx:key="id">
+        <view class="member-left" bindtap="viewProfile" data-id="{{item.user.id}}">
+          <view class="member-avatar">
+            <image wx:if="{{item.user.avatar}}" src="{{imgBase}}{{item.user.avatar}}" mode="aspectFill" class="member-img" />
+            <text wx:else>🧑</text>
+          </view>
+          <view class="member-info">
+            <text class="member-name">{{item.user.nickname}}</text>
+            <text class="member-school">{{item.user.school}}</text>
+          </view>
+        </view>
+        <view class="member-msg" catchtap="sendMsg" data-user="{{item.user}}" wx:if="{{item.user.id !== myId}}">发消息</view>
+      </view>
+      <view wx:if="{{members.length===0}}" class="empty">暂无成员</view>
+    </view>
+  </view>
 
   <!-- 发起组局弹窗 -->
   <view wx:if="{{showCreate}}" class="mask" bindtap="closeCreate">

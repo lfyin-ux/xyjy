@@ -1,7 +1,7 @@
 <wxs module="fmt">
 function statusText(s) {
   var map = { '1': '待接单', '2': '进行中', '3': '已完成', '4': '已取消' }
-  return map[s] || ''
+  return map['' + s] || ''
 }
 module.exports = { statusText: statusText }
 </wxs>
@@ -9,10 +9,11 @@ module.exports = { statusText: statusText }
 <view class="page">
   <view class="dual">
     <view class="mode-btn {{mode==='take'?'active':''}}" bindtap="switchMode" data-m="take">我要接单</view>
-    <view class="mode-btn {{mode==='mine'?'active':''}}" bindtap="switchMode" data-m="mine">我的订单</view>
+    <view class="mode-btn {{mode==='publish'?'active':''}}" bindtap="switchMode" data-m="publish">我发布的</view>
+    <view class="mode-btn {{mode==='taken'?'active':''}}" bindtap="switchMode" data-m="taken">我接取的</view>
   </view>
 
-  <!-- 可接单 -->
+  <!-- 可接单列表 -->
   <block wx:if="{{mode==='take'}}">
     <view class="task" wx:for="{{tasks}}" wx:key="id">
       <view class="task-head">
@@ -21,29 +22,60 @@ module.exports = { statusText: statusText }
       </view>
       <view class="task-route">{{item.fromPlace}} → {{item.toPlace}}</view>
       <view class="task-time">{{item.finishTime}}</view>
+      <view wx:if="{{item.publisherContact}}" class="task-contact">联系方式：{{item.publisherContact}}</view>
       <view class="task-foot">
-        <text class="task-sub">发布于刚刚</text>
-        <button class="accept" bindtap="accept" data-id="{{item.id}}">立即接单</button>
+        <text class="price">¥ {{item.fee}}</text>
+        <view class="accept" bindtap="accept" data-id="{{item.id}}">立即接单</view>
       </view>
     </view>
     <view wx:if="{{tasks.length===0}}" class="empty">本校暂无可接订单</view>
-    <button class="fab" bindtap="goPublish">＋</button>
   </block>
 
-  <!-- 我的订单 -->
-  <block wx:else>
-    <view class="task" wx:for="{{myTasks}}" wx:key="id">
+  <!-- 我发布的 -->
+  <block wx:if="{{mode==='publish'}}">
+    <view class="task" wx:for="{{myPublish}}" wx:key="id">
       <view class="task-head">
         <text class="task-title">{{item.title}}</text>
-        <text class="status-tag">{{fmt.statusText(item.status)}}</text>
+        <text class="status-tag" wx:if="{{fmt.statusText(item.status)}}">{{fmt.statusText(item.status)}}</text>
       </view>
       <view class="task-route">{{item.fromPlace}} → {{item.toPlace}}</view>
+      <view class="taker-row" wx:if="{{item.takerInfo}}" bindtap="viewTaker" data-id="{{item.takerId}}">
+        <view class="taker-avatar">
+          <image wx:if="{{item.takerInfo.avatar}}" src="{{imgBase}}{{item.takerInfo.avatar}}" mode="aspectFill" class="taker-img" />
+          <text wx:else>🧑</text>
+        </view>
+        <text class="taker-name">接单人：{{item.takerInfo.nickname}}</text>
+        <text class="taker-arrow">›</text>
+      </view>
+      <view wx:if="{{item.takerContact}}" class="task-contact">接单人联系方式：{{item.takerContact}}</view>
       <view class="task-foot">
         <text class="price">¥ {{item.fee}}</text>
-        <button wx:if="{{item.status===1}}" class="accept" bindtap="cancel" data-id="{{item.id}}">取消订单</button>
-        <button wx:elif="{{item.status===2}}" class="accept" bindtap="finish" data-id="{{item.id}}">确认完成</button>
+        <view class="task-btns">
+          <view wx:if="{{item.status===2}}" class="accept" bindtap="finish" data-id="{{item.id}}">确认完成</view>
+          <view wx:if="{{item.status===1}}" class="cancel-btn" bindtap="cancel" data-id="{{item.id}}">取消订单</view>
+        </view>
       </view>
     </view>
-    <view wx:if="{{myTasks.length===0}}" class="empty">你还没有发布订单</view>
+    <view wx:if="{{myPublish.length===0}}" class="empty">你还没有发布订单</view>
   </block>
+
+  <!-- 我接取的 -->
+  <block wx:if="{{mode==='taken'}}">
+    <view class="task" wx:for="{{myTaken}}" wx:key="id">
+      <view class="task-head">
+        <text class="task-title">{{item.title}}</text>
+        <text class="status-tag" wx:if="{{fmt.statusText(item.status)}}">{{fmt.statusText(item.status)}}</text>
+      </view>
+      <view class="task-route">{{item.fromPlace}} → {{item.toPlace}}</view>
+      <view class="task-time">{{item.finishTime}}</view>
+      <view wx:if="{{item.publisherContact}}" class="task-contact">发单人联系方式：{{item.publisherContact}}</view>
+      <view class="task-foot">
+        <text class="price">¥ {{item.fee}}</text>
+        <view wx:if="{{item.status===2}}" class="accept" bindtap="finishTaken" data-id="{{item.id}}">标记完成</view>
+      </view>
+    </view>
+    <view wx:if="{{myTaken.length===0}}" class="empty">你还没有接取订单</view>
+  </block>
+
+  <view class="fab" bindtap="goPublish">＋</view>
 </view>

@@ -1,6 +1,7 @@
 package com.xyjy.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xyjy.common.BusinessException;
 import com.xyjy.common.Result;
 import com.xyjy.entity.AppUser;
@@ -36,12 +37,16 @@ public class ChatController {
     private FilterService filterService;
     @Resource
     private com.xyjy.service.BlacklistService blacklistService;
+    @Resource
+    private com.xyjy.service.AuthCheckService authCheckService;
 
     /**
      * 会话列表
      */
     @GetMapping("/sessions/{userId}")
     public Result<List<Map<String, Object>>> sessions(@PathVariable Long userId) {
+        // 必须双认证才能使用聊天
+        authCheckService.requireFullAuth(userId);
         List<ChatSession> list = chatSessionMapper.selectList(new LambdaQueryWrapper<ChatSession>()
                 .eq(ChatSession::getStatus, 1)
                 .and(w -> w.eq(ChatSession::getUserA, userId).or().eq(ChatSession::getUserB, userId))
@@ -73,15 +78,30 @@ public class ChatController {
      * 会话消息记录 并将对方发来的消息标记已读
      */
     @GetMapping("/messages/{sessionId}")
-    public Result<List<ChatMessage>> messages(@PathVariable Long sessionId, @RequestParam Long userId) {
-        List<ChatMessage> list = chatMessageMapper.selectList(new LambdaQueryWrapper<ChatMessage>()
-                .eq(ChatMessage::getSessionId, sessionId).orderByAsc(ChatMessage::getCreateTime));
-        // 标记已读
-        list.stream().filter(m -> m.getToId().equals(userId) && m.getIsRead() == 0).forEach(m -> {
-            m.setIsRead(1);
-            chatMessageMapper.updateById(m);
-        });
-        return Result.success(list);
+    public Result<Map<String, Object>> messages(@PathVariable Long sessionId,
+                                                 @RequestParam Long userId,
+                                                 @RequestParam(defaultValue = "1") Integer pageNum,
+                                                 @RequestParam(defaultValue = "20") Integer pageSize) {
+        // 按时间倒序分页 最新消息在前
+        Page<ChatMessage> page = new Page<>(pageNum, pageSize);
+        Page<ChatMessage> result = chatMessageMapper.selectPage(page,
+                new LambdaQueryWrapper<ChatMessage>()
+                        .eq(ChatMessage::getSessionId, sessionId)
+                        .orderByDesc(ChatMessage::getCreateTime));
+        // 反转为时间升序（旧消息在前）方便前端展示
+        java.util.Collections.reverse(result.getRecords());
+        // 标记本页中对方发给我的未读消息为已读
+        result.getRecords().stream()
+                .filter(m -> m.getToId().equals(userId) && m.getIsRead() != null && m.getIsRead() == 0)
+                .forEach(m -> {
+                    m.setIsRead(1);
+                    chatMessageMapper.updateById(m);
+                });
+        Map<String, Object> data = new java.util.HashMap<>();
+        data.put("records", result.getRecords());
+        data.put("total", result.getTotal());
+        data.put("hasMore", pageNum * pageSize < result.getTotal());
+        return Result.success(data);
     }
 
     /**
@@ -132,6 +152,9 @@ public class ChatController {
         session.setLastMsg(msg.getContent());
         session.setLastTime(LocalDateTime.now());
         chatSessionMapper.updateById(session);
+        // 通过WebSocket实时推送给对方
+        com.xyjy.websocket.ChatWebSocket.sendToUser(msg.getToId(),
+                com.alibaba.fastjson2.JSON.toJSONString(msg));
         return Result.success(msg);
     }
 
@@ -168,6 +191,9 @@ public class ChatController {
             msg.setContent(content);
             msg.setIsRead(0);
             chatMessageMapper.insert(msg);
+            // 通过WebSocket实时推送打招呼消息
+            com.xyjy.websocket.ChatWebSocket.sendToUser(toId,
+                    com.alibaba.fastjson2.JSON.toJSONString(msg));
         }
         return Result.success(session);
     }

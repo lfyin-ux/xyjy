@@ -1,0 +1,19 @@
+<view class="page">
+  <!-- 全屏预览 -->
+  <view wx:if="{{previewUrl}}" class="preview-mask" bindtap="closePreview">
+    <image src="{{previewUrl}}" mode="aspectFit" class="preview-img" />
+  </view>
+
+  <view class="album-grid">
+    <view class="album-item" wx:for="{{photos}}" wx:key="id">
+      <image src="{{imgBase}}{{item.imgUrl}}" mode="aspectFill" class="album-img" bindtap="preview" data-url="{{imgBase}}{{item.imgUrl}}" />
+      <view class="album-del" catchtap="delPhoto" data-id="{{item.id}}">×</view>
+      <view wx:if="{{item.auditStatus===0}}" class="album-audit">审核中</view>
+    </view>
+    <view class="album-add" bindtap="addPhoto">
+      <text class="add-icon">＋</text>
+      <text class="add-text">上传照片</text>
+    </view>
+  </view>
+  <view class="album-tip">照片上传后需要审核通过才会在主页展示给其他人</view>
+</view>

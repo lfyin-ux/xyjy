@@ -1,9 +1,20 @@
 <view class="page">
   <view class="top">
     <view class="brand">碰个<i>面</i></view>
-    <button class="icon-btn" bindtap="goChat">💬</button>
   </view>
 
+  <!-- 未认证锁定页 -->
+  <block wx:if="{{locked}}">
+    <view class="gate">
+      <view class="gate-icon">🔐</view>
+      <view class="gate-title">功能暂未解锁</view>
+      <view class="gate-desc">为保障校园社区安全，需要完成个人认证和学校认证后才能使用匹配和广场功能。</view>
+      <button class="primary" bindtap="goAuth">前往认证中心</button>
+    </view>
+  </block>
+
+  <!-- 正常内容 -->
+  <block wx:else>
   <view class="hero">
     <text class="small">今日校园缘分</text>
     <view class="h2">发现同频的 TA</view>
@@ -72,4 +83,5 @@
     <view wx:if="{{posts.length===0}}" class="empty">本校暂时还没有新动态</view>
     <view class="fab" bindtap="goPublish">＋</view>
   </view>
+  </block>
 </view>

@@ -22,13 +22,27 @@
     <view class="goods-detail">{{goods.detail}}</view>
   </view>
 
+  <!-- 收货地址 -->
+  <view class="card addr-select" bindtap="chooseAddress">
+    <block wx:if="{{selectedAddress}}">
+      <view class="addr-info">
+        <text class="addr-receiver">{{selectedAddress.receiver}} {{selectedAddress.phone}}</text>
+        <view class="addr-text">{{selectedAddress.address}}</view>
+      </view>
+    </block>
+    <block wx:else>
+      <view class="addr-empty">请选择收货地址</view>
+    </block>
+    <text class="addr-arrow">›</text>
+  </view>
+
   <view class="buy-bar">
     <view class="qty">
       <text class="qty-btn" bindtap="minus">-</text>
       <text class="qty-num">{{quantity}}</text>
       <text class="qty-btn" bindtap="plus">+</text>
     </view>
-    <button class="cart-btn" bindtap="addCart">加入购物车</button>
-    <button class="buy-btn" bindtap="buyNow">立即购买</button>
+    <view class="cart-btn" bindtap="addCart">加入购物车</view>
+    <view class="buy-btn" bindtap="buyNow">立即购买</view>
   </view>
 </view>

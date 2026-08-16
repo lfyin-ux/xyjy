@@ -34,7 +34,6 @@
       <el-tab-pane label="评论审核" name="comment">
         <div class="table-card">
           <el-table :data="commentList" v-loading="loading" stripe>
-            <el-table-column prop="id" label="ID" width="70" />
             <el-table-column prop="postId" label="动态ID" width="90" />
             <el-table-column prop="content" label="评论内容" />
             <el-table-column prop="createTime" label="时间" width="180" />

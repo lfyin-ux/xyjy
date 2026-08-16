@@ -90,7 +90,7 @@ public class MallController {
     }
 
     /**
-     * 加入购物车
+     * 加入购物车 相同商品相同规格合并数量
      */
     @PostMapping("/cart/add")
     public Result<Void> addCart(@RequestBody MallCart cart) {
@@ -100,7 +100,21 @@ public class MallController {
         if (cart.getQuantity() == null || cart.getQuantity() < 1) {
             cart.setQuantity(1);
         }
-        mallCartMapper.insert(cart);
+        // 查询是否已有相同商品相同规格
+        LambdaQueryWrapper<MallCart> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(MallCart::getUserId, cart.getUserId())
+                .eq(MallCart::getGoodsId, cart.getGoodsId());
+        if (cart.getSpec() != null && !cart.getSpec().isEmpty()) {
+            wrapper.eq(MallCart::getSpec, cart.getSpec());
+        }
+        MallCart exist = mallCartMapper.selectOne(wrapper);
+        if (exist != null) {
+            // 已有则合并数量
+            exist.setQuantity(exist.getQuantity() + cart.getQuantity());
+            mallCartMapper.updateById(exist);
+        } else {
+            mallCartMapper.insert(cart);
+        }
         return Result.success();
     }
 

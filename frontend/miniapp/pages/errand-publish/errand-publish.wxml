@@ -24,6 +24,10 @@
       <text class="label">补充说明</text>
       <textarea placeholder="物品信息等" value="{{content}}" bindinput="onContent" />
     </view>
+    <view class="field">
+      <text class="label">联系方式（必填）</text>
+      <input placeholder="手机号或微信号" value="{{contact}}" bindinput="onContact" />
+    </view>
     <button class="primary" bindtap="publish">确认发单</button>
   </view>
 </view>

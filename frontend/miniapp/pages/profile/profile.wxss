@@ -106,3 +106,35 @@
   font-size: 24rpx;
   margin-top: 8rpx;
 }
+
+/* 主页相册 */
+.profile-album {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12rpx;
+}
+
+.profile-photo {
+  width: 100%;
+  height: 150rpx;
+  border-radius: 16rpx;
+}
+
+/* 全屏预览 */
+.preview-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.preview-img {
+  width: 100%;
+  height: 80vh;
+}

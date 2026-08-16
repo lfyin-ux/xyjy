@@ -20,8 +20,24 @@
   </view>
   <view wx:if="{{items.length===0}}" class="empty">购物车还是空的</view>
 
-  <view wx:if="{{items.length>0}}" class="settle-bar">
-    <text class="total">合计：<text class="price">¥ {{total}}</text></text>
-    <button class="settle-btn" bindtap="settle">结算</button>
+  <view wx:if="{{items.length>0}}">
+    <!-- 收货地址选择 -->
+    <view class="addr-card" bindtap="chooseAddress">
+      <block wx:if="{{selectedAddress}}">
+        <view class="addr-info">
+          <text class="addr-receiver">{{selectedAddress.receiver}} {{selectedAddress.phone}}</text>
+          <view class="addr-text">{{selectedAddress.address}}</view>
+        </view>
+      </block>
+      <block wx:else>
+        <view class="addr-empty">请选择收货地址</view>
+      </block>
+      <text class="addr-arrow">›</text>
+    </view>
+
+    <view class="settle-bar">
+      <text class="total">合计：<text class="price">¥ {{total}}</text></text>
+      <view class="settle-btn" bindtap="settle">结算</view>
+    </view>
   </view>
 </view>

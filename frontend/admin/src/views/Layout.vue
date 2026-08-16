@@ -28,6 +28,7 @@
           <template #title><el-icon><Goods /></el-icon><span>商城管理</span></template>
           <el-menu-item index="/goods">商品管理</el-menu-item>
           <el-menu-item index="/orders">商城订单管理</el-menu-item>
+          <el-menu-item index="/refund">退款管理</el-menu-item>
         </el-sub-menu>
         <el-menu-item index="/admins"><el-icon><Setting /></el-icon><span>管理员管理</span></el-menu-item>
       </el-menu>

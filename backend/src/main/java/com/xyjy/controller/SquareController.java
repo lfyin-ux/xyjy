@@ -152,6 +152,22 @@ public class SquareController {
     }
 
     /**
+     * 点赞用户列表 查看谁给某动态点赞了
+     */
+    @GetMapping("/likeUsers/{postId}")
+    public Result<List<Map<String, Object>>> likeUsers(@PathVariable Long postId) {
+        List<PostLike> likes = postLikeMapper.selectList(new LambdaQueryWrapper<PostLike>()
+                .eq(PostLike::getPostId, postId).orderByDesc(PostLike::getCreateTime));
+        List<Map<String, Object>> vos = likes.stream().map(l -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("like", l);
+            map.put("user", appUserMapper.selectById(l.getUserId()));
+            return map;
+        }).collect(java.util.stream.Collectors.toList());
+        return Result.success(vos);
+    }
+
+    /**
      * 评论列表
      */
     @GetMapping("/comments/{postId}")

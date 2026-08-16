@@ -25,6 +25,8 @@ public class ErrandOrder {
     private String finishTime;
     private BigDecimal fee;
     private String remark;
+    private String publisherContact;
+    private String takerContact;
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

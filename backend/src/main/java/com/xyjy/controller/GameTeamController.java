@@ -5,12 +5,14 @@ import com.xyjy.common.BusinessException;
 import com.xyjy.common.Result;
 import com.xyjy.entity.GameTeam;
 import com.xyjy.entity.GameTeamMember;
+import com.xyjy.mapper.AppUserMapper;
 import com.xyjy.mapper.GameTeamMapper;
 import com.xyjy.mapper.GameTeamMemberMapper;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户端 游戏组局接口
@@ -23,6 +25,8 @@ public class GameTeamController {
     private GameTeamMapper gameTeamMapper;
     @Resource
     private GameTeamMemberMapper gameTeamMemberMapper;
+    @Resource
+    private AppUserMapper appUserMapper;
 
     /**
      * 组局列表
@@ -115,5 +119,45 @@ public class GameTeamController {
             gameTeamMapper.updateById(team);
         }
         return Result.success();
+    }
+
+    /**
+     * 组局成员列表 查看某个组局有哪些人加入
+     */
+    @GetMapping("/members/{teamId}")
+    public Result<List<Map<String, Object>>> members(@PathVariable Long teamId) {
+        List<GameTeamMember> members = gameTeamMemberMapper.selectList(
+                new LambdaQueryWrapper<GameTeamMember>().eq(GameTeamMember::getTeamId, teamId));
+        List<Map<String, Object>> result = members.stream().map(m -> {
+            Map<String, Object> map = new java.util.HashMap<>();
+            map.put("member", m);
+            map.put("user", appUserMapper.selectById(m.getUserId()));
+            return map;
+        }).collect(java.util.stream.Collectors.toList());
+        return Result.success(result);
+    }
+
+    /**
+     * 我发起的组局
+     */
+    @GetMapping("/myCreated/{userId}")
+    public Result<List<GameTeam>> myCreated(@PathVariable Long userId) {
+        return Result.success(gameTeamMapper.selectList(new LambdaQueryWrapper<GameTeam>()
+                .eq(GameTeam::getCreatorId, userId).orderByDesc(GameTeam::getCreateTime)));
+    }
+
+    /**
+     * 我加入的组局 包含历史
+     */
+    @GetMapping("/myJoined/{userId}")
+    public Result<List<GameTeam>> myJoined(@PathVariable Long userId) {
+        List<GameTeamMember> joined = gameTeamMemberMapper.selectList(
+                new LambdaQueryWrapper<GameTeamMember>().eq(GameTeamMember::getUserId, userId));
+        List<Long> teamIds = joined.stream().map(GameTeamMember::getTeamId)
+                .distinct().collect(java.util.stream.Collectors.toList());
+        if (teamIds.isEmpty()) {
+            return Result.success(new java.util.ArrayList<>());
+        }
+        return Result.success(gameTeamMapper.selectBatchIds(teamIds));
     }
 }
