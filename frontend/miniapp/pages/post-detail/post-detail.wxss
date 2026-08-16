@@ -81,7 +81,9 @@
   flex: 1;
   background: #f3f2f8;
   border-radius: 30rpx;
-  padding: 20rpx 28rpx;
+  padding: 0 28rpx;
+  height: 72rpx;
+  line-height: 72rpx;
   font-size: 28rpx;
 }
 

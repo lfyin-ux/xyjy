@@ -70,6 +70,6 @@
       </view>
     </view>
     <view wx:if="{{posts.length===0}}" class="empty">本校暂时还没有新动态</view>
-    <button class="fab" bindtap="goPublish">＋</button>
+    <view class="fab" bindtap="goPublish">＋</view>
   </view>
 </view>

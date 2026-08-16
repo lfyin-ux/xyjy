@@ -1,22 +1,48 @@
 <view class="page">
   <view class="top">
     <view class="brand">青春<i>好物</i></view>
-    <button class="icon-btn" bindtap="goCart">🛒</button>
+    <button class="icon-btn cart-btn" bindtap="goCart">🛒<text wx:if="{{cartCount>0}}" class="cart-badge">{{cartCount}}</text></button>
   </view>
 
-  <view class="banner">
-    <view class="banner-title">把热爱带进日常</view>
-    <view class="banner-sub">本周校园限定好物</view>
-    <view class="banner-emoji">🎁</view>
+  <!-- 顶部宣传卡 -->
+  <view class="mall-hero">
+    <text class="hero-small">本周校园限定</text>
+    <view class="hero-title">把热爱<text class="hero-br">带进日常</text></view>
+    <button class="hero-btn" bindtap="explore">立即探索 →</button>
+    <text class="hero-emoji">🎒</text>
   </view>
 
-  <!-- 搜索 -->
+  <!-- 我的订单入口 -->
+  <view class="order-panel">
+    <view class="order-title">
+      <text class="ot-name">我的订单</text>
+      <text class="ot-all" bindtap="goOrders" data-status="">全部订单 ›</text>
+    </view>
+    <view class="order-grid">
+      <view class="order-entry" bindtap="goOrders" data-status="1">
+        <text class="oe-icon">💳</text>待付款
+        <text wx:if="{{orderStat.unpaid>0}}" class="order-num">{{orderStat.unpaid}}</text>
+      </view>
+      <view class="order-entry" bindtap="goOrders" data-status="2">
+        <text class="oe-icon">📦</text>待备货
+        <text wx:if="{{orderStat.prepare>0}}" class="order-num">{{orderStat.prepare}}</text>
+      </view>
+      <view class="order-entry" bindtap="goOrders" data-status="3">
+        <text class="oe-icon">🛵</text>配送中
+        <text wx:if="{{orderStat.shipping>0}}" class="order-num">{{orderStat.shipping}}</text>
+      </view>
+      <view class="order-entry" bindtap="goOrders" data-status="5">
+        <text class="oe-icon">↩️</text>退货/售后
+        <text wx:if="{{orderStat.aftersale>0}}" class="order-num">{{orderStat.aftersale}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索与分类 -->
   <view class="search-row">
     <input class="search-input" placeholder="搜索好物" value="{{keyword}}" bindinput="onInput" bindconfirm="search" />
     <button class="search-btn" bindtap="search">搜索</button>
   </view>
-
-  <!-- 分类 -->
   <scroll-view scroll-x class="cate-bar">
     <view class="cate {{categoryId===null?'on':''}}" bindtap="pickCate" data-id="">全部</view>
     <view class="cate {{categoryId===item.id?'on':''}}" wx:for="{{categories}}" wx:key="id" bindtap="pickCate" data-id="{{item.id}}">{{item.name}}</view>
@@ -27,16 +53,17 @@
     <text class="more">全部好物</text>
   </view>
 
-  <view class="goods-grid">
-    <view class="goods-item" wx:for="{{goods}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
-      <view class="goods-pic">
-        <image wx:if="{{item.cover}}" src="{{imgBase}}{{item.cover}}" mode="aspectFill" class="goods-img" />
+  <!-- 两列商品 -->
+  <view class="products">
+    <view class="product" wx:for="{{goods}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
+      <view class="product-img">
+        <image wx:if="{{item.cover}}" src="{{imgBase}}{{item.cover}}" mode="aspectFill" class="product-cover" />
         <text wx:else>🛍️</text>
       </view>
-      <view class="goods-name">{{item.name}}</view>
-      <view class="goods-foot">
-        <text class="price">¥ {{item.price}}</text>
-        <text class="goods-sales">已售{{item.sales}}</text>
+      <view class="product-name">{{item.name}}</view>
+      <view class="product-foot">
+        <text class="price">¥{{item.price}}</text>
+        <button class="add" catchtap="quickAdd" data-item="{{item}}">＋</button>
       </view>
     </view>
   </view>

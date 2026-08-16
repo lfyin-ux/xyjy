@@ -33,6 +33,8 @@ public class SquareController {
     private ReportRecordMapper reportRecordMapper;
     @Resource
     private FilterService filterService;
+    @Resource
+    private com.xyjy.service.BlacklistService blacklistService;
 
     /**
      * 广场动态列表 仅展示已发布 附带发布者信息
@@ -40,7 +42,8 @@ public class SquareController {
     @GetMapping("/list")
     public Result<Page<Map<String, Object>>> list(@RequestParam(defaultValue = "1") Integer pageNum,
                                                    @RequestParam(defaultValue = "10") Integer pageSize,
-                                                   @RequestParam(required = false) String topic) {
+                                                   @RequestParam(required = false) String topic,
+                                                   @RequestParam(required = false) Long userId) {
         Page<SquarePost> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<SquarePost> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SquarePost::getStatus, 3);
@@ -50,8 +53,16 @@ public class SquareController {
         wrapper.orderByDesc(SquarePost::getCreateTime);
         Page<SquarePost> result = squarePostMapper.selectPage(page, wrapper);
 
+        // 黑名单双向过滤 隐藏与当前用户存在拉黑关系的动态
+        List<SquarePost> records = result.getRecords();
+        if (userId != null) {
+            records = records.stream()
+                    .filter(p -> !blacklistService.hasBlock(userId, p.getUserId()))
+                    .collect(java.util.stream.Collectors.toList());
+        }
+
         Page<Map<String, Object>> voPage = new Page<>(pageNum, pageSize, result.getTotal());
-        voPage.setRecords(result.getRecords().stream().map(this::toVo).collect(java.util.stream.Collectors.toList()));
+        voPage.setRecords(records.stream().map(this::toVo).collect(java.util.stream.Collectors.toList()));
         return Result.success(voPage);
     }
 

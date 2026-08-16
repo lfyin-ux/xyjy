@@ -35,6 +35,8 @@ public class UserController {
     private UserBlacklistMapper userBlacklistMapper;
     @Resource
     private UserFeedbackMapper userFeedbackMapper;
+    @Resource
+    private com.xyjy.service.BlacklistService blacklistService;
 
     /**
      * 查看用户详情 记录访客
@@ -45,6 +47,10 @@ public class UserController {
         AppUser user = appUserMapper.selectById(id);
         if (user == null) {
             throw new BusinessException("用户不存在");
+        }
+        // 黑名单校验 访客与目标存在拉黑关系时不可查看 黑名单双向生效
+        if (visitorId != null && !visitorId.equals(id) && blacklistService.hasBlock(visitorId, id)) {
+            throw new BusinessException("因黑名单关系，无法查看该用户");
         }
         // 记录访客
         if (visitorId != null && !visitorId.equals(id)) {

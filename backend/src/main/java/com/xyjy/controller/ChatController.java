@@ -34,6 +34,8 @@ public class ChatController {
     private AppUserMapper appUserMapper;
     @Resource
     private FilterService filterService;
+    @Resource
+    private com.xyjy.service.BlacklistService blacklistService;
 
     /**
      * 会话列表
@@ -44,20 +46,26 @@ public class ChatController {
                 .eq(ChatSession::getStatus, 1)
                 .and(w -> w.eq(ChatSession::getUserA, userId).or().eq(ChatSession::getUserB, userId))
                 .orderByDesc(ChatSession::getLastTime));
-        List<Map<String, Object>> vos = list.stream().map(s -> {
-            Map<String, Object> map = new HashMap<>();
-            Long otherId = s.getUserA().equals(userId) ? s.getUserB() : s.getUserA();
-            AppUser other = appUserMapper.selectById(otherId);
-            map.put("session", s);
-            map.put("other", other);
-            // 未读数
-            Long unread = chatMessageMapper.selectCount(new LambdaQueryWrapper<ChatMessage>()
-                    .eq(ChatMessage::getSessionId, s.getId())
-                    .eq(ChatMessage::getToId, userId)
-                    .eq(ChatMessage::getIsRead, 0));
-            map.put("unread", unread);
-            return map;
-        }).collect(Collectors.toList());
+        List<Map<String, Object>> vos = list.stream()
+                // 过滤掉与已拉黑或被拉黑用户的会话
+                .filter(s -> {
+                    Long otherId = s.getUserA().equals(userId) ? s.getUserB() : s.getUserA();
+                    return !blacklistService.hasBlock(userId, otherId);
+                })
+                .map(s -> {
+                    Map<String, Object> map = new HashMap<>();
+                    Long otherId = s.getUserA().equals(userId) ? s.getUserB() : s.getUserA();
+                    AppUser other = appUserMapper.selectById(otherId);
+                    map.put("session", s);
+                    map.put("other", other);
+                    // 未读数
+                    Long unread = chatMessageMapper.selectCount(new LambdaQueryWrapper<ChatMessage>()
+                            .eq(ChatMessage::getSessionId, s.getId())
+                            .eq(ChatMessage::getToId, userId)
+                            .eq(ChatMessage::getIsRead, 0));
+                    map.put("unread", unread);
+                    return map;
+                }).collect(Collectors.toList());
         return Result.success(vos);
     }
 
@@ -87,6 +95,11 @@ public class ChatController {
         ChatSession session = chatSessionMapper.selectById(msg.getSessionId());
         if (session == null) {
             throw new BusinessException("会话不存在");
+        }
+        // 黑名单校验 存在拉黑关系时不能发送
+        Long peerId = session.getUserA().equals(msg.getFromId()) ? session.getUserB() : session.getUserA();
+        if (blacklistService.hasBlock(msg.getFromId(), peerId)) {
+            throw new BusinessException("因黑名单关系，无法发送消息");
         }
         // 账号限制发言校验
         AppUser sender = appUserMapper.selectById(msg.getFromId());
@@ -128,6 +141,10 @@ public class ChatController {
     @PostMapping("/hello")
     public Result<ChatSession> hello(@RequestParam Long fromId, @RequestParam Long toId,
                                      @RequestParam String content) {
+        // 黑名单校验 存在拉黑关系时不能打招呼
+        if (blacklistService.hasBlock(fromId, toId)) {
+            throw new BusinessException("因黑名单关系，无法发送消息");
+        }
         // 查询是否已有会话
         ChatSession session = chatSessionMapper.selectOne(new LambdaQueryWrapper<ChatSession>()
                 .and(w -> w.eq(ChatSession::getUserA, fromId).eq(ChatSession::getUserB, toId))

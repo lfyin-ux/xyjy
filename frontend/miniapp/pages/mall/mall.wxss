@@ -1,31 +1,131 @@
-.banner {
-  margin: 0 32rpx 30rpx;
-  border-radius: 52rpx;
-  padding: 40rpx;
-  background: #ffe7be;
-  min-height: 220rpx;
+/* 购物车角标 */
+.cart-btn {
+  position: relative;
+  overflow: visible;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6rpx;
+  right: -6rpx;
+  background: var(--pink);
+  color: #fff;
+  border-radius: 20rpx;
+  font-size: 20rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  text-align: center;
+  padding: 0 6rpx;
+  border: 3rpx solid #fff;
+}
+
+/* 顶部宣传卡 */
+.mall-hero {
+  margin: 0 32rpx 36rpx;
+  height: 370rpx;
+  border-radius: 56rpx;
+  padding: 48rpx;
+  background: linear-gradient(130deg, #ffdede, #ffeebc);
   position: relative;
   overflow: hidden;
 }
 
-.banner-title {
-  font-size: 48rpx;
-  font-weight: 800;
-  margin-bottom: 10rpx;
-}
-
-.banner-sub {
-  color: #7a5a2d;
+.hero-small {
   font-size: 26rpx;
+  color: #9a6a5a;
 }
 
-.banner-emoji {
+.hero-title {
+  font-size: 56rpx;
+  font-weight: 800;
+  margin: 8rpx 0 24rpx;
+  line-height: 1.25;
+}
+
+.hero-br {
+  display: block;
+}
+
+.hero-btn {
+  border: 0;
+  padding: 0 30rpx;
+  height: 66rpx;
+  line-height: 66rpx;
+  border-radius: 28rpx;
+  background: var(--ink);
+  color: #fff;
+  font-size: 26rpx;
+  display: inline-block;
+  margin: 0;
+}
+
+.hero-emoji {
   position: absolute;
-  right: 28rpx;
-  bottom: -20rpx;
-  font-size: 150rpx;
+  right: 24rpx;
+  bottom: -36rpx;
+  font-size: 210rpx;
 }
 
+/* 我的订单入口 */
+.order-panel {
+  margin: 0 32rpx 36rpx;
+  padding: 30rpx 28rpx;
+  background: #fff;
+  border-radius: 46rpx;
+  box-shadow: 0 14rpx 44rpx rgba(34, 27, 78, 0.05);
+}
+
+.order-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 26rpx;
+}
+
+.ot-name {
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.ot-all {
+  color: var(--muted);
+  font-size: 24rpx;
+}
+
+.order-grid {
+  display: flex;
+}
+
+.order-entry {
+  flex: 1;
+  text-align: center;
+  font-size: 22rpx;
+  color: var(--ink);
+  position: relative;
+}
+
+.oe-icon {
+  display: block;
+  font-size: 50rpx;
+  margin-bottom: 12rpx;
+}
+
+.order-num {
+  position: absolute;
+  top: -6rpx;
+  right: 26rpx;
+  background: var(--pink);
+  color: #fff;
+  min-width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  border-radius: 20rpx;
+  font-size: 20rpx;
+  padding: 0 6rpx;
+}
+
+/* 搜索与分类 */
 .search-row {
   display: flex;
   gap: 16rpx;
@@ -36,7 +136,9 @@
   flex: 1;
   background: #fff;
   border-radius: 30rpx;
-  padding: 22rpx 30rpx;
+  padding: 0 30rpx;
+  height: 78rpx;
+  line-height: 78rpx;
   font-size: 28rpx;
 }
 
@@ -52,7 +154,7 @@
 
 .cate-bar {
   white-space: nowrap;
-  padding: 0 32rpx 20rpx;
+  padding: 0 32rpx 10rpx;
 }
 
 .cate {
@@ -70,53 +172,58 @@
   color: #fff;
 }
 
-.goods-grid {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 0 24rpx;
+/* 两列商品 */
+.products {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24rpx;
+  padding: 0 32rpx;
 }
 
-.goods-item {
-  width: 50%;
-  padding: 8rpx;
-  box-sizing: border-box;
+.product {
+  background: #fff;
+  border-radius: 44rpx;
+  padding: 20rpx;
 }
 
-.goods-item {
-  margin-bottom: 16rpx;
-}
-
-.goods-pic {
-  width: 100%;
-  height: 320rpx;
-  border-radius: 36rpx;
-  background: #ede9ff;
+.product-img {
+  height: 270rpx;
+  border-radius: 34rpx;
+  background: #efedfa;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 90rpx;
+  font-size: 128rpx;
   overflow: hidden;
 }
 
-.goods-img {
+.product-cover {
   width: 100%;
   height: 100%;
 }
 
-.goods-name {
+.product-name {
   font-size: 28rpx;
-  font-weight: 600;
-  margin: 14rpx 8rpx 8rpx;
+  margin: 20rpx 6rpx 10rpx;
 }
 
-.goods-foot {
+.product-foot {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 8rpx 8rpx;
+  padding: 0 6rpx 6rpx;
 }
 
-.goods-sales {
-  color: var(--muted);
-  font-size: 22rpx;
+.add {
+  border: 0;
+  width: 56rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  text-align: center;
+  border-radius: 20rpx;
+  background: var(--purple);
+  color: #fff;
+  font-size: 40rpx;
+  padding: 0;
+  margin: 0;
 }

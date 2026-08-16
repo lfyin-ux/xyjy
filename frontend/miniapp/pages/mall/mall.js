@@ -7,6 +7,8 @@ Page({
     goods: [],
     keyword: '',
     categoryId: null,
+    cartCount: 0,
+    orderStat: { unpaid: 0, prepare: 0, shipping: 0, aftersale: 0 },
     imgBase: ''
   },
 
@@ -17,6 +19,8 @@ Page({
 
   onShow() {
     this.loadGoods()
+    this.loadCart()
+    this.loadOrderStat()
   },
 
   loadCategories() {
@@ -34,6 +38,28 @@ Page({
     })
   },
 
+  // 购物车数量角标
+  loadCart() {
+    api.get('/mall/cart/' + app.globalData.userId).then((list) => {
+      this.setData({ cartCount: list.length })
+    })
+  },
+
+  // 我的订单各状态数量
+  loadOrderStat() {
+    api.get('/mall/orders/' + app.globalData.userId).then((orders) => {
+      const stat = { unpaid: 0, prepare: 0, shipping: 0, aftersale: 0 }
+      orders.forEach((o) => {
+        const s = o.order.status
+        if (s === 1) stat.unpaid++
+        else if (s === 2) stat.prepare++
+        else if (s === 3) stat.shipping++
+        else if (s === 5) stat.aftersale++
+      })
+      this.setData({ orderStat: stat })
+    })
+  },
+
   onInput(e) {
     this.setData({ keyword: e.detail.value })
   },
@@ -48,11 +74,39 @@ Page({
     this.loadGoods()
   },
 
+  explore() {
+    wx.showToast({ title: '正在探索本周新品', icon: 'none' })
+  },
+
   goDetail(e) {
     wx.navigateTo({ url: '/pages/goods-detail/goods-detail?id=' + e.currentTarget.dataset.id })
   },
 
+  // 快速加入购物车
+  quickAdd(e) {
+    const item = e.currentTarget.dataset.item
+    const spec = item.spec ? item.spec.split(',')[0] : ''
+    api.post('/mall/cart/add', {
+      userId: app.globalData.userId,
+      goodsId: item.id,
+      spec: spec,
+      quantity: 1
+    }).then(() => {
+      wx.showToast({ title: '已加入购物车', icon: 'success' })
+      this.loadCart()
+    })
+  },
+
   goCart() {
     wx.navigateTo({ url: '/pages/cart/cart' })
+  },
+
+  goOrders(e) {
+    const status = e.currentTarget.dataset.status
+    let url = '/pages/order-list/order-list'
+    if (status !== '' && status !== undefined) {
+      url += '?status=' + status
+    }
+    wx.navigateTo({ url })
   }
 })

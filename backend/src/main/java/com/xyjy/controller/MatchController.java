@@ -53,8 +53,12 @@ public class MatchController {
                 .forEach(s -> excludeIds.add(s.getTargetId()));
         userLikeMapper.selectList(new LambdaQueryWrapper<UserLike>().eq(UserLike::getUserId, userId))
                 .forEach(l -> excludeIds.add(l.getTargetId()));
+        // 我拉黑的人
         userBlacklistMapper.selectList(new LambdaQueryWrapper<UserBlacklist>().eq(UserBlacklist::getUserId, userId))
                 .forEach(b -> excludeIds.add(b.getTargetId()));
+        // 拉黑我的人 黑名单双向生效 对方也看不到我 我也看不到对方
+        userBlacklistMapper.selectList(new LambdaQueryWrapper<UserBlacklist>().eq(UserBlacklist::getTargetId, userId))
+                .forEach(b -> excludeIds.add(b.getUserId()));
 
         LambdaQueryWrapper<AppUser> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AppUser::getStatus, 1)

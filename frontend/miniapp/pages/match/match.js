@@ -44,7 +44,7 @@ Page({
 
   // 加载广场动态
   loadPosts() {
-    api.get('/square/list?pageNum=1&pageSize=20').then((page) => {
+    api.get('/square/list?pageNum=1&pageSize=20&userId=' + app.globalData.userId).then((page) => {
       const posts = (page.records || []).map((item) => {
         item.firstImg = item.post.images ? item.post.images.split(',')[0] : ''
         item.liked = false

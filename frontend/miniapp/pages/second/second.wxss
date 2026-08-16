@@ -12,7 +12,9 @@
   flex: 1;
   background: #fff;
   border-radius: 30rpx;
-  padding: 22rpx 30rpx;
+  padding: 0 30rpx;
+  height: 78rpx;
+  line-height: 78rpx;
   font-size: 28rpx;
 }
 

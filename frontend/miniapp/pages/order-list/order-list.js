@@ -8,8 +8,13 @@ Page({
     imgBase: ''
   },
 
-  onLoad() {
-    this.setData({ imgBase: app.globalData.baseUrl })
+  onLoad(options) {
+    const data = { imgBase: app.globalData.baseUrl }
+    // 从商城订单入口跳转时带上状态 默认选中对应标签
+    if (options && options.status) {
+      data.status = Number(options.status)
+    }
+    this.setData(data)
   },
 
   onShow() {

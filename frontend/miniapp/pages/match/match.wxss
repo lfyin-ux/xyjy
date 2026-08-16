@@ -129,32 +129,33 @@
 .actions {
   display: flex;
   justify-content: center;
-  gap: 36rpx;
-  margin: 30rpx;
+  align-items: center;
+  gap: 40rpx;
+  margin: 28rpx;
 }
 
 .action {
-  width: 116rpx;
-  height: 116rpx;
+  width: 88rpx;
+  height: 88rpx;
   border: 0;
-  border-radius: 42rpx;
+  border-radius: 32rpx;
   background: #fff;
-  font-size: 50rpx;
+  font-size: 40rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 20rpx 50rpx rgba(34, 27, 78, 0.1);
+  box-shadow: 0 16rpx 40rpx rgba(34, 27, 78, 0.1);
   padding: 0;
   line-height: 1;
 }
 
 .action.like {
-  width: 140rpx;
-  height: 140rpx;
+  width: 108rpx;
+  height: 108rpx;
   background: var(--purple);
   color: #fff;
-  border-radius: 50rpx;
-  margin-top: -12rpx;
+  border-radius: 40rpx;
+  font-size: 48rpx;
 }
 
 .action.star {
@@ -235,18 +236,19 @@
 
 .fab {
   position: fixed;
-  right: 40rpx;
+  right: 36rpx;
   bottom: 60rpx;
-  width: 108rpx;
-  height: 108rpx;
-  border-radius: 40rpx;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 22rpx;
   background: var(--purple);
   color: #fff;
-  font-size: 56rpx;
+  font-size: 36rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 20rpx 50rpx rgba(108, 92, 231, 0.4);
+  box-shadow: 0 12rpx 32rpx rgba(108, 92, 231, 0.4);
   padding: 0;
   line-height: 1;
+  overflow: hidden;
 }

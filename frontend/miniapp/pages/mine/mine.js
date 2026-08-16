@@ -85,22 +85,11 @@ Page({
   },
 
   goBlacklist() {
-    wx.showToast({ title: '黑名单管理已打开', icon: 'none' })
+    wx.navigateTo({ url: '/pages/blacklist/blacklist' })
   },
 
   feedback() {
-    wx.showModal({
-      title: '意见反馈',
-      editable: true,
-      placeholderText: '请输入您的建议',
-      success: (res) => {
-        if (res.confirm && res.content) {
-          api.post('/user/feedback', { userId: app.globalData.userId, content: res.content }).then(() => {
-            wx.showToast({ title: '感谢反馈', icon: 'success' })
-          })
-        }
-      }
-    })
+    wx.navigateTo({ url: '/pages/feedback/feedback' })
   },
 
   noop() {
