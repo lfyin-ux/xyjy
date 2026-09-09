@@ -283,6 +283,8 @@ CREATE TABLE errand_order (
   finish_time VARCHAR(100) COMMENT '完成时间要求',
   fee DECIMAL(10,2) DEFAULT 0 COMMENT '赏金',
   remark VARCHAR(255) COMMENT '补充说明',
+  publisher_contact VARCHAR(50) COMMENT '发单人联系方式',
+  taker_contact VARCHAR(50) COMMENT '接单人联系方式',
   status TINYINT DEFAULT 1 COMMENT '状态 1待接单 2进行中 3已完成 4已取消',
   create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'

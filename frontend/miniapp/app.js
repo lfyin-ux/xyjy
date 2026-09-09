@@ -4,7 +4,7 @@ const ws = require('./utils/ws')
 App({
   globalData: {
     // 后端接口基础地址 真机调试请改为局域网IP
-    baseUrl: 'http://localhost:8080/api',
+    baseUrl: 'https://tongxingshikong.cn/api',
     // 当前登录用户
     userInfo: null,
     // 当前用户ID

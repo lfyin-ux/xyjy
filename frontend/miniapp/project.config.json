@@ -32,9 +32,10 @@
   },
   "compileType": "miniprogram",
   "libVersion": "3.0.0",
-  "appid": "wx47e9f16dea6bf564",
+  "appid": "wx13b60dd991c5b29e",
   "projectname": "xyjy-miniapp",
   "condition": {},
   "simulatorPluginLibVersion": {},
-  "editorSetting": {}
+  "editorSetting": {},
+  "isGameTourist": false
 }
