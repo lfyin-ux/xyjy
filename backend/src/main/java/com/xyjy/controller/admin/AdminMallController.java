@@ -3,6 +3,7 @@ package com.xyjy.controller.admin;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xyjy.common.BusinessException;
+import com.xyjy.common.MallFoodExclusion;
 import com.xyjy.common.Result;
 import com.xyjy.entity.MallCategory;
 import com.xyjy.entity.MallGoods;
@@ -48,6 +49,7 @@ public class AdminMallController {
         if (keyword != null && !keyword.isEmpty()) {
             wrapper.like(MallGoods::getName, keyword);
         }
+        MallFoodExclusion.applyGoodsExclusion(wrapper);
         wrapper.orderByDesc(MallGoods::getCreateTime);
         return Result.success(mallGoodsMapper.selectPage(page, wrapper));
     }
@@ -60,6 +62,7 @@ public class AdminMallController {
         if (goods.getName() == null || goods.getName().isEmpty()) {
             throw new BusinessException("请填写商品名称");
         }
+        MallFoodExclusion.rejectFoodGoods(goods);
         if (goods.getId() == null) {
             if (goods.getStatus() == null) {
                 goods.setStatus(1);
@@ -102,8 +105,9 @@ public class AdminMallController {
      */
     @GetMapping("/categories")
     public Result<List<MallCategory>> categories() {
-        return Result.success(mallCategoryMapper.selectList(new LambdaQueryWrapper<MallCategory>()
-                .orderByAsc(MallCategory::getSort)));
+        List<MallCategory> list = mallCategoryMapper.selectList(new LambdaQueryWrapper<MallCategory>()
+                .orderByAsc(MallCategory::getSort));
+        return Result.success(MallFoodExclusion.filterCategories(list));
     }
 
     /**
@@ -114,6 +118,7 @@ public class AdminMallController {
         if (category.getName() == null || category.getName().isEmpty()) {
             throw new BusinessException("请填写分类名称");
         }
+        MallFoodExclusion.rejectFoodCategory(category);
         if (category.getId() == null) {
             mallCategoryMapper.insert(category);
         } else {

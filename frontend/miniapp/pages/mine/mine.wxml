@@ -25,20 +25,6 @@
         <view class="profile-auth">{{fullAccess ? user.school + ' · 双认证已通过 ✓' : '账号已注册 · 待完成认证'}}</view>
       </view>
     </view>
-    <view class="stats">
-      <view class="stat-item">
-        <view class="stat-num">{{likeMeCount}}</view>
-        <view class="stat-label">喜欢我的</view>
-      </view>
-      <view class="stat-item">
-        <view class="stat-num">{{matchCount}}</view>
-        <view class="stat-label">我的匹配</view>
-      </view>
-      <view class="stat-item">
-        <view class="stat-num">{{visitorCount}}</view>
-        <view class="stat-label">主页访客</view>
-      </view>
-    </view>
   </view>
 
   <view class="menu">
@@ -57,27 +43,17 @@
       <text class="menu-name">我的相册</text>
       <text class="menu-val">›</text>
     </view>
-    <view class="menu-row" bindtap="goWhoLikesMe">
-      <text class="menu-icon">💜</text>
-      <text class="menu-name">谁喜欢我</text>
-      <text class="menu-val">{{likeMeCount}} ›</text>
-    </view>
-    <view class="menu-row" bindtap="goStars">
-      <text class="menu-icon">⭐</text>
-      <text class="menu-name">特别关注</text>
-      <text class="menu-val">›</text>
-    </view>
-    <view class="menu-row" bindtap="goVisitors">
-      <text class="menu-icon">👀</text>
-      <text class="menu-name">我的访客</text>
-      <text class="menu-val">{{visitorCount}} ›</text>
-    </view>
   </view>
 
   <view class="menu">
     <view class="menu-row" bindtap="goMyPosts">
       <text class="menu-icon">📝</text>
       <text class="menu-name">我的动态</text>
+      <text class="menu-val">›</text>
+    </view>
+    <view class="menu-row" bindtap="goMyComments">
+      <text class="menu-icon">💬</text>
+      <text class="menu-name">我的评论</text>
       <text class="menu-val">›</text>
     </view>
     <view class="menu-row" bindtap="goMyErrand">

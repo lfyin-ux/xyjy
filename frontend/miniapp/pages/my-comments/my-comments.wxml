@@ -1,0 +1,38 @@
+<view class="page">
+  <view class="tab-bar">
+    <view class="tab {{tab==='post'?'on':''}}" bindtap="switchTab" data-tab="post">评论动态</view>
+    <view class="tab {{tab==='reply'?'on':''}}" bindtap="switchTab" data-tab="reply">我的回复</view>
+  </view>
+
+  <view class="item" wx:for="{{list}}" wx:key="comment.id" bindtap="openPost" data-id="{{item.post.id}}">
+    <view class="item-head">
+      <view class="post-author">
+        <image wx:if="{{item.postAuthor.avatar}}" src="{{imgBase}}{{item.postAuthor.avatar}}" mode="aspectFill" class="avatar" />
+        <text wx:else class="avatar-ph">🧑</text>
+        <text class="author-name">{{item.postAuthor.nickname}} 的动态</text>
+      </view>
+      <text class="time">{{item.timeText}}</text>
+    </view>
+
+    <view class="post-preview">
+      <text class="post-text">{{item.postPreview}}</text>
+      <image wx:if="{{item.postFirstImg}}" src="{{imgBase}}{{item.postFirstImg}}" mode="aspectFill" class="post-img" />
+    </view>
+
+    <view class="my-comment">
+      <view wx:if="{{tab==='reply' && item.parentUser}}" class="parent-line">
+        <text class="parent-label">回复 @{{item.replyToUser.nickname || item.parentUser.nickname}}：</text>
+        <text class="parent-text">{{item.parentComment.content}}</text>
+      </view>
+      <view class="comment-line">
+        <text class="comment-label">{{tab==='reply' ? '我的回复：' : '我的评论：'}}</text>
+        <text class="comment-text">{{item.comment.content}}</text>
+      </view>
+      <text wx:if="{{item.visLabel}}" class="vis-tag">🔒 {{item.visLabel}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{list.length===0}}" class="empty">
+    {{tab==='reply' ? '还没有回复过评论' : '还没有评论过动态'}}
+  </view>
+</view>

@@ -2,6 +2,7 @@ package com.xyjy.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.xyjy.common.BusinessException;
+import com.xyjy.common.MallFoodExclusion;
 import com.xyjy.common.Result;
 import com.xyjy.entity.*;
 import com.xyjy.mapper.*;
@@ -39,8 +40,9 @@ public class MallController {
      */
     @GetMapping("/categories")
     public Result<List<MallCategory>> categories() {
-        return Result.success(mallCategoryMapper.selectList(new LambdaQueryWrapper<MallCategory>()
-                .orderByAsc(MallCategory::getSort)));
+        List<MallCategory> list = mallCategoryMapper.selectList(new LambdaQueryWrapper<MallCategory>()
+                .orderByAsc(MallCategory::getSort));
+        return Result.success(MallFoodExclusion.filterCategories(list));
     }
 
     /**
@@ -57,6 +59,7 @@ public class MallController {
         if (categoryId != null) {
             wrapper.eq(MallGoods::getCategoryId, categoryId);
         }
+        MallFoodExclusion.applyGoodsExclusion(wrapper);
         wrapper.orderByDesc(MallGoods::getSales);
         return Result.success(mallGoodsMapper.selectList(wrapper));
     }
@@ -67,7 +70,7 @@ public class MallController {
     @GetMapping("/goods/{id}")
     public Result<MallGoods> goodsDetail(@PathVariable Long id) {
         MallGoods goods = mallGoodsMapper.selectById(id);
-        if (goods == null) {
+        if (goods == null || MallFoodExclusion.isFoodGoods(goods)) {
             throw new BusinessException("商品不存在");
         }
         return Result.success(goods);
@@ -82,10 +85,14 @@ public class MallController {
                 .eq(MallCart::getUserId, userId));
         List<Map<String, Object>> vos = list.stream().map(c -> {
             Map<String, Object> map = new HashMap<>();
+            MallGoods goods = mallGoodsMapper.selectById(c.getGoodsId());
+            if (MallFoodExclusion.isFoodGoods(goods)) {
+                return null;
+            }
             map.put("cart", c);
-            map.put("goods", mallGoodsMapper.selectById(c.getGoodsId()));
+            map.put("goods", goods);
             return map;
-        }).collect(java.util.stream.Collectors.toList());
+        }).filter(java.util.Objects::nonNull).collect(java.util.stream.Collectors.toList());
         return Result.success(vos);
     }
 
@@ -96,6 +103,10 @@ public class MallController {
     public Result<Void> addCart(@RequestBody MallCart cart) {
         if (cart.getUserId() == null || cart.getGoodsId() == null) {
             throw new BusinessException("参数缺失");
+        }
+        MallGoods goods = mallGoodsMapper.selectById(cart.getGoodsId());
+        if (goods == null || MallFoodExclusion.isFoodGoods(goods)) {
+            throw new BusinessException("商品不存在");
         }
         if (cart.getQuantity() == null || cart.getQuantity() < 1) {
             cart.setQuantity(1);
@@ -170,7 +181,7 @@ public class MallController {
             Long goodsId = Long.valueOf(item.get("goodsId").toString());
             int qty = item.get("quantity") != null ? Integer.parseInt(item.get("quantity").toString()) : 1;
             MallGoods goods = mallGoodsMapper.selectById(goodsId);
-            if (goods == null) {
+            if (goods == null || MallFoodExclusion.isFoodGoods(goods)) {
                 throw new BusinessException("商品不存在");
             }
             MallOrderItem oi = new MallOrderItem();

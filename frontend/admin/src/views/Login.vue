@@ -2,7 +2,7 @@
   <div class="login-page">
     <div class="login-box">
       <div class="login-title">
-        <span>碰个<i>面</i></span>
+        <span>同行<i>时空</i></span>
         <p>校园社交平台管理后台</p>
       </div>
       <el-form :model="form" @submit.prevent="handleLogin">

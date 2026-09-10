@@ -1,52 +1,28 @@
 <view class="page">
-  <!-- 全屏预览 -->
   <view wx:if="{{previewUrl}}" class="preview-mask" bindtap="closePreview">
     <image src="{{previewUrl}}" mode="aspectFit" class="preview-img" />
   </view>
 
-  <!-- 个人主页 -->
-  <block wx:if="{{mode==='detail'}}">
-    <view class="big-profile">
-      <view class="face">
-        <image wx:if="{{user.avatar}}" src="{{imgBase}}{{user.avatar}}" mode="aspectFill" class="face-img" />
-        <text wx:else>🧑‍🎓</text>
-      </view>
-      <view class="big-name">{{user.nickname}}，{{user.age}}</view>
-      <view class="big-school">{{user.school}} · 已实名 ✓</view>
-      <view class="chips-center">
-        <text class="chip" wx:for="{{tagList}}" wx:key="*this">{{item}}</text>
-      </view>
+  <view class="big-profile">
+    <view class="face">
+      <image wx:if="{{user.avatar}}" src="{{imgBase}}{{user.avatar}}" mode="aspectFill" class="face-img" />
+      <text wx:else>🧑‍🎓</text>
     </view>
-    <view class="card">
-      <view class="card-title">关于 TA</view>
-      <view class="intro">{{user.intro || '这位同学还没有填写简介'}}</view>
+    <view class="big-name">{{user.nickname}}，{{user.age}}</view>
+    <view class="big-school">{{user.school}} · 已实名 ✓</view>
+    <view class="chips-center">
+      <text class="chip" wx:for="{{tagList}}" wx:key="*this">{{item}}</text>
     </view>
+  </view>
+  <view class="card">
+    <view class="card-title">关于 TA</view>
+    <view class="intro">{{user.intro || '这位同学还没有填写简介'}}</view>
+  </view>
 
-    <view class="card" wx:if="{{album.length>0}}">
-      <view class="card-title">相册</view>
-      <view class="profile-album">
-        <image wx:for="{{album}}" wx:key="id" src="{{imgBase}}{{item.imgUrl}}" mode="aspectFill" class="profile-photo" data-url="{{imgBase}}{{item.imgUrl}}" bindtap="previewPhoto" />
-      </view>
+  <view class="card" wx:if="{{album.length>0}}">
+    <view class="card-title">相册</view>
+    <view class="profile-album">
+      <image wx:for="{{album}}" wx:key="id" src="{{imgBase}}{{item.imgUrl}}" mode="aspectFill" class="profile-photo" data-url="{{imgBase}}{{item.imgUrl}}" bindtap="previewPhoto" />
     </view>
-
-    <view class="profile-actions">
-      <button class="secondary" bindtap="follow">＋ 关注</button>
-      <button class="primary" bindtap="sayHi">👋 打招呼</button>
-    </view>
-  </block>
-
-  <!-- 列表模式 谁喜欢我/访客 -->
-  <block wx:else>
-    <view class="user-row" wx:for="{{list}}" wx:key="id" bindtap="viewUser" data-id="{{item.id}}">
-      <view class="user-avatar">
-        <image wx:if="{{item.avatar}}" src="{{imgBase}}{{item.avatar}}" mode="aspectFill" class="avatar-img" />
-        <text wx:else>🧑</text>
-      </view>
-      <view class="user-main">
-        <view class="user-name">{{item.nickname}}</view>
-        <view class="user-sub">{{item.school}} · {{item.college}}</view>
-      </view>
-    </view>
-    <view wx:if="{{list.length===0}}" class="empty">暂无数据</view>
-  </block>
+  </view>
 </view>

@@ -7,9 +7,6 @@ Page({
     fullAccess: false,
     authSummary: '个人认证和学校认证均待完成',
     genderText: '',
-    likeMeCount: 0,
-    matchCount: 0,
-    visitorCount: 0,
     imgBase: ''
   },
 
@@ -19,9 +16,6 @@ Page({
 
   onShow() {
     this.loadUser()
-    this.loadStats()
-    // 刷新聊天未读角标
-    app.updateChatBadge()
   },
 
   loadUser() {
@@ -43,18 +37,6 @@ Page({
     })
   },
 
-  loadStats() {
-    const uid = app.globalData.userId
-    api.get('/match/whoLikesMe/' + uid).then((list) => this.setData({ likeMeCount: list.length }))
-    api.get('/match/list/' + uid).then((list) => this.setData({ matchCount: list.length }))
-    api.get('/user/visitors/' + uid).then((list) => {
-      // 按userId去重计算独立访客数
-      const uniqueIds = []
-      list.forEach((v) => { if (uniqueIds.indexOf(v.userId) === -1) uniqueIds.push(v.userId) })
-      this.setData({ visitorCount: uniqueIds.length })
-    })
-  },
-
   goAuth() {
     wx.navigateTo({ url: '/pages/auth/auth' })
   },
@@ -67,24 +49,12 @@ Page({
     wx.navigateTo({ url: '/pages/album/album' })
   },
 
-  goChat() {
-    wx.switchTab({ url: '/pages/chat/chat' })
-  },
-
-  goWhoLikesMe() {
-    wx.navigateTo({ url: '/pages/profile/profile?list=likeMe' })
-  },
-
-  goStars() {
-    wx.navigateTo({ url: '/pages/profile/profile?list=stars' })
-  },
-
-  goVisitors() {
-    wx.navigateTo({ url: '/pages/profile/profile?list=visitors' })
-  },
-
   goMyPosts() {
     wx.navigateTo({ url: '/pages/post-detail/post-detail?my=1' })
+  },
+
+  goMyComments() {
+    wx.navigateTo({ url: '/pages/my-comments/my-comments' })
   },
 
   goMyErrand() {
@@ -121,8 +91,6 @@ Page({
       content: '确定退出登录吗？退出后可切换其他用户登录',
       success: (res) => {
         if (res.confirm) {
-          // 关闭WebSocket连接
-          app.disconnectWs()
           // 清除登录状态
           app.globalData.userInfo = null
           app.globalData.userId = null

@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+"""仅部署后端 JAR 并执行数据库迁移"""
+import os
+import sys
+import time
+import subprocess
+import paramiko
+
+HOST = os.environ.get('XYJY_DEPLOY_HOST', '118.31.106.63')
+USER = os.environ.get('XYJY_DEPLOY_USER', 'ecs-user')
+PASSWORD = os.environ.get('XYJY_DEPLOY_PASSWORD', '')
+APP_DIR = '/opt/xyjy'
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+
+def upload_dir(sftp, local_dir, remote_dir):
+    for root, _, files in os.walk(local_dir):
+        rel = os.path.relpath(root, local_dir)
+        remote_root = remote_dir if rel == '.' else f'{remote_dir}/{rel.replace(os.sep, "/")}'
+        parts = remote_root.split('/')
+        cur = ''
+        for part in parts:
+            if not part:
+                continue
+            cur += '/' + part
+            try:
+                sftp.stat(cur)
+            except FileNotFoundError:
+                sftp.mkdir(cur)
+        for name in files:
+            local_path = os.path.join(root, name)
+            remote_path = f'{remote_root}/{name}'
+            print(f'上传 {local_path} -> {remote_path}')
+            sftp.put(local_path, remote_path)
+
+
+def run(client, cmd, timeout=300):
+    print(f'\n>>> {cmd}')
+    stdin, stdout, stderr = client.exec_command(cmd, timeout=timeout)
+    out = stdout.read().decode()
+    err = stderr.read().decode()
+    code = stdout.channel.recv_exit_status()
+    if out.strip():
+        print(out.strip())
+    if err.strip():
+        print(err.strip())
+    if code != 0:
+        raise RuntimeError(f'命令失败({code}): {cmd}')
+    return out
+
+
+def main():
+    if not PASSWORD:
+        print('请设置环境变量: export XYJY_DEPLOY_PASSWORD=你的服务器密码')
+        sys.exit(1)
+
+    jar_local = os.path.join(PROJECT_ROOT, 'backend/target/xyjy-backend.jar')
+    admin_dist = os.path.join(PROJECT_ROOT, 'frontend/admin/dist')
+    if not os.path.exists(jar_local):
+        print('正在打包后端...')
+        subprocess.check_call(['mvn', 'package', '-DskipTests', '-q'], cwd=os.path.join(PROJECT_ROOT, 'backend'))
+    if os.path.isdir(os.path.join(PROJECT_ROOT, 'frontend/admin')):
+        print('正在构建管理后台...')
+        subprocess.check_call(['npm', 'run', 'build'], cwd=os.path.join(PROJECT_ROOT, 'frontend/admin'))
+
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(HOST, username=USER, password=PASSWORD, timeout=30)
+
+    sftp = client.open_sftp()
+    print(f'上传 {jar_local}')
+    sftp.put(jar_local, f'{APP_DIR}/xyjy-backend.jar')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/04_comment_visibility.sql'), f'{APP_DIR}/sql/04_comment_visibility.sql')
+    if os.path.isdir(admin_dist):
+        upload_dir(sftp, admin_dist, f'{APP_DIR}/admin')
+    sftp.close()
+
+    run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/04_comment_visibility.sql', timeout=120)
+    run(client, 'sudo systemctl restart xyjy-backend')
+
+    for i in range(15):
+        time.sleep(2)
+        stdin, stdout, stderr = client.exec_command('curl -s http://127.0.0.1:8080/api/square/comments/1?userId=2')
+        body = stdout.read().decode()
+        if 'visibility' in body or 'replyToUserId' in body:
+            print('迁移成功：评论接口已返回 visibility 字段')
+            break
+        if i == 14:
+            print('警告：接口暂未返回新字段，请检查服务日志')
+
+    client.close()
+    print('\n生产环境部署完成（后端 + 管理后台）。小程序请在开发者工具中重新上传。')
+
+
+if __name__ == '__main__':
+    main()

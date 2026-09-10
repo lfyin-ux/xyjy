@@ -1,7 +1,7 @@
 <template>
   <el-container class="layout">
     <el-aside width="220px" class="aside">
-      <div class="logo">碰个<i>面</i> 后台</div>
+      <div class="logo">同行<i>时空</i> 后台</div>
       <el-menu :default-active="$route.path" router background-color="#201a3b" text-color="#c3c0d6"
         active-text-color="#fff">
         <el-menu-item index="/dashboard"><el-icon><DataLine /></el-icon><span>数据总览</span></el-menu-item>

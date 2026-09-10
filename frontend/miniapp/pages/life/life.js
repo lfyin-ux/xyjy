@@ -15,7 +15,6 @@ Page({
 
   onShow() {
     this.checkAuth()
-    app.updateChatBadge()
   },
 
   checkAuth() {

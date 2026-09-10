@@ -4,13 +4,11 @@
     "pages/match/match",
     "pages/life/life",
     "pages/mall/mall",
-    "pages/chat/chat",
     "pages/mine/mine",
     "pages/auth/auth",
     "pages/personal-auth/personal-auth",
     "pages/school-auth/school-auth",
     "pages/profile/profile",
-    "pages/chat-detail/chat-detail",
     "pages/post-publish/post-publish",
     "pages/post-detail/post-detail",
     "pages/errand/errand",
@@ -28,12 +26,13 @@
     "pages/address/address",
     "pages/refund-apply/refund-apply",
     "pages/refund-detail/refund-detail",
-    "pages/album/album"
+    "pages/album/album",
+    "pages/my-comments/my-comments"
   ],
   "window": {
     "backgroundTextStyle": "dark",
     "navigationBarBackgroundColor": "#f6f6fa",
-    "navigationBarTitleText": "碰个面",
+    "navigationBarTitleText": "同行时空",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#f6f6fa"
   },
@@ -43,10 +42,9 @@
     "backgroundColor": "#ffffff",
     "borderStyle": "white",
     "list": [
-      { "pagePath": "pages/match/match", "text": "遇见", "iconPath": "images/tabbar/match.png", "selectedIconPath": "images/tabbar/match_on.png" },
+      { "pagePath": "pages/match/match", "text": "广场", "iconPath": "images/tabbar/match.png", "selectedIconPath": "images/tabbar/match_on.png" },
       { "pagePath": "pages/life/life", "text": "生活", "iconPath": "images/tabbar/life.png", "selectedIconPath": "images/tabbar/life_on.png" },
       { "pagePath": "pages/mall/mall", "text": "商城", "iconPath": "images/tabbar/mall.png", "selectedIconPath": "images/tabbar/mall_on.png" },
-      { "pagePath": "pages/chat/chat", "text": "聊天", "iconPath": "images/tabbar/chat.png", "selectedIconPath": "images/tabbar/chat_on.png" },
       { "pagePath": "pages/mine/mine", "text": "我的", "iconPath": "images/tabbar/mine.png", "selectedIconPath": "images/tabbar/mine_on.png" }
     ]
   },

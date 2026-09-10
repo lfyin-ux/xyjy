@@ -12,5 +12,5 @@
     <button class="primary" bindtap="submit">提交反馈</button>
   </view>
 
-  <view class="tip">我们会认真阅读每一条反馈，感谢你帮助碰个面变得更好 💜</view>
+  <view class="tip">我们会认真阅读每一条反馈，感谢你帮助同行时空变得更好 💜</view>
 </view>

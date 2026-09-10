@@ -65,17 +65,6 @@ Page({
     wx.navigateTo({ url: '/pages/profile/profile?id=' + e.currentTarget.dataset.id })
   },
 
-  // 给成员发消息 打招呼创建会话
-  sendMsg(e) {
-    const user = e.currentTarget.dataset.user
-    this.setData({ showDetail: false })
-    api.post('/chat/hello?fromId=' + app.globalData.userId + '&toId=' + user.id + '&content=' + encodeURIComponent('嗨，一起组队吧 🎮')).then((session) => {
-      wx.navigateTo({
-        url: '/pages/chat-detail/chat-detail?sessionId=' + session.id + '&otherId=' + user.id + '&name=' + user.nickname
-      })
-    })
-  },
-
   join(e) {
     const id = e.currentTarget.dataset.id
     api.post('/game/join?teamId=' + id + '&userId=' + app.globalData.userId).then(() => {

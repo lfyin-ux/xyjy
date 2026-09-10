@@ -57,8 +57,6 @@ Page({
       app.globalData.userId = loginUser.id
       wx.setStorageSync('userInfo', loginUser)
       wx.setStorageSync('userId', loginUser.id)
-      // 建立WebSocket连接
-      app.connectWs()
       wx.showToast({ title: '已登录：' + loginUser.nickname, icon: 'none' })
       // 跳转到主页
       setTimeout(() => {
@@ -81,7 +79,6 @@ Page({
           app.globalData.userId = user.id
           wx.setStorageSync('userInfo', user)
           wx.setStorageSync('userId', user.id)
-          app.connectWs()
           wx.showToast({ title: '登录成功', icon: 'success' })
           setTimeout(() => {
             wx.switchTab({ url: '/pages/match/match' })

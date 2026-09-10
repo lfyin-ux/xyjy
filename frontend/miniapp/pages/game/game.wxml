@@ -45,7 +45,6 @@ module.exports = { statusText: statusText }
             <text class="member-school">{{item.user.school}}</text>
           </view>
         </view>
-        <view class="member-msg" catchtap="sendMsg" data-user="{{item.user}}" wx:if="{{item.user.id !== myId}}">发消息</view>
       </view>
       <view wx:if="{{members.length===0}}" class="empty">暂无成员</view>
     </view>

@@ -117,11 +117,11 @@ INSERT INTO post_like (post_id, user_id) VALUES
 (1, 1), (1, 2), (2, 1), (2, 3), (3, 1);
 
 -- 动态评论
-INSERT INTO post_comment (post_id, user_id, content, status) VALUES
-(1, 1, '我可以！几点开始？', 3),
-(3, 1, '我对前端感兴趣，可以聊聊', 3),
-(3, 5, '带我一个', 3),
-(4, 1, '求地址！', 3);
+INSERT INTO post_comment (post_id, user_id, content, visibility, status) VALUES
+(1, 1, '我可以！几点开始？', 3, 3),
+(3, 1, '我对前端感兴趣，可以聊聊', 3, 3),
+(3, 5, '带我一个', 3, 3),
+(4, 1, '求地址！', 3, 3);
 
 -- 聊天会话
 INSERT INTO chat_session (id, user_a, user_b, last_msg, last_time, locked, initiator, status) VALUES
@@ -165,16 +165,14 @@ INSERT INTO game_team_member (team_id, user_id) VALUES
 INSERT INTO mall_category (id, name, sort) VALUES
 (1, '文具好物', 1),
 (2, '数码周边', 2),
-(3, '生活日用', 3),
-(4, '零食饮品', 4);
+(3, '生活日用', 3);
 
 -- 商城商品
 INSERT INTO mall_goods (id, category_id, name, cover, images, price, spec, stock, sales, detail, status) VALUES
 (1, 3, '治愈系毛绒挂件', '/uploads/mall/m1.png', '/uploads/mall/m1.png', 39.00, '粉色,蓝色,米白', 100, 56, '柔软亲肤，今日可发货，多种颜色可选', 1),
 (2, 3, '随行保温咖啡杯', '/uploads/mall/m2.png', '/uploads/mall/m2.png', 59.00, '白色,黑色', 80, 34, '轻巧便携，两种颜色，保温6小时', 1),
 (3, 1, '简约风笔记本套装', '/uploads/mall/m3.png', '/uploads/mall/m3.png', 29.90, 'A5,B5', 200, 120, '4本装，护眼纸张', 1),
-(4, 2, '无线蓝牙耳机', '/uploads/mall/m4.png', '/uploads/mall/m4.png', 129.00, '白色,黑色', 60, 88, '降噪长续航，校园限定', 1),
-(5, 4, '校园联名零食大礼包', '/uploads/mall/m5.png', '/uploads/mall/m5.png', 49.00, '标准装', 150, 210, '多款零食组合，宿舍必备', 1);
+(4, 2, '无线蓝牙耳机', '/uploads/mall/m4.png', '/uploads/mall/m4.png', 129.00, '白色,黑色', 60, 88, '降噪长续航，校园限定', 1);
 
 -- 购物车
 INSERT INTO mall_cart (user_id, goods_id, spec, quantity) VALUES

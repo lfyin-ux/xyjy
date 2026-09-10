@@ -59,6 +59,6 @@ sms:
   # 阿里云AccessKeySecret
   access-key-secret: your_access_key_secret
   # 短信签名
-  sign-name: 碰个面
+  sign-name: 同行时空
   # 验证码模板编号
   template-code: SMS_000000000

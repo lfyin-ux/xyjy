@@ -239,6 +239,9 @@ CREATE TABLE post_comment (
   post_id BIGINT NOT NULL COMMENT '动态ID',
   user_id BIGINT NOT NULL COMMENT '评论用户ID',
   content VARCHAR(500) COMMENT '评论内容',
+  visibility TINYINT DEFAULT 3 COMMENT '可见范围 1发布人可见 2回复人可见 3全部可见',
+  reply_to_user_id BIGINT COMMENT '回复对象用户ID visibility=2时必填',
+  parent_id BIGINT COMMENT '父评论ID',
   status TINYINT DEFAULT 3 COMMENT '状态 1待审核 3已发布 5违规拦截 6已删除',
   create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
 ) ENGINE=InnoDB COMMENT='动态评论表';

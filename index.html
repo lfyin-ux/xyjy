@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <title>碰个面 · 校园生活</title>
+  <title>同行时空 · 校园生活</title>
   <style>
     :root{--ink:#171527;--muted:#918da2;--purple:#6c5ce7;--pink:#ff557c;--lime:#d8ff7b;--paper:#f6f6fa;--line:#ebeaf1;--shadow:0 14px 40px rgba(34,27,78,.10)}
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:#dfe1e9;color:var(--ink);font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif;display:flex;justify-content:center;min-height:100vh}button,input,textarea{font:inherit}.phone{width:min(100%,430px);min-height:100vh;background:var(--paper);position:relative;overflow-x:hidden;padding-bottom:80px;box-shadow:0 0 80px rgba(28,25,52,.12)}
@@ -24,7 +24,7 @@
 <main class="phone">
   <div class="toast" id="toast">操作成功</div>
   <section class="page active" id="match">
-    <header class="top"><div class="brand">碰个<i>面</i></div><button class="icon-btn" onclick="goPage('chat')">💬</button></header>
+    <header class="top"><div class="brand">同行<i>时空</i></div><button class="icon-btn" onclick="goPage('chat')">💬</button></header>
     <div class="hero"><small>今日校园缘分</small><h2>发现同频的 TA</h2><small>认真交友，从一次心动开始</small></div>
     <div class="tabs"><button class="tab active" data-pane="recommend">心动推荐</button><button class="tab" data-pane="square">校园广场</button></div>
     <div class="pane active" id="recommend"><div class="filterbar"><button class="filter" onclick="notify('筛选条件已打开')">⚙ 筛选</button><button class="filter">女生</button><button class="filter">18–24 岁</button><button class="filter">摄影</button></div><article class="match-card" onclick="openProfile('林小满','👩🏻‍🎓')"><div class="portrait">👩🏻‍🎓</div><span class="verified">✓ 实名认证</span><div class="bio"><h2>林小满，21</h2><p>📍 华南理工大学</p><div class="chips"><span class="chip">📷 摄影</span><span class="chip">🎵 音乐节</span><span class="chip">🍰 探店</span></div></div></article><div class="actions"><button class="action" onclick="notify('已跳过，继续发现')">×</button><button class="action like" onclick="notify('心动已送达 💜')">♥</button><button class="action star" onclick="notify('已加入特别关注')">★</button></div></div>

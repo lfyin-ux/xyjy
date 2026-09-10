@@ -23,7 +23,7 @@ FILES = [
     'photo/p3_1.png', 'photo/p3_2.png',
     'post/post1.png', 'post/post2.png', 'post/post4.png',
     'second/g1.png', 'second/g2.png', 'second/g3.png', 'second/g4.png',
-    'mall/m1.png', 'mall/m2.png', 'mall/m3.png', 'mall/m4.png', 'mall/m5.png'
+    'mall/m1.png', 'mall/m2.png', 'mall/m3.png', 'mall/m4.png'
 ]
 
 

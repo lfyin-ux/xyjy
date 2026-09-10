@@ -168,20 +168,63 @@ public class SquareController {
     }
 
     /**
-     * 评论列表
+     * 评论列表 按可见范围过滤
+     * visibility: 1发布人可见 2回复人可见 3全部可见
      */
     @GetMapping("/comments/{postId}")
-    public Result<List<Map<String, Object>>> comments(@PathVariable Long postId) {
+    public Result<List<Map<String, Object>>> comments(@PathVariable Long postId,
+                                                       @RequestParam(required = false) Long userId) {
+        SquarePost post = squarePostMapper.selectById(postId);
+        if (post == null) {
+            throw new BusinessException("动态不存在");
+        }
+        Long postAuthorId = post.getUserId();
         List<PostComment> list = postCommentMapper.selectList(new LambdaQueryWrapper<PostComment>()
                 .eq(PostComment::getPostId, postId).eq(PostComment::getStatus, 3)
                 .orderByAsc(PostComment::getCreateTime));
-        List<Map<String, Object>> vos = list.stream().map(c -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("comment", c);
-            map.put("user", appUserMapper.selectById(c.getUserId()));
-            return map;
-        }).collect(java.util.stream.Collectors.toList());
+        List<Map<String, Object>> vos = list.stream()
+                .filter(c -> canViewComment(c, userId, postAuthorId))
+                .map(c -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("comment", c);
+                    map.put("user", appUserMapper.selectById(c.getUserId()));
+                    Long replyToId = c.getReplyToUserId();
+                    if (replyToId == null && c.getParentId() != null) {
+                        PostComment parent = postCommentMapper.selectById(c.getParentId());
+                        if (parent != null) {
+                            replyToId = parent.getUserId();
+                        }
+                    }
+                    if (replyToId != null) {
+                        map.put("replyToUser", appUserMapper.selectById(replyToId));
+                        // 补全 comment 上的回复对象ID 便于前端展示
+                        if (c.getReplyToUserId() == null) {
+                            c.setReplyToUserId(replyToId);
+                        }
+                    }
+                    return map;
+                }).collect(java.util.stream.Collectors.toList());
         return Result.success(vos);
+    }
+
+    private boolean canViewComment(PostComment c, Long viewerId, Long postAuthorId) {
+        int vis = c.getVisibility() == null ? 3 : c.getVisibility();
+        if (vis == 3) {
+            return true;
+        }
+        if (viewerId == null) {
+            return false;
+        }
+        if (viewerId.equals(c.getUserId())) {
+            return true;
+        }
+        if (vis == 1) {
+            return viewerId.equals(postAuthorId);
+        }
+        if (vis == 2) {
+            return c.getReplyToUserId() != null && viewerId.equals(c.getReplyToUserId());
+        }
+        return false;
     }
 
     /**
@@ -192,14 +235,30 @@ public class SquareController {
         if (comment.getContent() == null || comment.getContent().isEmpty()) {
             throw new BusinessException("请输入评论内容");
         }
+        if (comment.getVisibility() == null) {
+            comment.setVisibility(3);
+        }
+        // 有父评论时自动补全回复对象
+        if (comment.getParentId() != null && comment.getReplyToUserId() == null) {
+            PostComment parent = postCommentMapper.selectById(comment.getParentId());
+            if (parent != null) {
+                comment.setReplyToUserId(parent.getUserId());
+            }
+        }
+        if (comment.getVisibility() == 2 && comment.getReplyToUserId() == null) {
+            throw new BusinessException("回复人可见时需先点击要回复的评论");
+        }
+        if (comment.getReplyToUserId() != null && comment.getReplyToUserId().equals(comment.getUserId())) {
+            throw new BusinessException("不能回复自己");
+        }
         FilterService.FilterResult fr = filterService.check(comment.getContent(), "评论", comment.getUserId());
         if (fr.level == 2) {
             return Result.error(fr.tip);
         }
         comment.setStatus(fr.level == 1 ? 1 : 3);
         postCommentMapper.insert(comment);
-        // 更新评论数
-        if (comment.getStatus() == 3) {
+        // 仅全部可见的评论计入公开评论数
+        if (comment.getStatus() == 3 && comment.getVisibility() == 3) {
             SquarePost post = squarePostMapper.selectById(comment.getPostId());
             if (post != null) {
                 post.setCommentCount(post.getCommentCount() + 1);
@@ -213,10 +272,16 @@ public class SquareController {
      * 删除自己的评论
      */
     @DeleteMapping("/comment/{id}")
-    public Result<Void> deleteComment(@PathVariable Long id) {
+    public Result<Void> deleteComment(@PathVariable Long id, @RequestParam Long userId) {
         PostComment comment = postCommentMapper.selectById(id);
-        if (comment != null) {
-            postCommentMapper.deleteById(id);
+        if (comment == null) {
+            throw new BusinessException("评论不存在");
+        }
+        if (!comment.getUserId().equals(userId)) {
+            throw new BusinessException("只能删除自己的评论");
+        }
+        postCommentMapper.deleteById(id);
+        if (comment.getVisibility() != null && comment.getVisibility() == 3) {
             SquarePost post = squarePostMapper.selectById(comment.getPostId());
             if (post != null && post.getCommentCount() > 0) {
                 post.setCommentCount(post.getCommentCount() - 1);
@@ -260,5 +325,43 @@ public class SquareController {
         return Result.success(squarePostMapper.selectList(new LambdaQueryWrapper<SquarePost>()
                 .eq(SquarePost::getUserId, userId).ne(SquarePost::getStatus, 6)
                 .orderByDesc(SquarePost::getCreateTime)));
+    }
+
+    /**
+     * 我的评论记录 含动态与回复对象
+     */
+    @GetMapping("/myComments/{userId}")
+    public Result<List<Map<String, Object>>> myComments(@PathVariable Long userId) {
+        List<PostComment> list = postCommentMapper.selectList(new LambdaQueryWrapper<PostComment>()
+                .eq(PostComment::getUserId, userId).eq(PostComment::getStatus, 3)
+                .orderByDesc(PostComment::getCreateTime));
+        List<Map<String, Object>> vos = list.stream().map(c -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("comment", c);
+            SquarePost post = squarePostMapper.selectById(c.getPostId());
+            map.put("post", post);
+            if (post != null) {
+                map.put("postAuthor", appUserMapper.selectById(post.getUserId()));
+            }
+            Long replyToId = c.getReplyToUserId();
+            PostComment parent = null;
+            if (c.getParentId() != null) {
+                parent = postCommentMapper.selectById(c.getParentId());
+                if (parent != null && replyToId == null) {
+                    replyToId = parent.getUserId();
+                }
+            }
+            if (replyToId != null) {
+                map.put("replyToUser", appUserMapper.selectById(replyToId));
+            }
+            if (parent != null) {
+                map.put("parentComment", parent);
+                map.put("parentUser", appUserMapper.selectById(parent.getUserId()));
+            }
+            boolean isReply = c.getParentId() != null || c.getReplyToUserId() != null;
+            map.put("isReply", isReply);
+            return map;
+        }).collect(java.util.stream.Collectors.toList());
+        return Result.success(vos);
     }
 }

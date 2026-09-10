@@ -69,7 +69,7 @@ public class PayController {
         }
         // 金额转为分
         int totalFen = order.getTotalAmount().multiply(new BigDecimal("100")).intValue();
-        String description = "碰个面商城订单";
+        String description = "同行时空商城订单";
 
         Map<String, String> payParams = wxPayService.createPrepay(
                 order.getOrderNo(), totalFen, user.getOpenid(), description);

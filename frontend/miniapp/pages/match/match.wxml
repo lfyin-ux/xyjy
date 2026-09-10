@@ -1,6 +1,6 @@
 <view class="page">
   <view class="top">
-    <view class="brand">碰个<i>面</i></view>
+    <view class="brand">同行<i>时空</i></view>
   </view>
 
   <!-- 未认证锁定页 -->
@@ -8,80 +8,40 @@
     <view class="gate">
       <view class="gate-icon">🔐</view>
       <view class="gate-title">功能暂未解锁</view>
-      <view class="gate-desc">为保障校园社区安全，需要完成个人认证和学校认证后才能使用匹配和广场功能。</view>
+      <view class="gate-desc">为保障校园社区安全，需要完成个人认证和学校认证后才能使用广场功能。</view>
       <button class="primary" bindtap="goAuth">前往认证中心</button>
     </view>
   </block>
 
-  <!-- 正常内容 -->
+  <!-- 校园广场 -->
   <block wx:else>
-  <view class="hero">
-    <text class="small">今日校园缘分</text>
-    <view class="h2">发现同频的 TA</view>
-    <text class="small">认真交友，从一次心动开始</text>
-  </view>
+    <view class="hero">
+      <text class="small">今日校园动态</text>
+      <view class="h2">发现身边的精彩</view>
+      <text class="small">分享生活，结识同校好友</text>
+    </view>
 
-  <!-- 切换标签 -->
-  <view class="tabs">
-    <view class="tab {{tab==='recommend'?'active':''}}" bindtap="switchTab" data-tab="recommend">心动推荐</view>
-    <view class="tab {{tab==='square'?'active':''}}" bindtap="switchTab" data-tab="square">校园广场</view>
-  </view>
-
-  <!-- 心动推荐 -->
-  <view wx:if="{{tab==='recommend'}}">
-    <scroll-view scroll-x class="filterbar">
-      <view class="filter" bindtap="openFilter">⚙ 筛选</view>
-      <view class="filter {{filterGender===2?'on':''}}" bindtap="setGender" data-g="2">女生</view>
-      <view class="filter {{filterGender===1?'on':''}}" bindtap="setGender" data-g="1">男生</view>
-      <view class="filter" bindtap="resetFilter">重置</view>
-    </scroll-view>
-
-    <block wx:if="{{current}}">
-      <view class="match-card" bindtap="viewProfile" data-id="{{current.id}}">
-        <view class="portrait">
-          <image wx:if="{{current.avatar}}" src="{{imgBase}}{{current.avatar}}" mode="aspectFill" class="portrait-img" />
-          <text wx:else>🧑‍🎓</text>
-        </view>
-        <view class="verified">✓ 实名认证</view>
-        <view class="bio">
-          <view class="bio-name">{{current.nickname}}，{{current.age}}</view>
-          <view class="bio-school">📍 {{current.school}}</view>
-          <view class="chips">
-            <text class="chip-w" wx:for="{{current.tagList}}" wx:key="*this">{{item}}</text>
+    <view class="feed">
+      <view class="post" wx:for="{{posts}}" wx:key="id">
+        <view class="post-head" bindtap="viewProfile" data-id="{{item.user.id}}">
+          <view class="mini">
+            <image wx:if="{{item.user.avatar}}" src="{{imgBase}}{{item.user.avatar}}" mode="aspectFill" class="mini-img" />
+            <text wx:else>🧑</text>
+          </view>
+          <view>
+            <view class="post-name">{{item.user.nickname}}</view>
+            <view class="post-sub">{{item.user.school}} · {{item.post.place}}</view>
           </view>
         </view>
-      </view>
-      <view class="actions">
-        <button class="action" bindtap="doSkip">×</button>
-        <button class="action like" bindtap="doLike">♥</button>
-        <button class="action star" bindtap="doStar">★</button>
-      </view>
-    </block>
-    <view wx:else class="empty">暂无更多推荐，稍后再来看看吧</view>
-  </view>
-
-  <!-- 校园广场 -->
-  <view wx:if="{{tab==='square'}}" class="feed">
-    <view class="post" wx:for="{{posts}}" wx:key="id">
-      <view class="post-head" bindtap="viewProfile" data-id="{{item.user.id}}">
-        <view class="mini">
-          <image wx:if="{{item.user.avatar}}" src="{{imgBase}}{{item.user.avatar}}" mode="aspectFill" class="mini-img" />
-          <text wx:else>🧑</text>
-        </view>
-        <view>
-          <view class="post-name">{{item.user.nickname}}</view>
-          <view class="post-sub">{{item.user.school}} · {{item.post.place}}</view>
+        <view class="post-text">{{item.post.content}}</view>
+        <image wx:if="{{item.post.images}}" src="{{imgBase}}{{item.firstImg}}" mode="aspectFill" class="post-img" bindtap="openPost" data-id="{{item.post.id}}" />
+        <view class="post-foot">
+          <text class="post-action {{item.liked?'on':''}}" catchtap="toggleLike" data-id="{{item.post.id}}" data-idx="{{index}}">♥ {{item.post.likeCount}}</text>
+          <text class="post-action" catchtap="openPost" data-id="{{item.post.id}}">💬 {{item.post.commentCount}}</text>
         </view>
       </view>
-      <view class="post-text">{{item.post.content}}</view>
-      <image wx:if="{{item.post.images}}" src="{{imgBase}}{{item.firstImg}}" mode="aspectFill" class="post-img" />
-      <view class="post-foot">
-        <text class="post-action {{item.liked?'on':''}}" catchtap="toggleLike" data-id="{{item.post.id}}" data-idx="{{index}}">♥ {{item.post.likeCount}}</text>
-        <text class="post-action" catchtap="openPost" data-id="{{item.post.id}}">💬 {{item.post.commentCount}}</text>
-      </view>
+      <view wx:if="{{posts.length===0}}" class="empty">本校暂时还没有新动态</view>
+      <view class="fab" bindtap="goPublish">＋</view>
     </view>
-    <view wx:if="{{posts.length===0}}" class="empty">本校暂时还没有新动态</view>
-    <view class="fab" bindtap="goPublish">＋</view>
-  </view>
   </block>
 </view>

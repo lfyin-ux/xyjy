@@ -102,7 +102,7 @@ public class AdminContentController {
         }
         comment.setStatus(pass ? 3 : 5);
         postCommentMapper.updateById(comment);
-        if (pass) {
+        if (pass && comment.getVisibility() != null && comment.getVisibility() == 3) {
             SquarePost post = squarePostMapper.selectById(comment.getPostId());
             if (post != null) {
                 post.setCommentCount(post.getCommentCount() + 1);

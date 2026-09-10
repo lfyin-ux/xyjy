@@ -3,14 +3,21 @@ function statusText(s) {
   var map = { '0': '草稿', '1': '审核中', '3': '已发布', '4': '审核驳回', '5': '违规拦截', '6': '已删除' }
   return map['' + s] || ''
 }
-module.exports = { statusText: statusText }
+function visLabel(v) {
+  var map = { '1': '发布人可见', '2': '回复人可见', '3': '全部可见' }
+  return map['' + v] || '全部可见'
+}
+module.exports = { statusText: statusText, visLabel: visLabel }
 </wxs>
 
 <view class="page">
   <!-- 我的动态列表 -->
   <block wx:if="{{mode==='my'}}">
     <view class="my-post" wx:for="{{myPosts}}" wx:key="id" bindtap="viewPost" data-id="{{item.id}}">
-      <view class="my-post-content">{{item.content}}</view>
+      <view class="my-post-head">
+        <view class="my-post-content">{{item.content}}</view>
+        <text class="my-del-btn" catchtap="delPost" data-id="{{item.id}}">删除</text>
+      </view>
       <image wx:if="{{item.images}}" src="{{imgBase}}{{item.firstImg}}" mode="aspectFill" class="my-post-img" />
       <view class="my-post-footer">
         <text class="status-tag" wx:if="{{fmt.statusText(item.status)}}">{{fmt.statusText(item.status)}}</text>
@@ -18,7 +25,6 @@ module.exports = { statusText: statusText }
           <text class="stat-item">♥ {{item.likeCount}}</text>
           <text class="stat-item">💬 {{item.commentCount}}</text>
         </view>
-        <text class="del-btn" catchtap="delPost" data-id="{{item.id}}">删除</text>
       </view>
       <view wx:if="{{item.topic}}" class="my-post-topic">#{{item.topic}}</view>
     </view>
@@ -57,16 +63,39 @@ module.exports = { statusText: statusText }
 
     <view class="card">
       <view class="card-title">评论 {{comments.length}}</view>
-      <view class="comment" wx:for="{{comments}}" wx:key="id">
-        <text class="comment-name">{{item.user.nickname}}：</text>
-        <text class="comment-text">{{item.comment.content}}</text>
+      <view class="comment {{item.isMine?'comment-mine':''}} {{item.isPrivate?'comment-private':''}}" wx:for="{{comments}}" wx:key="id"
+            bindtap="{{item.isMine?'':'replyComment'}}"
+            data-userid="{{item.user.id}}" data-nickname="{{item.user.nickname}}" data-commentid="{{item.comment.id}}">
+        <view wx:if="{{item.privateHint}}" class="private-hint-row">
+          <text class="private-hint">🔒 {{item.privateHint}}</text>
+          <text wx:if="{{item.isMine}}" class="comment-del-btn" catchtap="delComment" data-id="{{item.comment.id}}">删除</text>
+        </view>
+        <view class="comment-head" wx:if="{{!item.myReply}}">
+          <text class="comment-name">{{item.user.nickname}}</text>
+          <text wx:if="{{item.repliedToMe}}" class="reply-badge reply-to-me">回复了你</text>
+          <text wx:if="{{item.isMine}}" class="comment-del-btn" catchtap="delComment" data-id="{{item.comment.id}}">删除</text>
+        </view>
+        <view class="comment-body">
+          <view wx:if="{{item.replyToUser}}" class="reply-line">
+            <text class="reply-at">{{item.isMine ? '我回复了' : '回复'}} @{{item.replyToUser.nickname}}</text>
+            <text wx:if="{{item.myReply && !item.privateHint}}" class="comment-del-btn" catchtap="delComment" data-id="{{item.comment.id}}">删除</text>
+          </view>
+          <text class="comment-text">{{item.comment.content}}</text>
+        </view>
       </view>
       <view wx:if="{{comments.length===0}}" class="empty">还没有评论，来说点什么吧</view>
     </view>
 
     <view class="comment-bar">
-      <input placeholder="写下你的评论…" value="{{commentText}}" bindinput="onComment" />
-      <button class="send-btn" bindtap="submitComment">发布</button>
+      <view class="comment-bar-top" wx:if="{{replyToNickname}}">
+        <text class="reply-hint">回复 @{{replyToNickname}}</text>
+        <text class="cancel-reply" bindtap="cancelReply">取消</text>
+      </view>
+      <view class="comment-bar-row">
+        <input placeholder="{{replyToNickname ? '回复 ' + replyToNickname + '…' : '写下你的评论…'}}" value="{{commentText}}" bindinput="onComment" />
+        <view class="vis-btn" bindtap="pickVisibility">{{visibilityLabel}}</view>
+        <button class="send-btn" bindtap="submitComment">发布</button>
+      </view>
     </view>
   </block>
 </view>

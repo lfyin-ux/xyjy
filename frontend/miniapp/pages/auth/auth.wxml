@@ -1,5 +1,5 @@
 <view class="page">
-  <view class="notice">两项认证均由后台人工审核。只有个人认证与学校认证全部通过后，匹配、动态、校园生活、商城和聊天才会解锁。</view>
+  <view class="notice">两项认证均由后台人工审核。只有个人认证与学校认证全部通过后，广场、校园生活、商城等功能才会解锁。</view>
 
   <view class="auth-steps">
     <view class="auth-step {{personalStatus===2?'done':personalStatus===1?'pending':''}}">
