@@ -21,7 +21,7 @@
         <text wx:else>🧑‍🎓</text>
       </view>
       <view>
-        <view class="profile-name">{{user.nickname}} <text class="profile-gender">{{genderText}} {{user.age}}</text></view>
+        <view class="profile-name">{{user.nickname}}<text wx:if="{{profileExtra}}" class="profile-gender"> {{profileExtra}}</text></view>
         <view class="profile-auth">{{fullAccess ? user.school + ' · 双认证已通过 ✓' : '账号已注册 · 待完成认证'}}</view>
       </view>
     </view>
@@ -82,6 +82,16 @@
     <view class="menu-row" bindtap="goAddress">
       <text class="menu-icon">📍</text>
       <text class="menu-name">收货地址管理</text>
+      <text class="menu-val">›</text>
+    </view>
+    <view class="menu-row" bindtap="goUserAgreement">
+      <text class="menu-icon">📄</text>
+      <text class="menu-name">用户服务协议</text>
+      <text class="menu-val">›</text>
+    </view>
+    <view class="menu-row" bindtap="goPrivacyPolicy">
+      <text class="menu-icon">🔒</text>
+      <text class="menu-name">隐私政策</text>
       <text class="menu-val">›</text>
     </view>
     <view class="menu-row" bindtap="feedback">

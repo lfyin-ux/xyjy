@@ -10,11 +10,26 @@ Page({
     studentNo: '',
     docImg: '',
     remark: '',
-    imgBase: ''
+    imgBase: '',
+    agreed: false
   },
 
   onLoad() {
     this.setData({ imgBase: app.globalData.baseUrl })
+  },
+
+  toggleAgree() {
+    this.setData({ agreed: !this.data.agreed })
+  },
+
+  openPrivacy() {
+    wx.navigateTo({ url: '/pages/privacy-policy/privacy-policy' })
+  },
+
+  ensureAgreed() {
+    if (this.data.agreed) return true
+    wx.showToast({ title: '请先同意隐私政策中的信息收集说明', icon: 'none' })
+    return false
   },
 
   onSchool(e) { this.setData({ schoolName: e.detail.value }) },
@@ -24,6 +39,7 @@ Page({
   onDocType(e) { this.setData({ docType: this.data.docTypes[e.detail.value] }) },
 
   uploadDoc() {
+    if (!this.ensureAgreed()) return
     wx.chooseMedia({
       count: 1,
       mediaType: ['image'],
@@ -39,6 +55,7 @@ Page({
   },
 
   submit() {
+    if (!this.ensureAgreed()) return
     const d = this.data
     if (!d.schoolName || !d.docImg) {
       wx.showToast({ title: '请输入学校并上传证明材料', icon: 'none' })

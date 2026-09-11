@@ -27,7 +27,9 @@
     "pages/refund-apply/refund-apply",
     "pages/refund-detail/refund-detail",
     "pages/album/album",
-    "pages/my-comments/my-comments"
+    "pages/my-comments/my-comments",
+    "pages/user-agreement/user-agreement",
+    "pages/privacy-policy/privacy-policy"
   ],
   "window": {
     "backgroundTextStyle": "dark",

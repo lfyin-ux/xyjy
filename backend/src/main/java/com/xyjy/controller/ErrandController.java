@@ -5,6 +5,7 @@ import com.xyjy.common.BusinessException;
 import com.xyjy.common.Result;
 import com.xyjy.entity.ErrandOrder;
 import com.xyjy.mapper.ErrandOrderMapper;
+import com.xyjy.service.FilterService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -19,6 +20,8 @@ public class ErrandController {
 
     @Resource
     private ErrandOrderMapper errandOrderMapper;
+    @Resource
+    private FilterService filterService;
 
     /**
      * 可接订单列表 待接单状态
@@ -57,6 +60,11 @@ public class ErrandController {
         }
         if (order.getPublisherContact() == null || order.getPublisherContact().isEmpty()) {
             throw new BusinessException("请填写联系方式");
+        }
+        String checkText = order.getTitle() + (order.getRemark() == null ? "" : order.getRemark());
+        FilterService.FilterResult fr = filterService.check(checkText, "跑腿", order.getPublisherId());
+        if (fr.level == 2) {
+            throw new BusinessException(fr.tip);
         }
         order.setStatus(1);
         errandOrderMapper.insert(order);

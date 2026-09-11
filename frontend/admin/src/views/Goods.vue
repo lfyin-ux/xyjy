@@ -17,7 +17,7 @@
       <el-table :data="list" v-loading="loading" stripe>
         <el-table-column label="封面" width="90">
           <template #default="{ row }">
-            <el-image v-if="row.cover" :src="row.cover" fit="cover" style="width: 60px; height: 45px" />
+            <el-image v-if="row.cover" :src="fileUrl(row.cover)" fit="cover" style="width: 60px; height: 45px" />
             <span v-else>-</span>
           </template>
         </el-table-column>
@@ -69,7 +69,7 @@
         <el-form-item label="封面图">
           <el-upload :action="uploadUrl" :data="{ bizDir: 'mall' }" :show-file-list="false"
             :on-success="onCoverSuccess" accept="image/*">
-            <el-image v-if="form.cover" :src="form.cover" fit="cover" style="width: 90px; height: 90px" />
+            <el-image v-if="form.cover" :src="fileUrl(form.cover)" fit="cover" style="width: 90px; height: 90px" />
             <el-button v-else>上传封面</el-button>
           </el-upload>
         </el-form-item>
@@ -110,6 +110,7 @@ import {
   goodsList, goodsSave, goodsSetStatus, goodsDelete,
   mallCategories, categorySave, categoryDelete, uploadUrl
 } from '../api'
+import { fileUrl } from '../utils/file'
 
 const list = ref([])
 const total = ref(0)

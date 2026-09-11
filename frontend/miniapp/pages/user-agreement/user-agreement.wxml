@@ -1,0 +1,55 @@
+<view class="legal-page">
+  <view class="legal-title">同行时空用户服务协议</view>
+  <view class="legal-meta">更新日期：2026年9月11日 · 生效日期：2026年9月11日</view>
+
+  <view class="legal-section">
+    <view class="legal-h">一、导言</view>
+    <text class="legal-p">欢迎使用「同行时空」小程序（以下简称「本平台」）。本协议由您与平台运营方共同缔结，请您在注册、登录或使用服务前仔细阅读并充分理解本协议全部内容，尤其是以加粗方式提示的条款。</text>
+    <text class="legal-p">您点击同意、勾选同意或实际使用本平台服务，即表示您已阅读并同意接受本协议约束。</text>
+  </view>
+
+  <view class="legal-section">
+    <view class="legal-h">二、服务内容</view>
+    <text class="legal-p">本平台面向校园用户提供校园广场、生活服务、商城交易、身份认证等相关功能。具体功能以平台实际提供为准，我们有权根据业务需要调整服务内容。</text>
+  </view>
+
+  <view class="legal-section">
+    <view class="legal-h">三、账号注册与使用</view>
+    <text class="legal-li">1. 您可通过微信授权登录使用本平台，应保证微信账号为您本人合法持有。</text>
+    <text class="legal-li">2. 您应妥善保管账号信息，因您自身原因导致的账号安全问题由您自行承担。</text>
+    <text class="legal-li">3. 您不得利用本平台从事违法违规、侵犯他人权益或干扰平台正常运营的行为。</text>
+  </view>
+
+  <view class="legal-section">
+    <view class="legal-h">四、用户行为规范</view>
+    <text class="legal-li">1. 您发布的内容应遵守法律法规及平台社区规范，不得发布违法、低俗、虚假、侵权信息。</text>
+    <text class="legal-li">2. 平台有权对违规内容进行审核、删除、限制展示，并对违规账号采取警告、限制功能、封禁等措施。</text>
+    <text class="legal-li">3. 跑腿、二手、商城等交易功能中，您应诚信履约，不得欺诈或恶意违约。</text>
+  </view>
+
+  <view class="legal-section">
+    <view class="legal-h">五、认证服务</view>
+    <text class="legal-p">为提升校园社区安全性，您可自愿申请个人认证、学校认证。您应提交真实、合法、有效的材料，并授权平台在审核目的范围内使用相关信息。虚假认证将导致认证失败或账号处罚。</text>
+  </view>
+
+  <view class="legal-section">
+    <view class="legal-h">六、知识产权</view>
+    <text class="legal-p">本平台相关商标、界面设计、程序代码等知识产权归平台或权利人所有。您上传的内容，您保留相应权利，同时授予平台在提供服务所必需的范围内进行展示、存储、传播的非独占许可。</text>
+  </view>
+
+  <view class="legal-section">
+    <view class="legal-h">七、免责声明</view>
+    <text class="legal-li">1. 因网络、设备、第三方服务等原因导致的服务中断或数据损失，平台将尽力修复但不承担超出法律规定范围的责任。</text>
+    <text class="legal-li">2. 用户间线下见面、交易等行为由用户自行判断并承担风险，平台仅提供信息展示与撮合工具。</text>
+  </view>
+
+  <view class="legal-section">
+    <view class="legal-h">八、协议变更与终止</view>
+    <text class="legal-p">平台可根据法律法规或业务变化更新本协议，并通过页面公告等方式通知。若您不同意变更内容，应停止使用服务；继续使用视为接受变更。您可随时停止使用本平台并申请注销账号（如有）。</text>
+  </view>
+
+  <view class="legal-section">
+    <view class="legal-h">九、联系我们</view>
+    <text class="legal-p">如对本协议有疑问，可通过小程序内「意见反馈」功能联系我们。</text>
+  </view>
+</view>

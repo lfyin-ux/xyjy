@@ -71,6 +71,27 @@ def main():
     print(f'上传 {jar_local}')
     sftp.put(jar_local, f'{APP_DIR}/xyjy-backend.jar')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/04_comment_visibility.sql'), f'{APP_DIR}/sql/04_comment_visibility.sql')
+    wechat_secret = os.environ.get('WECHAT_APP_SECRET', '')
+    if wechat_secret:
+        prod_yml = f"""spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/xyjy?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+file:
+  upload-dir: {APP_DIR}/uploads
+app:
+  mode: prod
+sms:
+  enabled: false
+wechat:
+  app-id: wx13b60dd991c5b29e
+  app-secret: {wechat_secret}
+  sec-check:
+    enabled: true
+"""
+        with sftp.file(f'{APP_DIR}/application-prod.yml', 'w') as f:
+            f.write(prod_yml)
     if os.path.isdir(admin_dist):
         upload_dir(sftp, admin_dist, f'{APP_DIR}/admin')
     sftp.close()

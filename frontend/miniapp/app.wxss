@@ -21,6 +21,22 @@ view, text, button, input, textarea {
   box-sizing: border-box;
 }
 
+/* 重置微信 button 默认边距，解决按钮偏右/不居中 */
+button {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: normal;
+  font-size: inherit;
+  box-sizing: border-box;
+}
+
+button::after {
+  border: none;
+}
+
 .top {
   padding: 36rpx 36rpx 20rpx;
   display: flex;
@@ -83,6 +99,7 @@ view, text, button, input, textarea {
   color: #fff;
   font-weight: 800;
   font-size: 30rpx;
+  margin: 0;
 }
 
 .secondary {
@@ -94,6 +111,7 @@ view, text, button, input, textarea {
   color: var(--purple);
   font-weight: 800;
   font-size: 30rpx;
+  margin: 0;
 }
 
 /* 通用卡片 */

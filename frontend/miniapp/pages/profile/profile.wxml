@@ -8,7 +8,7 @@
       <image wx:if="{{user.avatar}}" src="{{imgBase}}{{user.avatar}}" mode="aspectFill" class="face-img" />
       <text wx:else>🧑‍🎓</text>
     </view>
-    <view class="big-name">{{user.nickname}}，{{user.age}}</view>
+    <view class="big-name">{{displayName || user.nickname}}</view>
     <view class="big-school">{{user.school}} · 已实名 ✓</view>
     <view class="chips-center">
       <text class="chip" wx:for="{{tagList}}" wx:key="*this">{{item}}</text>

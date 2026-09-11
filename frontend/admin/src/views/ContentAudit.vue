@@ -55,14 +55,15 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { postAuditList, postPass, postReject, commentAuditList, commentAudit } from '../api'
+import { firstFileUrl, splitFileUrls } from '../utils/file'
 
 const tab = ref('post')
 const postList = ref([])
 const commentList = ref([])
 const loading = ref(false)
 
-const firstImg = (s) => (s ? s.split(',')[0] : '')
-const splitImgs = (s) => (s ? s.split(',').filter(Boolean) : [])
+const firstImg = firstFileUrl
+const splitImgs = splitFileUrls
 
 const load = async () => {
   loading.value = true

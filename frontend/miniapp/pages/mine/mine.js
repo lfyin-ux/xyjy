@@ -6,7 +6,7 @@ Page({
     user: {},
     fullAccess: false,
     authSummary: '个人认证和学校认证均待完成',
-    genderText: '',
+    profileExtra: '',
     imgBase: ''
   },
 
@@ -21,9 +21,13 @@ Page({
   loadUser() {
     const uid = app.globalData.userId
     api.get('/user/detail/' + uid).then((user) => {
+      const extra = []
+      if (user.gender === 1) extra.push('♂')
+      else if (user.gender === 2) extra.push('♀')
+      if (user.age != null && user.age !== '') extra.push(String(user.age))
       this.setData({
         user,
-        genderText: user.gender === 1 ? '♂' : user.gender === 2 ? '♀' : ''
+        profileExtra: extra.join(' ')
       })
     })
     // 认证状态
@@ -75,6 +79,14 @@ Page({
 
   goAddress() {
     wx.navigateTo({ url: '/pages/address/address' })
+  },
+
+  goUserAgreement() {
+    wx.navigateTo({ url: '/pages/user-agreement/user-agreement' })
+  },
+
+  goPrivacyPolicy() {
+    wx.navigateTo({ url: '/pages/privacy-policy/privacy-policy' })
   },
 
   feedback() {

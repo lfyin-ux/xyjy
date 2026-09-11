@@ -31,17 +31,22 @@ function request(url, method, data) {
 
 // 文件上传 本地上传 返回可访问相对路径
 function uploadFile(filePath, bizDir) {
+  const userId = getApp().globalData.userId
   return new Promise((resolve, reject) => {
     wx.uploadFile({
       url: getBaseUrl() + '/file/upload',
       filePath: filePath,
       name: 'file',
-      formData: { bizDir: bizDir || 'common' },
+      formData: {
+        bizDir: bizDir || 'common',
+        userId: userId || ''
+      },
       success: (res) => {
         const data = JSON.parse(res.data)
         if (data.code === 200) {
           resolve(data.data.url)
         } else {
+          wx.showToast({ title: data.msg || '上传失败', icon: 'none' })
           reject(data)
         }
       },

@@ -11,14 +11,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 短信验证码服务
- * 开发模式：不发真实短信 验证码固定123456
- * 生产模式：调用阿里云短信API发送真实验证码
+ * 未开启短信或开发模式：不发真实短信，验证码固定 123456
+ * 开启短信后：调用阿里云短信 API 发送随机验证码
  */
 @Service
 public class SmsService {
 
     @Value("${app.mode:dev}")
     private String appMode;
+    @Value("${sms.enabled:false}")
+    private boolean smsEnabled;
     @Value("${sms.access-key-id:}")
     private String accessKeyId;
     @Value("${sms.access-key-secret:}")
@@ -34,6 +36,11 @@ public class SmsService {
     // 发送频率限制 60秒一次
     private static final ConcurrentHashMap<String, Long> SEND_LIMIT = new ConcurrentHashMap<>();
 
+    /** 是否使用模拟验证码（未对接短信或开发模式） */
+    public boolean isMockSms() {
+        return !smsEnabled || "dev".equals(appMode);
+    }
+
     /**
      * 发送验证码
      */
@@ -42,18 +49,20 @@ public class SmsService {
             throw new BusinessException("请输入正确的手机号码");
         }
 
-        // 频率限制 60秒内不能重复发送
+        boolean mock = isMockSms();
+        long limitMs = mock ? 10000 : 60000;
+
+        // 频率限制
         Long lastSend = SEND_LIMIT.get(phone);
-        if (lastSend != null && System.currentTimeMillis() - lastSend < 60000) {
-            throw new BusinessException("验证码发送过于频繁，请60秒后重试");
+        if (lastSend != null && System.currentTimeMillis() - lastSend < limitMs) {
+            long waitSec = (limitMs - (System.currentTimeMillis() - lastSend) + 999) / 1000;
+            throw new BusinessException("验证码发送过于频繁，请" + waitSec + "秒后重试");
         }
 
         String code;
-        if ("dev".equals(appMode)) {
-            // 开发模式 固定验证码123456 不发真实短信
+        if (mock) {
             code = "123456";
         } else {
-            // 生产模式 生成6位随机验证码并发送短信
             code = RandomUtil.randomNumbers(6);
             boolean sent = sendSmsToPhone(phone, code);
             if (!sent) {
@@ -73,8 +82,8 @@ public class SmsService {
     public boolean verifyCode(String phone, String code) {
         if (phone == null || code == null) return false;
 
-        // 开发模式 123456永远有效
-        if ("dev".equals(appMode) && "123456".equals(code)) {
+        // 模拟模式 123456 有效
+        if (isMockSms() && "123456".equals(code)) {
             return true;
         }
 

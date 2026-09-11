@@ -9,7 +9,47 @@
   color: #625a91;
   font-size: 24rpx;
   line-height: 1.6;
-  margin-bottom: 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.agree-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+  padding: 20rpx 24rpx;
+  background: #fff;
+  border-radius: 28rpx;
+}
+
+.agree-check {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 10rpx;
+  border: 2rpx solid #ccc;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  color: #fff;
+  margin-top: 4rpx;
+}
+
+.agree-check.on {
+  background: var(--purple);
+  border-color: var(--purple);
+}
+
+.agree-text {
+  flex: 1;
+  font-size: 24rpx;
+  line-height: 1.7;
+  color: #555;
+}
+
+.agree-link {
+  color: var(--purple);
 }
 
 .sms-row {

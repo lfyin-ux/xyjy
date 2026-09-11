@@ -1,5 +1,7 @@
 package com.xyjy.controller;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.xyjy.common.BusinessException;
 import com.xyjy.common.Result;
@@ -99,18 +101,18 @@ public class AuthController {
                 + "&secret=" + appSecret
                 + "&js_code=" + code
                 + "&grant_type=authorization_code";
-        RestTemplate restTemplate = new RestTemplate();
-        Map<String, Object> wxResult;
+        String resp;
         try {
-            wxResult = restTemplate.getForObject(url, Map.class);
+            resp = new RestTemplate().getForObject(url, String.class);
         } catch (Exception e) {
             throw new BusinessException("请求微信接口失败：" + e.getMessage());
         }
-        if (wxResult == null || wxResult.get("openid") == null) {
-            String errMsg = wxResult != null ? String.valueOf(wxResult.get("errmsg")) : "未知错误";
+        JSONObject wxResult = resp == null ? null : JSON.parseObject(resp);
+        if (wxResult == null || wxResult.getString("openid") == null) {
+            String errMsg = wxResult != null ? wxResult.getString("errmsg") : "未知错误";
             throw new BusinessException("微信授权失败：" + errMsg);
         }
-        String openid = wxResult.get("openid").toString();
+        String openid = wxResult.getString("openid");
         // 用openid查询或创建用户
         LambdaQueryWrapper<AppUser> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(AppUser::getOpenid, openid);
@@ -134,8 +136,8 @@ public class AuthController {
     @PostMapping("/sendCode")
     public Result<String> sendCode(@RequestParam String phone) {
         String code = smsService.sendCode(phone);
-        // 开发模式返回验证码方便调试 生产模式不返回（避免泄露）
-        if ("dev".equals(appMode)) {
+        // 模拟短信模式返回验证码方便测试；真实短信不返回
+        if (smsService.isMockSms()) {
             return Result.success(code);
         }
         return Result.success("验证码已发送");

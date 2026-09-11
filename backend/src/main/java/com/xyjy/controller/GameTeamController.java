@@ -8,6 +8,7 @@ import com.xyjy.entity.GameTeamMember;
 import com.xyjy.mapper.AppUserMapper;
 import com.xyjy.mapper.GameTeamMapper;
 import com.xyjy.mapper.GameTeamMemberMapper;
+import com.xyjy.service.FilterService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -27,6 +28,8 @@ public class GameTeamController {
     private GameTeamMemberMapper gameTeamMemberMapper;
     @Resource
     private AppUserMapper appUserMapper;
+    @Resource
+    private FilterService filterService;
 
     /**
      * 组局列表
@@ -59,6 +62,11 @@ public class GameTeamController {
         }
         if (team.getGameName() == null || team.getGameName().isEmpty()) {
             throw new BusinessException("请填写游戏名称");
+        }
+        String checkText = team.getGameName() + (team.getRequireDesc() == null ? "" : team.getRequireDesc());
+        FilterService.FilterResult fr = filterService.check(checkText, "组局", team.getCreatorId());
+        if (fr.level == 2) {
+            throw new BusinessException(fr.tip);
         }
         team.setJoinedNum(1);
         team.setStatus(1);

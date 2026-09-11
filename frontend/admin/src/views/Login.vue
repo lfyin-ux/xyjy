@@ -17,7 +17,6 @@
           登 录
         </el-button>
       </el-form>
-      <p class="login-tip">演示账号：admin / admin123</p>
     </div>
   </div>
 </template>
@@ -31,7 +30,7 @@ import { adminLogin } from '../api'
 
 const router = useRouter()
 const loading = ref(false)
-const form = ref({ username: 'admin', password: 'admin123' })
+const form = ref({ username: '', password: '' })
 
 // 登录处理
 const handleLogin = async () => {
@@ -90,12 +89,5 @@ const handleLogin = async () => {
   color: #909399;
   font-size: 14px;
   margin-top: 8px;
-}
-
-.login-tip {
-  text-align: center;
-  color: #c0c4cc;
-  font-size: 12px;
-  margin-top: 18px;
 }
 </style>

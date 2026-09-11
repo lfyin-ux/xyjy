@@ -50,14 +50,15 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { secondList, secondPass, secondSetStatus } from '../api'
+import { firstFileUrl, splitFileUrls } from '../utils/file'
 
 const list = ref([])
 const total = ref(0)
 const loading = ref(false)
 const query = ref({ pageNum: 1, pageSize: 10, status: null })
 
-const firstImg = (s) => (s ? s.split(',')[0] : '')
-const splitImgs = (s) => (s ? s.split(',').filter(Boolean) : [])
+const firstImg = firstFileUrl
+const splitImgs = splitFileUrls
 const statusText = (s) => ({ 0: '待审核', 1: '在售', 2: '已下架', 5: '违规' }[s] || s)
 const statusType = (s) => ({ 0: 'warning', 1: 'success', 2: 'info', 5: 'danger' }[s] || 'info')
 

@@ -20,8 +20,10 @@ Page({
 
   loadDetail(id) {
     api.get('/user/detail/' + id).then((user) => {
+      const ageText = user.age != null && user.age !== '' ? String(user.age) : ''
       this.setData({
         user,
+        displayName: ageText ? `${user.nickname}，${ageText}` : user.nickname,
         tagList: user.tags ? user.tags.split(',') : []
       })
     })

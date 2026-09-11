@@ -125,6 +125,15 @@ cd /opt/xyjy/sql && python3 run_sql.py 02_mock_data.sql xyjy
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }}
+
+    location /uploads/ {{
+        proxy_pass http://127.0.0.1:8080/api/uploads/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }}
 }}
 """
     with client.open_sftp().file('/tmp/xyjy-admin.conf', 'w') as f:

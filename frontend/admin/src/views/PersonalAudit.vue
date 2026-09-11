@@ -24,10 +24,10 @@
         </el-table-column>
         <el-table-column label="身份证照片">
           <template #default="{ row }">
-            <el-image :src="row.auth.idFrontImg" fit="cover" style="width: 60px; height: 40px; margin-right: 6px"
-              :preview-src-list="[row.auth.idFrontImg, row.auth.idBackImg]" />
-            <el-image :src="row.auth.idBackImg" fit="cover" style="width: 60px; height: 40px"
-              :preview-src-list="[row.auth.idFrontImg, row.auth.idBackImg]" />
+            <el-image :src="fileUrl(row.auth.idFrontImg)" fit="cover" style="width: 60px; height: 40px; margin-right: 6px"
+              :preview-src-list="[fileUrl(row.auth.idFrontImg), fileUrl(row.auth.idBackImg)]" />
+            <el-image :src="fileUrl(row.auth.idBackImg)" fit="cover" style="width: 60px; height: 40px"
+              :preview-src-list="[fileUrl(row.auth.idFrontImg), fileUrl(row.auth.idBackImg)]" />
           </template>
         </el-table-column>
         <el-table-column label="状态" width="90">
@@ -57,6 +57,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { personalAuditList, personalPass, personalReject } from '../api'
+import { fileUrl } from '../utils/file'
 
 const list = ref([])
 const total = ref(0)

@@ -26,7 +26,7 @@
       <el-table :data="list" v-loading="loading" stripe>
         <el-table-column label="头像" width="80">
           <template #default="{ row }">
-            <el-avatar :src="row.avatar" shape="square">{{ row.nickname?.charAt(0) }}</el-avatar>
+            <el-avatar :src="fileUrl(row.avatar)" shape="square">{{ row.nickname?.charAt(0) }}</el-avatar>
           </template>
         </el-table-column>
         <el-table-column prop="nickname" label="昵称" width="110" />
@@ -80,7 +80,7 @@
         <h4 style="margin: 16px 0 8px">相册照片</h4>
         <div class="photo-list">
           <div v-for="p in detail.photos" :key="p.id" class="photo-item">
-            <el-image :src="p.imgUrl" fit="cover" style="width: 90px; height: 90px; border-radius: 8px" />
+            <el-image :src="fileUrl(p.imgUrl)" fit="cover" style="width: 90px; height: 90px; border-radius: 8px" />
             <div>
               <el-tag size="small" :type="p.auditStatus === 1 ? 'success' : 'info'">
                 {{ p.auditStatus === 1 ? '已通过' : p.auditStatus === 2 ? '已驳回' : '待审核' }}
@@ -106,6 +106,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { userList, userDetail, warnUser, banUser, unbanUser, auditProfile, auditPhoto } from '../api'
+import { fileUrl } from '../utils/file'
 
 const list = ref([])
 const total = ref(0)

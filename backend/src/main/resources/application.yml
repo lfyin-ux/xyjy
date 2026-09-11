@@ -36,8 +36,11 @@ file:
 # 微信小程序配置
 wechat:
   # 正式AppID和AppSecret 注册后填入
-  app-id: wx0000000000000000
+  app-id: wx13b60dd991c5b29e
   app-secret: your_app_secret_here
+  # 微信内容安全 msg_sec_check
+  sec-check:
+    enabled: true
 
 # 微信支付配置
 wxpay:
@@ -54,6 +57,8 @@ app:
 
 # 短信服务配置 支持阿里云短信
 sms:
+  # 是否启用真实短信 false 时使用测试验证码 123456
+  enabled: false
   # 阿里云AccessKeyId
   access-key-id: your_access_key_id
   # 阿里云AccessKeySecret

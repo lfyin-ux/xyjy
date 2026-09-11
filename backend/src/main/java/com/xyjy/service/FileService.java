@@ -51,4 +51,21 @@ public class FileService {
         // 返回可访问路径
         return accessPrefix + "/" + relativeDir + "/" + fileName;
     }
+
+    /** 根据上传返回路径解析本地文件 */
+    public File resolveUploadedFile(String urlPath) {
+        if (urlPath == null || !urlPath.startsWith(accessPrefix + "/")) {
+            return null;
+        }
+        String relative = urlPath.substring(accessPrefix.length() + 1);
+        return new File(uploadDir, relative);
+    }
+
+    /** 删除已上传文件 */
+    public void deleteUploadedFile(String urlPath) {
+        File file = resolveUploadedFile(urlPath);
+        if (file != null && file.exists() && !file.delete()) {
+            throw new BusinessException("违规文件清理失败");
+        }
+    }
 }

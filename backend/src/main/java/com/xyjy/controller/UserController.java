@@ -13,6 +13,7 @@ import com.xyjy.mapper.UserBlacklistMapper;
 import com.xyjy.mapper.UserFeedbackMapper;
 import com.xyjy.mapper.UserPhotoMapper;
 import com.xyjy.mapper.UserVisitMapper;
+import com.xyjy.service.FilterService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -31,6 +32,8 @@ public class UserController {
     private UserPhotoMapper userPhotoMapper;
     @Resource
     private UserVisitMapper userVisitMapper;
+    @Resource
+    private FilterService filterService;
     @Resource
     private UserBlacklistMapper userBlacklistMapper;
     @Resource
@@ -69,6 +72,12 @@ public class UserController {
     public Result<Void> update(@RequestBody AppUser user) {
         if (user.getId() == null) {
             throw new BusinessException("缺少用户ID");
+        }
+        String profileText = (user.getNickname() == null ? "" : user.getNickname())
+                + (user.getIntro() == null ? "" : user.getIntro());
+        FilterService.FilterResult fr = filterService.check(profileText, "个人资料", user.getId());
+        if (fr.level == 2) {
+            throw new BusinessException(fr.tip);
         }
         // 修改已展示资料后头像和简介重新进入审核
         AppUser old = appUserMapper.selectById(user.getId());
@@ -162,6 +171,10 @@ public class UserController {
     public Result<Void> feedback(@RequestBody UserFeedback feedback) {
         if (feedback.getContent() == null || feedback.getContent().isEmpty()) {
             throw new BusinessException("请填写反馈内容");
+        }
+        FilterService.FilterResult fr = filterService.check(feedback.getContent(), "意见反馈", feedback.getUserId());
+        if (fr.level == 2) {
+            throw new BusinessException(fr.tip);
         }
         feedback.setStatus(0);
         userFeedbackMapper.insert(feedback);

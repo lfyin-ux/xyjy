@@ -20,7 +20,16 @@
       </view>
     </view>
 
-    <button class="login-btn" bindtap="devLogin" disabled="{{!currentId}}">登录该用户</button>
+    <view class="agree-row" bindtap="toggleAgree">
+      <view class="agree-check {{agreed?'on':''}}">{{agreed?'✓':''}}</view>
+      <view class="agree-text">
+        我已阅读并同意
+        <text class="agree-link" catchtap="openAgreement" data-type="user">《用户服务协议》</text>
+        和
+        <text class="agree-link" catchtap="openAgreement" data-type="privacy">《隐私政策》</text>
+      </view>
+    </view>
+    <button class="login-btn" bindtap="devLogin" disabled="{{!currentId || !agreed}}">登录该用户</button>
     <view class="dev-tip">切换不同用户可测试各功能模块</view>
   </block>
 
@@ -30,8 +39,17 @@
       <view class="login-brand">同行<i>时空</i></view>
       <view class="login-slogan">连接校园，分享精彩生活</view>
       <view class="wx-icon">💬</view>
-      <button class="login-btn wx" bindtap="wxLogin">微信一键登录</button>
-      <view class="wx-tip">授权后将使用微信账号登录</view>
+      <view class="agree-row wx-agree" bindtap="toggleAgree">
+        <view class="agree-check {{agreed?'on':''}}">{{agreed?'✓':''}}</view>
+        <view class="agree-text">
+          我已阅读并同意
+          <text class="agree-link" catchtap="openAgreement" data-type="user">《用户服务协议》</text>
+          和
+          <text class="agree-link" catchtap="openAgreement" data-type="privacy">《隐私政策》</text>
+        </view>
+      </view>
+      <button class="login-btn wx" bindtap="wxLogin" disabled="{{!agreed}}">微信一键登录</button>
+      <view class="wx-tip">授权后将使用微信账号登录，并依据隐私政策处理相关信息</view>
     </view>
   </block>
 </view>

@@ -28,7 +28,7 @@
         <el-table-column label="证明材料">
           <template #default="{ row }">
             <el-image v-for="(img, i) in splitImgs(row.auth.docImgs)" :key="i" :src="img" fit="cover"
-              style="width: 60px; height: 40px; margin-right: 6px" :preview-src-list="splitImgs(row.auth.docImgs)" />
+              style="width: 60px; height: 40px; margin-right: 6px" :preview-src-list="splitImgs(row.auth.docImgs)" preview-teleported />
           </template>
         </el-table-column>
         <el-table-column label="状态" width="90">
@@ -58,6 +58,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { schoolAuditList, schoolPass, schoolReject } from '../api'
+import { splitFileUrls } from '../utils/file'
 
 const list = ref([])
 const total = ref(0)
@@ -66,7 +67,7 @@ const query = ref({ pageNum: 1, pageSize: 10, status: 1 })
 
 const statusText = (s) => (s === 2 ? '已通过' : s === 3 ? '已驳回' : '审核中')
 const statusType = (s) => (s === 2 ? 'success' : s === 3 ? 'danger' : 'warning')
-const splitImgs = (s) => (s ? s.split(',').filter(Boolean) : [])
+const splitImgs = splitFileUrls
 
 const load = async () => {
   loading.value = true
