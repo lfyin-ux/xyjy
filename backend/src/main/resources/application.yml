@@ -67,3 +67,5 @@ sms:
   sign-name: 内蒙古因源果网络科技服务有限公司
   # 验证码模板编号
   template-code: SMS_512095649
+  # 验证码有效期（分钟）
+  code-expire-minutes: 5

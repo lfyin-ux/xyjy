@@ -11,6 +11,7 @@ import com.xyjy.entity.SchoolAuth;
 import com.xyjy.mapper.AppUserMapper;
 import com.xyjy.mapper.PersonalAuthMapper;
 import com.xyjy.mapper.SchoolAuthMapper;
+import com.xyjy.service.SmsService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -134,13 +135,16 @@ public class AuthController {
      * 开发模式固定返回123456 生产模式调用阿里云短信发送随机验证码
      */
     @PostMapping("/sendCode")
-    public Result<String> sendCode(@RequestParam String phone) {
-        String code = smsService.sendCode(phone);
-        // 模拟短信模式返回验证码方便测试；真实短信不返回
+    public Result<Map<String, Object>> sendCode(@RequestParam String phone) {
+        SmsService.SendCodeResult result = smsService.sendCode(phone);
+        Map<String, Object> map = new HashMap<>();
+        map.put("expireMinutes", result.expireMinutes);
+        map.put("expireSeconds", result.expireSeconds);
+        map.put("message", "验证码已发送，" + result.expireMinutes + "分钟内有效");
         if (smsService.isMockSms()) {
-            return Result.success(code);
+            map.put("code", result.code);
         }
-        return Result.success("验证码已发送");
+        return Result.success(map);
     }
 
     /**
@@ -182,7 +186,7 @@ public class AuthController {
         }
         // 校验短信验证码
         if (!smsService.verifyCode(auth.getPhone(), smsCode)) {
-            throw new BusinessException("验证码错误或已过期");
+            throw new BusinessException("验证码错误或已过期，请在" + smsService.getCodeExpireMinutes() + "分钟内使用");
         }
         if (auth.getRealName() == null || auth.getRealName().isEmpty()) {
             throw new BusinessException("请填写真实姓名");

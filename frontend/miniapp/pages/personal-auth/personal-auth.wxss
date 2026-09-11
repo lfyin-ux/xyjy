@@ -72,6 +72,17 @@
   margin: 0;
 }
 
+.sms-btn[disabled] {
+  opacity: 0.55;
+  color: #9a94b8;
+}
+
+.sms-tip {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #9a94b8;
+}
+
 .upload {
   border: 3rpx dashed #c9c5dd;
   border-radius: 34rpx;

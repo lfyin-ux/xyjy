@@ -77,16 +77,33 @@ def main():
     sms_sign = os.environ.get('SMS_SIGN_NAME', '内蒙古因源果网络科技服务有限公司')
     sms_template = os.environ.get('SMS_TEMPLATE_CODE', 'SMS_512095649')
 
-    if not wechat_secret:
-        try:
-            with sftp.file(f'{APP_DIR}/application-prod.yml', 'r') as f:
-                import re
-                content = f.read().decode()
-            m = re.search(r'app-secret:\s*(\S+)', content)
+    existing_yml = ''
+    try:
+        with sftp.file(f'{APP_DIR}/application-prod.yml', 'r') as f:
+            existing_yml = f.read().decode()
+    except Exception:
+        pass
+
+    if existing_yml:
+        import re
+        if not wechat_secret:
+            m = re.search(r'app-secret:\s*(\S+)', existing_yml)
             if m:
                 wechat_secret = m.group(1)
-        except Exception:
-            pass
+        if not sms_key_id:
+            m = re.search(r'access-key-id:\s*(\S+)', existing_yml)
+            if m:
+                sms_key_id = m.group(1)
+        if not sms_key_secret:
+            m = re.search(r'access-key-secret:\s*(\S+)', existing_yml)
+            if m:
+                sms_key_secret = m.group(1)
+        m = re.search(r'sign-name:\s*(.+)', existing_yml)
+        if m and not os.environ.get('SMS_SIGN_NAME'):
+            sms_sign = m.group(1).strip()
+        m = re.search(r'template-code:\s*(\S+)', existing_yml)
+        if m and not os.environ.get('SMS_TEMPLATE_CODE'):
+            sms_template = m.group(1).strip()
 
     if wechat_secret or (sms_key_id and sms_key_secret):
         sms_enabled = 'true' if sms_key_id and sms_key_secret else 'false'
@@ -96,8 +113,10 @@ def main():
   access-key-secret: {sms_key_secret}
   sign-name: {sms_sign}
   template-code: {sms_template}
+  code-expire-minutes: 5
 """ if sms_key_id and sms_key_secret else """sms:
   enabled: false
+  code-expire-minutes: 5
 """
         wechat_block = f"""wechat:
   app-id: wx13b60dd991c5b29e

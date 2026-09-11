@@ -38,6 +38,8 @@ public class SmsService {
     private String signName;
     @Value("${sms.template-code:}")
     private String templateCode;
+    @Value("${sms.code-expire-minutes:5}")
+    private int codeExpireMinutes;
 
     private static final ConcurrentHashMap<String, CodeInfo> CODE_CACHE = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, Long> SEND_LIMIT = new ConcurrentHashMap<>();
@@ -54,10 +56,18 @@ public class SmsService {
                 && templateCode != null && !templateCode.isEmpty();
     }
 
+    public int getCodeExpireMinutes() {
+        return codeExpireMinutes > 0 ? codeExpireMinutes : 5;
+    }
+
+    public int getCodeExpireSeconds() {
+        return getCodeExpireMinutes() * 60;
+    }
+
     /**
      * 发送验证码
      */
-    public String sendCode(String phone) {
+    public SendCodeResult sendCode(String phone) {
         if (phone == null || !phone.matches("^1\\d{10}$")) {
             throw new BusinessException("请输入正确的手机号码");
         }
@@ -79,9 +89,10 @@ public class SmsService {
             sendSmsToPhone(phone, code);
         }
 
-        CODE_CACHE.put(phone, new CodeInfo(code, System.currentTimeMillis() + 5 * 60 * 1000));
+        long expireMs = getCodeExpireSeconds() * 1000L;
+        CODE_CACHE.put(phone, new CodeInfo(code, System.currentTimeMillis() + expireMs));
         SEND_LIMIT.put(phone, System.currentTimeMillis());
-        return code;
+        return new SendCodeResult(code, getCodeExpireMinutes(), getCodeExpireSeconds());
     }
 
     /**
@@ -137,6 +148,18 @@ public class SmsService {
         } catch (Exception e) {
             log.error("阿里云短信发送异常 phone={}", phone, e);
             throw new BusinessException("短信发送失败，请稍后重试");
+        }
+    }
+
+    public static class SendCodeResult {
+        public final String code;
+        public final int expireMinutes;
+        public final int expireSeconds;
+
+        public SendCodeResult(String code, int expireMinutes, int expireSeconds) {
+            this.code = code;
+            this.expireMinutes = expireMinutes;
+            this.expireSeconds = expireSeconds;
         }
     }
 
