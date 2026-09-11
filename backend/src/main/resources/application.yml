@@ -63,7 +63,7 @@ sms:
   access-key-id: your_access_key_id
   # 阿里云AccessKeySecret
   access-key-secret: your_access_key_secret
-  # 短信签名
-  sign-name: 同行时空
+  # 短信签名（与阿里云签名管理中的名称完全一致）
+  sign-name: 内蒙古因源果网络科技服务有限公司
   # 验证码模板编号
-  template-code: SMS_000000000
+  template-code: SMS_512095649

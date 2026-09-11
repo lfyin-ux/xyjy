@@ -1,11 +1,18 @@
 package com.xyjy.service;
 
 import cn.hutool.core.util.RandomUtil;
+import com.alibaba.fastjson2.JSON;
+import com.aliyun.dysmsapi20170525.Client;
+import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
+import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
+import com.aliyun.teaopenapi.models.Config;
 import com.xyjy.common.BusinessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 public class SmsService {
+
+    private static final Logger log = LoggerFactory.getLogger(SmsService.class);
 
     @Value("${app.mode:dev}")
     private String appMode;
@@ -30,15 +39,19 @@ public class SmsService {
     @Value("${sms.template-code:}")
     private String templateCode;
 
-    // 验证码缓存 key=手机号 value=验证码+过期时间
     private static final ConcurrentHashMap<String, CodeInfo> CODE_CACHE = new ConcurrentHashMap<>();
-
-    // 发送频率限制 60秒一次
     private static final ConcurrentHashMap<String, Long> SEND_LIMIT = new ConcurrentHashMap<>();
 
     /** 是否使用模拟验证码（未对接短信或开发模式） */
     public boolean isMockSms() {
-        return !smsEnabled || "dev".equals(appMode);
+        return !smsEnabled || "dev".equals(appMode) || !isSmsConfigured();
+    }
+
+    private boolean isSmsConfigured() {
+        return accessKeyId != null && !accessKeyId.isEmpty()
+                && accessKeySecret != null && !accessKeySecret.isEmpty()
+                && signName != null && !signName.isEmpty()
+                && templateCode != null && !templateCode.isEmpty();
     }
 
     /**
@@ -52,7 +65,6 @@ public class SmsService {
         boolean mock = isMockSms();
         long limitMs = mock ? 10000 : 60000;
 
-        // 频率限制
         Long lastSend = SEND_LIMIT.get(phone);
         if (lastSend != null && System.currentTimeMillis() - lastSend < limitMs) {
             long waitSec = (limitMs - (System.currentTimeMillis() - lastSend) + 999) / 1000;
@@ -64,13 +76,9 @@ public class SmsService {
             code = "123456";
         } else {
             code = RandomUtil.randomNumbers(6);
-            boolean sent = sendSmsToPhone(phone, code);
-            if (!sent) {
-                throw new BusinessException("短信发送失败，请稍后重试");
-            }
+            sendSmsToPhone(phone, code);
         }
 
-        // 缓存验证码 5分钟有效
         CODE_CACHE.put(phone, new CodeInfo(code, System.currentTimeMillis() + 5 * 60 * 1000));
         SEND_LIMIT.put(phone, System.currentTimeMillis());
         return code;
@@ -82,7 +90,6 @@ public class SmsService {
     public boolean verifyCode(String phone, String code) {
         if (phone == null || code == null) return false;
 
-        // 模拟模式 123456 有效
         if (isMockSms() && "123456".equals(code)) {
             return true;
         }
@@ -100,34 +107,36 @@ public class SmsService {
         return false;
     }
 
-    /**
-     * 调用阿里云短信API发送验证码
-     * 生产环境需要引入阿里云SDK 这里用HTTP方式简化示意
-     * 实际对接时替换为官方SDK调用
-     */
-    private boolean sendSmsToPhone(String phone, String code) {
+    private void sendSmsToPhone(String phone, String code) {
         try {
-            // TODO: 替换为阿里云短信SDK调用
-            // 示例伪代码：
-            // DefaultProfile profile = DefaultProfile.getProfile("cn-hangzhou", accessKeyId, accessKeySecret);
-            // IAcsClient client = new DefaultAcsClient(profile);
-            // CommonRequest request = new CommonRequest();
-            // request.setSysDomain("dysmsapi.aliyuncs.com");
-            // request.setSysAction("SendSms");
-            // request.putQueryParameter("PhoneNumbers", phone);
-            // request.putQueryParameter("SignName", signName);
-            // request.putQueryParameter("TemplateCode", templateCode);
-            // request.putQueryParameter("TemplateParam", "{\"code\":\"" + code + "\"}");
-            // CommonResponse response = client.getCommonResponse(request);
-            // return response.getData().contains("OK");
+            Config config = new Config()
+                    .setAccessKeyId(accessKeyId)
+                    .setAccessKeySecret(accessKeySecret);
+            config.endpoint = "dysmsapi.aliyuncs.com";
 
-            System.out.println("[SMS] 发送验证码到 " + phone + ": " + code);
-            System.out.println("[SMS] 使用签名: " + signName + " 模板: " + templateCode);
-            // 当前直接返回true 等配置好SDK后替换
-            return true;
+            Client client = new Client(config);
+            Map<String, String> params = new HashMap<>();
+            params.put("code", code);
+
+            SendSmsRequest request = new SendSmsRequest()
+                    .setPhoneNumbers(phone)
+                    .setSignName(signName)
+                    .setTemplateCode(templateCode)
+                    .setTemplateParam(JSON.toJSONString(params));
+
+            SendSmsResponse response = client.sendSms(request);
+            String respCode = response.getBody() == null ? null : response.getBody().getCode();
+            if (!"OK".equalsIgnoreCase(respCode)) {
+                String message = response.getBody() == null ? "未知错误" : response.getBody().getMessage();
+                log.error("阿里云短信发送失败 phone={} code={} message={}", phone, respCode, message);
+                throw new BusinessException("短信发送失败：" + message);
+            }
+            log.info("阿里云短信发送成功 phone={}", phone);
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
-            System.err.println("[SMS] 发送失败: " + e.getMessage());
-            return false;
+            log.error("阿里云短信发送异常 phone={}", phone, e);
+            throw new BusinessException("短信发送失败，请稍后重试");
         }
     }
 

@@ -72,7 +72,39 @@ def main():
     sftp.put(jar_local, f'{APP_DIR}/xyjy-backend.jar')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/04_comment_visibility.sql'), f'{APP_DIR}/sql/04_comment_visibility.sql')
     wechat_secret = os.environ.get('WECHAT_APP_SECRET', '')
-    if wechat_secret:
+    sms_key_id = os.environ.get('SMS_ACCESS_KEY_ID', '')
+    sms_key_secret = os.environ.get('SMS_ACCESS_KEY_SECRET', '')
+    sms_sign = os.environ.get('SMS_SIGN_NAME', '内蒙古因源果网络科技服务有限公司')
+    sms_template = os.environ.get('SMS_TEMPLATE_CODE', 'SMS_512095649')
+
+    if not wechat_secret:
+        try:
+            with sftp.file(f'{APP_DIR}/application-prod.yml', 'r') as f:
+                import re
+                content = f.read().decode()
+            m = re.search(r'app-secret:\s*(\S+)', content)
+            if m:
+                wechat_secret = m.group(1)
+        except Exception:
+            pass
+
+    if wechat_secret or (sms_key_id and sms_key_secret):
+        sms_enabled = 'true' if sms_key_id and sms_key_secret else 'false'
+        sms_block = f"""sms:
+  enabled: {sms_enabled}
+  access-key-id: {sms_key_id}
+  access-key-secret: {sms_key_secret}
+  sign-name: {sms_sign}
+  template-code: {sms_template}
+""" if sms_key_id and sms_key_secret else """sms:
+  enabled: false
+"""
+        wechat_block = f"""wechat:
+  app-id: wx13b60dd991c5b29e
+  app-secret: {wechat_secret}
+  sec-check:
+    enabled: true
+""" if wechat_secret else ''
         prod_yml = f"""spring:
   datasource:
     url: jdbc:mysql://localhost:3306/xyjy?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
@@ -82,14 +114,7 @@ file:
   upload-dir: {APP_DIR}/uploads
 app:
   mode: prod
-sms:
-  enabled: false
-wechat:
-  app-id: wx13b60dd991c5b29e
-  app-secret: {wechat_secret}
-  sec-check:
-    enabled: true
-"""
+{sms_block}{wechat_block}"""
         with sftp.file(f'{APP_DIR}/application-prod.yml', 'w') as f:
             f.write(prod_yml)
     if os.path.isdir(admin_dist):
