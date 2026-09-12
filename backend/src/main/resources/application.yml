@@ -52,6 +52,10 @@ wxpay:
   merchant-serial-number: your_merchant_serial_number_here
   # 商户API私钥文件路径（apiclient_key.pem）
   private-key-path: ../certs/apiclient_key.pem
+  # 微信支付公钥 ID（商户平台 → API安全 → 微信支付公钥 → 下载后可见）
+  public-key-id: your_public_key_id_here
+  # 微信支付公钥文件路径（pub_key.pem，不是 apiclient_cert.pem）
+  public-key-path: ../certs/pub_key.pem
   # 支付结果回调地址
   notify-url: https://tongxingshikong.cn/api/pay/notify
 

@@ -228,6 +228,10 @@ public class MallController {
         wrapper.eq(MallOrder::getUserId, userId);
         if (status != null) {
             wrapper.eq(MallOrder::getStatus, status);
+            // 待备货/配送中/已完成列表不展示已退款订单
+            if (status >= 2 && status <= 4) {
+                wrapper.ne(MallOrder::getRefundStatus, 2);
+            }
         }
         wrapper.orderByDesc(MallOrder::getCreateTime);
         List<MallOrder> list = mallOrderMapper.selectList(wrapper);

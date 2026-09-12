@@ -45,7 +45,7 @@ public class ChatController {
      */
     @GetMapping("/sessions/{userId}")
     public Result<List<Map<String, Object>>> sessions(@PathVariable Long userId) {
-        // 必须双认证才能使用聊天
+        // TODO: 小程序审核期间暂时关闭双认证门禁，审核通过后恢复
         authCheckService.requireFullAuth(userId);
         List<ChatSession> list = chatSessionMapper.selectList(new LambdaQueryWrapper<ChatSession>()
                 .eq(ChatSession::getStatus, 1)

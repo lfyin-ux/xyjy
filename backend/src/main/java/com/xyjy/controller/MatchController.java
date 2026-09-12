@@ -44,7 +44,7 @@ public class MatchController {
                                            @RequestParam(required = false) Integer gender,
                                            @RequestParam(required = false) String tag,
                                            @RequestParam(required = false) String partnerType) {
-        // 必须双认证才能使用匹配
+        // TODO: 小程序审核期间暂时关闭双认证门禁，审核通过后恢复
         authCheckService.requireFullAuth(userId);
         AppUser me = appUserMapper.selectById(userId);
         if (me == null) {

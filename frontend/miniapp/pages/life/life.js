@@ -1,4 +1,5 @@
 const api = require('../../utils/api')
+const authGate = require('../../utils/authGate')
 const app = getApp()
 
 Page({
@@ -19,6 +20,14 @@ Page({
 
   checkAuth() {
     const userId = app.globalData.userId
+    authGate.checkFullAccess(userId, () => {
+      this.setData({ locked: false })
+      this.loadGoods()
+      this.loadTasks()
+    }, () => {
+      this.setData({ locked: true })
+    })
+    /* TODO: 审核通过后恢复双认证门禁（并将 authGate.js 中 AUTH_GATE_ENABLED 改为 true）
     if (!userId) {
       this.setData({ locked: true })
       return
@@ -34,6 +43,7 @@ Page({
     }).catch(() => {
       this.setData({ locked: true })
     })
+    */
   },
 
   // 二手商品预览

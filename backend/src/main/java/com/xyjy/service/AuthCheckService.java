@@ -23,6 +23,9 @@ public class AuthCheckService {
         if (userId == null) {
             throw new BusinessException("请先登录");
         }
+        // TODO: 小程序审核期间暂时关闭双认证门禁，审核通过后恢复下方校验逻辑
+        return;
+        /*
         AppUser user = appUserMapper.selectById(userId);
         if (user == null) {
             throw new BusinessException("用户不存在");
@@ -31,16 +34,21 @@ public class AuthCheckService {
                 || user.getSchoolVerified() == null || user.getSchoolVerified() != 1) {
             throw new BusinessException("请先完成个人认证和学校认证后才能使用该功能");
         }
+        */
     }
 
     /**
      * 判断用户是否已完成双认证
      */
     public boolean isFullAuth(Long userId) {
+        // TODO: 小程序审核期间暂时视为已双认证，审核通过后恢复下方逻辑
+        return userId != null;
+        /*
         if (userId == null) return false;
         AppUser user = appUserMapper.selectById(userId);
         if (user == null) return false;
         return user.getIdentityVerified() != null && user.getIdentityVerified() == 1
                 && user.getSchoolVerified() != null && user.getSchoolVerified() == 1;
+        */
     }
 }

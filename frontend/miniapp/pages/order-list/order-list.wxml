@@ -43,7 +43,7 @@ module.exports = { statusText: statusText }
         <view wx:if="{{item.order.status===1}}" class="o-btn primary-btn" bindtap="pay" data-id="{{item.order.id}}">去支付</view>
         <view wx:if="{{item.order.status===1}}" class="o-btn" bindtap="cancel" data-id="{{item.order.id}}">取消</view>
         <view wx:if="{{item.order.status===3}}" class="o-btn primary-btn" bindtap="confirm" data-id="{{item.order.id}}">确认收货</view>
-        <view wx:if="{{item.order.status===4 && item.order.refundStatus===0}}" class="o-btn" bindtap="refund" data-id="{{item.order.id}}">申请售后</view>
+        <view wx:if="{{(item.order.status===2 || item.order.status===3 || item.order.status===4) && item.order.refundStatus===0}}" class="o-btn" bindtap="refund" data-id="{{item.order.id}}">申请退款</view>
       </view>
     </view>
   </view>

@@ -413,6 +413,28 @@ CREATE TABLE mall_order_item (
   quantity INT DEFAULT 1 COMMENT '数量'
 ) ENGINE=InnoDB COMMENT='商城订单明细表';
 
+-- 退款申请表
+DROP TABLE IF EXISTS refund_apply;
+CREATE TABLE refund_apply (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
+  order_id BIGINT NOT NULL COMMENT '订单ID',
+  order_no VARCHAR(50) NOT NULL COMMENT '订单号',
+  user_id BIGINT NOT NULL COMMENT '用户ID',
+  item_id BIGINT NOT NULL COMMENT '订单明细ID',
+  goods_name VARCHAR(100) COMMENT '商品名称',
+  spec VARCHAR(50) COMMENT '规格',
+  quantity INT DEFAULT 1 COMMENT '退货数量',
+  refund_amount DECIMAL(10,2) DEFAULT 0 COMMENT '退款金额',
+  reason VARCHAR(500) COMMENT '退款原因',
+  status TINYINT DEFAULT 0 COMMENT '状态 0申请中 1已同意 2已拒绝',
+  reject_reason VARCHAR(500) COMMENT '拒绝原因',
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  KEY idx_order_id (order_id),
+  KEY idx_user_id (user_id),
+  KEY idx_item_id (item_id)
+) ENGINE=InnoDB COMMENT='退款申请表';
+
 -- 过滤词库表
 DROP TABLE IF EXISTS filter_word;
 CREATE TABLE filter_word (

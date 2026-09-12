@@ -72,6 +72,8 @@ def main():
     sftp.put(jar_local, f'{APP_DIR}/xyjy-backend.jar')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/04_comment_visibility.sql'), f'{APP_DIR}/sql/04_comment_visibility.sql')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/05_user_address.sql'), f'{APP_DIR}/sql/05_user_address.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/06_refund_apply.sql'), f'{APP_DIR}/sql/06_refund_apply.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/07_refunded_order_status.sql'), f'{APP_DIR}/sql/07_refunded_order_status.sql')
     wechat_secret = os.environ.get('WECHAT_APP_SECRET', '')
     sms_key_id = os.environ.get('SMS_ACCESS_KEY_ID', '')
     sms_key_secret = os.environ.get('SMS_ACCESS_KEY_SECRET', '')
@@ -109,7 +111,12 @@ def main():
     wx_mch_id = os.environ.get('WXPAY_MCH_ID', '')
     wx_api_v3_key = os.environ.get('WXPAY_API_V3_KEY', '')
     wx_serial = os.environ.get('WXPAY_MERCHANT_SERIAL', '')
+    wx_public_key_id = os.environ.get('WXPAY_PUBLIC_KEY_ID', '')
     wx_private_key_local = os.environ.get('WXPAY_PRIVATE_KEY_FILE', '')
+    wx_public_key_local = os.environ.get(
+        'WXPAY_PUBLIC_KEY_FILE',
+        os.path.join(PROJECT_ROOT, '资料', 'pub_key.pem'),
+    )
 
     if existing_yml:
         import re
@@ -125,10 +132,20 @@ def main():
             m = re.search(r'merchant-serial-number:\s*(\S+)', existing_yml)
             if m:
                 wx_serial = m.group(1)
+        if not wx_public_key_id:
+            m = re.search(r'public-key-id:\s*(\S+)', existing_yml)
+            if m:
+                wx_public_key_id = m.group(1)
 
+    cert_files = []
     if wx_private_key_local and os.path.isfile(wx_private_key_local):
+        cert_files.append((wx_private_key_local, f'{APP_DIR}/certs/apiclient_key.pem'))
+    if wx_public_key_local and os.path.isfile(wx_public_key_local):
+        cert_files.append((wx_public_key_local, f'{APP_DIR}/certs/pub_key.pem'))
+    if cert_files:
         run(client, f'mkdir -p {APP_DIR}/certs')
-        sftp.put(wx_private_key_local, f'{APP_DIR}/certs/apiclient_key.pem')
+        for local_path, remote_path in cert_files:
+            sftp.put(local_path, remote_path)
 
     if wechat_secret or (sms_key_id and sms_key_secret) or (wx_mch_id and wx_api_v3_key):
         sms_enabled = 'true' if sms_key_id and sms_key_secret else 'false'
@@ -151,12 +168,17 @@ def main():
 """ if wechat_secret else ''
         wxpay_block = ''
         if wx_mch_id and wx_api_v3_key and wx_serial:
+            public_key_lines = ''
+            if wx_public_key_id:
+                public_key_lines = f"""  public-key-id: {wx_public_key_id}
+  public-key-path: {APP_DIR}/certs/pub_key.pem
+"""
             wxpay_block = f"""wxpay:
   mch-id: {wx_mch_id}
   api-v3-key: {wx_api_v3_key}
   merchant-serial-number: {wx_serial}
   private-key-path: {APP_DIR}/certs/apiclient_key.pem
-  notify-url: https://tongxingshikong.cn/api/pay/notify
+{public_key_lines}  notify-url: https://tongxingshikong.cn/api/pay/notify
 """
         prod_yml = f"""spring:
   datasource:
@@ -176,6 +198,8 @@ app:
 
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/04_comment_visibility.sql', timeout=120)
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/05_user_address.sql', timeout=120)
+    run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/06_refund_apply.sql', timeout=120)
+    run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/07_refunded_order_status.sql', timeout=120)
     run(client, 'sudo systemctl restart xyjy-backend')
 
     for i in range(15):

@@ -193,6 +193,8 @@ public class RefundController {
                 order.setRefundStatus(1);
             } else if (anyApproved) {
                 order.setRefundStatus(2);
+                // 已退款订单移入「退款售后」，不再出现在待备货等列表
+                order.setStatus(5);
             } else {
                 // 全部拒绝
                 order.setRefundStatus(3);

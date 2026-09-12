@@ -159,8 +159,12 @@ public class AuthController {
         Map<String, Object> map = new HashMap<>();
         map.put("identityVerified", user.getIdentityVerified());
         map.put("schoolVerified", user.getSchoolVerified());
+        // TODO: 小程序审核期间暂时视为已双认证，审核通过后恢复下方逻辑
+        map.put("fullAccess", true);
+        /*
         map.put("fullAccess", user.getIdentityVerified() != null && user.getIdentityVerified() == 1
                 && user.getSchoolVerified() != null && user.getSchoolVerified() == 1);
+        */
         PersonalAuth pa = personalAuthMapper.selectOne(new LambdaQueryWrapper<PersonalAuth>()
                 .eq(PersonalAuth::getUserId, userId).orderByDesc(PersonalAuth::getId).last("limit 1"));
         SchoolAuth sa = schoolAuthMapper.selectOne(new LambdaQueryWrapper<SchoolAuth>()

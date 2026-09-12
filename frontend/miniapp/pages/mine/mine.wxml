@@ -3,8 +3,8 @@
     <view class="brand">我的<i>空间</i></view>
   </view>
 
-  <!-- 认证提示条 未双认证时显示 -->
-  <view wx:if="{{!fullAccess}}" class="auth-banner" bindtap="goAuth">
+  <!-- 认证提示条 未双认证时显示（审核期间暂时隐藏，恢复时将 wx:if 改回 !fullAccess） -->
+  <view wx:if="{{false && !fullAccess}}" class="auth-banner" bindtap="goAuth">
     <text class="auth-icon">🛡️</text>
     <view class="auth-banner-main">
       <view class="auth-banner-title">完成认证后解锁全部功能</view>
