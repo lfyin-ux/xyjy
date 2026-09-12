@@ -369,6 +369,19 @@ CREATE TABLE mall_cart (
   create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
 ) ENGINE=InnoDB COMMENT='购物车表';
 
+-- 用户收货地址表
+DROP TABLE IF EXISTS user_address;
+CREATE TABLE user_address (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '用户ID',
+  receiver VARCHAR(50) NOT NULL COMMENT '收货人',
+  phone VARCHAR(20) NOT NULL COMMENT '手机号',
+  address VARCHAR(255) NOT NULL COMMENT '详细地址',
+  is_default TINYINT DEFAULT 0 COMMENT '是否默认 1是 0否',
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  KEY idx_user_id (user_id)
+) ENGINE=InnoDB COMMENT='用户收货地址';
+
 -- 商城订单表
 DROP TABLE IF EXISTS mall_order;
 CREATE TABLE mall_order (

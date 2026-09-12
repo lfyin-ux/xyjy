@@ -71,6 +71,7 @@ def main():
     print(f'上传 {jar_local}')
     sftp.put(jar_local, f'{APP_DIR}/xyjy-backend.jar')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/04_comment_visibility.sql'), f'{APP_DIR}/sql/04_comment_visibility.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/05_user_address.sql'), f'{APP_DIR}/sql/05_user_address.sql')
     wechat_secret = os.environ.get('WECHAT_APP_SECRET', '')
     sms_key_id = os.environ.get('SMS_ACCESS_KEY_ID', '')
     sms_key_secret = os.environ.get('SMS_ACCESS_KEY_SECRET', '')
@@ -174,6 +175,7 @@ app:
     sftp.close()
 
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/04_comment_visibility.sql', timeout=120)
+    run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/05_user_address.sql', timeout=120)
     run(client, 'sudo systemctl restart xyjy-backend')
 
     for i in range(15):
