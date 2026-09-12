@@ -42,14 +42,18 @@ wechat:
   sec-check:
     enabled: true
 
-# 微信支付配置
+# 微信支付配置（APIv3）
 wxpay:
   # 商户号
   mch-id: your_mch_id_here
-  # API密钥（V2）
-  api-key: your_api_key_here
-  # 支付结果回调地址 部署后改为正式域名
-  notify-url: https://your-domain.com/api/pay/notify
+  # APIv3 密钥（商户平台 → API安全 → 设置APIv3密钥，32位）
+  api-v3-key: your_api_v3_key_here
+  # 商户API证书序列号（商户平台 → API安全 → 查看证书）
+  merchant-serial-number: your_merchant_serial_number_here
+  # 商户API私钥文件路径（apiclient_key.pem）
+  private-key-path: ../certs/apiclient_key.pem
+  # 支付结果回调地址
+  notify-url: https://tongxingshikong.cn/api/pay/notify
 
 # 应用模式 dev开发模式 prod生产模式
 app:

@@ -105,7 +105,31 @@ def main():
         if m and not os.environ.get('SMS_TEMPLATE_CODE'):
             sms_template = m.group(1).strip()
 
-    if wechat_secret or (sms_key_id and sms_key_secret):
+    wx_mch_id = os.environ.get('WXPAY_MCH_ID', '')
+    wx_api_v3_key = os.environ.get('WXPAY_API_V3_KEY', '')
+    wx_serial = os.environ.get('WXPAY_MERCHANT_SERIAL', '')
+    wx_private_key_local = os.environ.get('WXPAY_PRIVATE_KEY_FILE', '')
+
+    if existing_yml:
+        import re
+        if not wx_mch_id:
+            m = re.search(r'wxpay:\s*\n(?:.*\n)*?.*mch-id:\s*(\S+)', existing_yml)
+            if m:
+                wx_mch_id = m.group(1)
+        if not wx_api_v3_key:
+            m = re.search(r'api-v3-key:\s*(\S+)', existing_yml)
+            if m:
+                wx_api_v3_key = m.group(1)
+        if not wx_serial:
+            m = re.search(r'merchant-serial-number:\s*(\S+)', existing_yml)
+            if m:
+                wx_serial = m.group(1)
+
+    if wx_private_key_local and os.path.isfile(wx_private_key_local):
+        run(client, f'mkdir -p {APP_DIR}/certs')
+        sftp.put(wx_private_key_local, f'{APP_DIR}/certs/apiclient_key.pem')
+
+    if wechat_secret or (sms_key_id and sms_key_secret) or (wx_mch_id and wx_api_v3_key):
         sms_enabled = 'true' if sms_key_id and sms_key_secret else 'false'
         sms_block = f"""sms:
   enabled: {sms_enabled}
@@ -124,6 +148,15 @@ def main():
   sec-check:
     enabled: true
 """ if wechat_secret else ''
+        wxpay_block = ''
+        if wx_mch_id and wx_api_v3_key and wx_serial:
+            wxpay_block = f"""wxpay:
+  mch-id: {wx_mch_id}
+  api-v3-key: {wx_api_v3_key}
+  merchant-serial-number: {wx_serial}
+  private-key-path: {APP_DIR}/certs/apiclient_key.pem
+  notify-url: https://tongxingshikong.cn/api/pay/notify
+"""
         prod_yml = f"""spring:
   datasource:
     url: jdbc:mysql://localhost:3306/xyjy?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
@@ -133,7 +166,7 @@ file:
   upload-dir: {APP_DIR}/uploads
 app:
   mode: prod
-{sms_block}{wechat_block}"""
+{sms_block}{wxpay_block}{wechat_block}"""
         with sftp.file(f'{APP_DIR}/application-prod.yml', 'w') as f:
             f.write(prod_yml)
     if os.path.isdir(admin_dist):

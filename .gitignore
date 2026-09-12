@@ -14,6 +14,13 @@ backend/target/
 uploads/**
 !uploads/readme.txt
 
+# 微信支付证书与私钥
+certs/
+资料/
+**/apiclient_key.pem
+**/apiclient_cert.pem
+**/apiclient_cert.p12
+
 # IDE 与系统文件
 .idea/
 *.iml

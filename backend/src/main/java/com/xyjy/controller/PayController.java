@@ -9,6 +9,8 @@ import com.xyjy.mapper.AppUserMapper;
 import com.xyjy.mapper.MallOrderMapper;
 import com.xyjy.service.WxPayService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -20,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 支付接口 支持开发模式（直接成功）和生产模式（微信支付）
+ * 支付接口 支持开发模式（直接成功）和生产模式（微信支付 APIv3）
  */
 @RestController
 @RequestMapping("/pay")
@@ -38,8 +40,6 @@ public class PayController {
 
     /**
      * 创建支付 前端下单后调用此接口获取支付参数
-     * 开发模式直接标记已支付返回成功
-     * 生产模式返回wx.requestPayment所需参数
      */
     @PostMapping("/create/{orderId}")
     public Result<Map<String, String>> createPay(@PathVariable Long orderId) {
@@ -52,7 +52,6 @@ public class PayController {
         }
 
         if ("dev".equals(appMode)) {
-            // 开发模式 直接标记已支付
             order.setStatus(2);
             order.setPayTime(LocalDateTime.now());
             mallOrderMapper.updateById(order);
@@ -62,12 +61,10 @@ public class PayController {
             return Result.success(result);
         }
 
-        // 生产模式 获取用户openid调用微信支付
         AppUser user = appUserMapper.selectById(order.getUserId());
         if (user == null || user.getOpenid() == null) {
             throw new BusinessException("用户信息异常");
         }
-        // 金额转为分
         int totalFen = order.getTotalAmount().multiply(new BigDecimal("100")).intValue();
         String description = "同行时空商城订单";
 
@@ -77,65 +74,39 @@ public class PayController {
     }
 
     /**
-     * 微信支付结果回调 微信服务器主动通知
-     * 验签成功后更新订单状态
+     * 微信支付 APIv3 结果回调
      */
     @PostMapping("/notify")
-    public String payNotify(HttpServletRequest request) {
+    public ResponseEntity<Void> payNotify(HttpServletRequest request) {
         try {
-            // 读取微信推送的XML
-            BufferedReader reader = request.getReader();
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-            String xml = sb.toString();
+            String body = readBody(request);
+            String orderNo = wxPayService.parsePayNotify(
+                    request.getHeader("Wechatpay-Serial"),
+                    request.getHeader("Wechatpay-Nonce"),
+                    request.getHeader("Wechatpay-Signature"),
+                    request.getHeader("Wechatpay-Timestamp"),
+                    body);
 
-            // 简单解析XML为Map
-            Map<String, String> params = parseNotifyXml(xml);
-
-            // 验签
-            if (!wxPayService.verifyNotify(params)) {
-                return "<xml><return_code>FAIL</return_code><return_msg>签名失败</return_msg></xml>";
+            MallOrder order = mallOrderMapper.selectOne(new LambdaQueryWrapper<MallOrder>()
+                    .eq(MallOrder::getOrderNo, orderNo));
+            if (order != null && order.getStatus() == 1) {
+                order.setStatus(2);
+                order.setPayTime(LocalDateTime.now());
+                mallOrderMapper.updateById(order);
             }
-
-            String resultCode = params.get("result_code");
-            String orderNo = params.get("out_trade_no");
-            if ("SUCCESS".equals(resultCode) && orderNo != null) {
-                // 更新订单为已支付
-                MallOrder order = mallOrderMapper.selectOne(new LambdaQueryWrapper<MallOrder>()
-                        .eq(MallOrder::getOrderNo, orderNo));
-                if (order != null && order.getStatus() == 1) {
-                    order.setStatus(2);
-                    order.setPayTime(LocalDateTime.now());
-                    mallOrderMapper.updateById(order);
-                }
-            }
-            return "<xml><return_code>SUCCESS</return_code><return_msg>OK</return_msg></xml>";
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return "<xml><return_code>FAIL</return_code><return_msg>" + e.getMessage() + "</return_msg></xml>";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    /**
-     * 简单解析微信通知XML 生产环境建议用DOM解析
-     */
-    private Map<String, String> parseNotifyXml(String xml) {
-        Map<String, String> map = new HashMap<>();
-        String[] tags = {"return_code", "result_code", "out_trade_no", "transaction_id",
-                "total_fee", "sign", "nonce_str", "openid"};
-        for (String tag : tags) {
-            String open = "<" + tag + ">";
-            String close = "</" + tag + ">";
-            int start = xml.indexOf(open);
-            int end = xml.indexOf(close);
-            if (start >= 0 && end >= 0) {
-                String val = xml.substring(start + open.length(), end)
-                        .replace("<![CDATA[", "").replace("]]>", "");
-                map.put(tag, val);
-            }
+    private String readBody(HttpServletRequest request) throws Exception {
+        BufferedReader reader = request.getReader();
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
         }
-        return map;
+        return sb.toString();
     }
 }
