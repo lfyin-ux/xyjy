@@ -14,6 +14,16 @@
   </view>
 
   <!-- 个人卡片 -->
+  <view wx:if="{{!loggedIn}}" class="guest-card">
+    <view class="guest-icon">👋</view>
+    <view class="guest-main">
+      <view class="guest-title">欢迎体验同行时空</view>
+      <view class="guest-desc">您可先浏览广场、校园生活和商城，需要发布、互动或下单时再登录。</view>
+    </view>
+    <button class="guest-login" bindtap="goLogin">登录</button>
+  </view>
+
+  <block wx:if="{{loggedIn}}">
   <view class="profile-top">
     <view class="profile-user">
       <view class="profile-avatar">
@@ -84,6 +94,10 @@
       <text class="menu-name">收货地址管理</text>
       <text class="menu-val">›</text>
     </view>
+  </view>
+  </block>
+
+  <view class="menu">
     <view class="menu-row" bindtap="goUserAgreement">
       <text class="menu-icon">📄</text>
       <text class="menu-name">用户服务协议</text>
@@ -99,7 +113,7 @@
       <text class="menu-name">意见反馈</text>
       <text class="menu-val">›</text>
     </view>
-    <view class="menu-row" bindtap="logout">
+    <view wx:if="{{loggedIn}}" class="menu-row" bindtap="logout">
       <text class="menu-icon">🚪</text>
       <text class="menu-name">退出登录</text>
       <text class="menu-val">›</text>

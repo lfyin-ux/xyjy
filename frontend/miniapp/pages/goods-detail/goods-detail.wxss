@@ -1,5 +1,6 @@
 .page {
-  padding-bottom: 140rpx;
+  /* 预留底部操作栏和 iPhone 安全区，避免遮住收货地址 */
+  padding-bottom: calc(180rpx + env(safe-area-inset-bottom));
 }
 
 .goods-cover {
@@ -79,9 +80,13 @@
   bottom: 0;
   display: flex;
   align-items: center;
-  gap: 16rpx;
-  padding: 20rpx 24rpx;
+  gap: 12rpx;
+  padding: 20rpx 24rpx calc(20rpx + env(safe-area-inset-bottom));
   background: #fff;
+  box-shadow: 0 -8rpx 28rpx rgba(34, 27, 78, 0.08);
+  z-index: 20;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* 收货地址选择 */
@@ -119,7 +124,9 @@
 .qty {
   display: flex;
   align-items: center;
-  gap: 20rpx;
+  justify-content: space-between;
+  flex: 0 0 180rpx;
+  min-width: 0;
 }
 
 .qty-btn {
@@ -134,26 +141,38 @@
 
 .qty-num {
   font-size: 30rpx;
-  min-width: 40rpx;
+  min-width: 36rpx;
   text-align: center;
 }
 
 .cart-btn {
   flex: 1;
+  min-width: 0;
+  height: 80rpx;
   background: #eeeaff;
   color: var(--purple);
   border-radius: 28rpx;
   font-size: 28rpx;
   line-height: 80rpx;
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 .buy-btn {
   flex: 1;
+  min-width: 0;
+  height: 80rpx;
   background: var(--purple);
   color: #fff;
   border-radius: 28rpx;
   font-size: 28rpx;
   line-height: 80rpx;
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }

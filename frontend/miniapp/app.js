@@ -23,7 +23,7 @@ App({
    */
   checkLogin() {
     if (!this.globalData.userId) {
-      wx.redirectTo({ url: '/pages/login/login' })
+      wx.navigateTo({ url: '/pages/login/login' })
       return false
     }
     return true

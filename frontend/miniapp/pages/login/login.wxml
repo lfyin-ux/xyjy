@@ -30,6 +30,7 @@
       </view>
     </view>
     <button class="login-btn" bindtap="devLogin" disabled="{{!currentId || !agreed}}">登录该用户</button>
+    <button class="browse-btn" bindtap="goBrowse">暂不登录，先逛逛</button>
     <view class="dev-tip">切换不同用户可测试各功能模块</view>
   </block>
 
@@ -49,6 +50,7 @@
         </view>
       </view>
       <button class="login-btn wx" bindtap="wxLogin" disabled="{{!agreed}}">微信一键登录</button>
+      <button class="browse-btn" bindtap="goBrowse">暂不登录，先逛逛</button>
       <view class="wx-tip">授权后将使用微信账号登录，并依据隐私政策处理相关信息</view>
     </view>
   </block>

@@ -35,6 +35,11 @@ Page({
 
   loadAll() {
     api.get('/game/list').then((list) => this.setData({ allList: list }))
+    if (!app.globalData.userId) {
+      this.setData({ createdList: [], joinedList: [] })
+      this.updateList()
+      return
+    }
     api.get('/game/myCreated/' + app.globalData.userId).then((list) => this.setData({ createdList: list }))
     api.get('/game/myJoined/' + app.globalData.userId).then((list) => {
       this.setData({ joinedList: list })
@@ -66,6 +71,7 @@ Page({
   },
 
   join(e) {
+    if (!app.checkLogin()) return
     const id = e.currentTarget.dataset.id
     api.post('/game/join?teamId=' + id + '&userId=' + app.globalData.userId).then(() => {
       wx.showToast({ title: '加入成功', icon: 'success' })
@@ -90,6 +96,7 @@ Page({
   },
 
   openCreate() {
+    if (!app.checkLogin()) return
     this.setData({ showCreate: true })
   },
 
@@ -105,6 +112,7 @@ Page({
   onReq(e) { this.setData({ requireDesc: e.detail.value }) },
 
   create() {
+    if (!app.checkLogin()) return
     const d = this.data
     if (!d.gameName || !d.needNum) {
       wx.showToast({ title: '请填写游戏名称和人数', icon: 'none' })

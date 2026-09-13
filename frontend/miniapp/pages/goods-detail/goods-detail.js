@@ -14,7 +14,7 @@ Page({
   onLoad(options) {
     this.setData({ imgBase: app.globalData.baseUrl })
     this.loadGoods(options.id)
-    this.loadDefaultAddress()
+    if (app.globalData.userId) this.loadDefaultAddress()
   },
 
   onShow() {
@@ -56,6 +56,7 @@ Page({
   },
 
   addCart() {
+    if (!app.checkLogin()) return
     api.post('/mall/cart/add', {
       userId: app.globalData.userId,
       goodsId: this.data.goods.id,
@@ -68,10 +69,12 @@ Page({
 
   // 选择收货地址
   chooseAddress() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/address/address?select=1' })
   },
 
   buyNow() {
+    if (!app.checkLogin()) return
     const addr = this.data.selectedAddress
     if (!addr) {
       wx.showToast({ title: '请先选择收货地址', icon: 'none' })

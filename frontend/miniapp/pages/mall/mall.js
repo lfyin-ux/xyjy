@@ -20,11 +20,18 @@ Page({
   },
 
   onShow() {
+    if (this.getTabBar()) this.getTabBar().setData({ selected: 2 })
     this.checkAuth()
   },
 
   checkAuth() {
     const userId = app.globalData.userId
+    // 商品与分类可直接浏览，购物车和订单属于登录后功能。
+    if (!userId) {
+      this.setData({ locked: false, cartCount: 0, orderStat: { unpaid: 0, prepare: 0, shipping: 0, aftersale: 0 } })
+      this.loadGoods()
+      return
+    }
     authGate.checkFullAccess(userId, () => {
       this.setData({ locked: false })
       this.loadGoods()
@@ -109,6 +116,7 @@ Page({
   },
 
   goAuth() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/auth/auth' })
   },
 
@@ -118,6 +126,7 @@ Page({
 
   // 快速加入购物车
   quickAdd(e) {
+    if (!app.checkLogin()) return
     const item = e.currentTarget.dataset.item
     const spec = item.spec ? item.spec.split(',')[0] : ''
     api.post('/mall/cart/add', {
@@ -132,10 +141,12 @@ Page({
   },
 
   goCart() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/cart/cart' })
   },
 
   goOrders(e) {
+    if (!app.checkLogin()) return
     const status = e.currentTarget.dataset.status
     let url = '/pages/order-list/order-list'
     if (status !== '' && status !== undefined) {

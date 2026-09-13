@@ -15,11 +15,19 @@ Page({
   },
 
   onShow() {
+    if (this.getTabBar()) this.getTabBar().setData({ selected: 1 })
     this.checkAuth()
   },
 
   checkAuth() {
     const userId = app.globalData.userId
+    // 校园生活的公开列表支持游客浏览。
+    if (!userId) {
+      this.setData({ locked: false })
+      this.loadGoods()
+      this.loadTasks()
+      return
+    }
     authGate.checkFullAccess(userId, () => {
       this.setData({ locked: false })
       this.loadGoods()
@@ -81,6 +89,7 @@ Page({
   },
 
   goAuth() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/auth/auth' })
   }
 })

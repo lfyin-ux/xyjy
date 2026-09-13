@@ -14,7 +14,7 @@ page {
 
 /* 页面根容器 底部留出少量安全间距 内容可滚动不会被tabBar永久遮挡 */
 .page {
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(128rpx + env(safe-area-inset-bottom));
 }
 
 view, text, button, input, textarea {

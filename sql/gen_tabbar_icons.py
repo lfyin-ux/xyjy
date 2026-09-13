@@ -41,10 +41,12 @@ def draw_icon(draw, name, color):
 
 def make(name):
     for state, color in [('', GRAY), ('_on', PURPLE)]:
-        img = Image.new('RGBA', (SIZE, SIZE), (0, 0, 0, 0))
+        # 部分微信开发者工具/基础库组合会将 TabBar PNG 的 alpha 通道整体处理为透明。
+        # TabBar 背景本身为白色，因此直接输出无 alpha 的 RGB PNG，以保证图标稳定显示。
+        img = Image.new('RGB', (SIZE, SIZE), (255, 255, 255))
         draw = ImageDraw.Draw(img)
         draw_icon(draw, name, color)
-        img.save(os.path.join(OUT, name + state + '.png'))
+        img.save(os.path.join(OUT, name + state + '_solid.png'), optimize=True)
 
 
 for n in ['match', 'life', 'mall', 'chat', 'mine']:

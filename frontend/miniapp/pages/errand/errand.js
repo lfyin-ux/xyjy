@@ -13,6 +13,7 @@ Page({
   onLoad(options) {
     this.setData({ imgBase: app.globalData.baseUrl })
     if (options.my) {
+      if (!app.checkLogin()) return
       this.setData({ mode: 'publish' })
     }
   },
@@ -27,6 +28,7 @@ Page({
 
   loadAll() {
     this.loadTasks()
+    if (!app.globalData.userId) return
     this.loadMyPublish()
     this.loadMyTaken()
   },
@@ -61,6 +63,7 @@ Page({
 
   // 接单 跳转到确认接单页
   accept(e) {
+    if (!app.checkLogin()) return
     const id = e.currentTarget.dataset.id
     wx.navigateTo({ url: '/pages/errand-accept/errand-accept?id=' + id })
   },
@@ -101,6 +104,7 @@ Page({
   },
 
   goPublish() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/errand-publish/errand-publish' })
   },
 

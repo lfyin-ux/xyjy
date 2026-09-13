@@ -14,11 +14,18 @@ Page({
   },
 
   onShow() {
+    if (this.getTabBar()) this.getTabBar().setData({ selected: 0 })
     this.checkAuth()
   },
 
   checkAuth() {
     const userId = app.globalData.userId
+    // 游客可以先浏览公开动态，登录只在互动时触发。
+    if (!userId) {
+      this.setData({ locked: false })
+      this.loadPosts()
+      return
+    }
     authGate.checkFullAccess(userId, () => {
       this.setData({ locked: false })
       this.loadPosts()
@@ -44,7 +51,9 @@ Page({
   },
 
   loadPosts() {
-    api.get('/square/list?pageNum=1&pageSize=20&userId=' + app.globalData.userId).then((page) => {
+    const userId = app.globalData.userId
+    const url = '/square/list?pageNum=1&pageSize=20' + (userId ? '&userId=' + userId : '')
+    api.get(url).then((page) => {
       const posts = (page.records || []).map((item) => {
         item.firstImg = item.post.images ? item.post.images.split(',')[0] : ''
         item.liked = false
@@ -63,6 +72,7 @@ Page({
   },
 
   toggleLike(e) {
+    if (!app.checkLogin()) return
     const id = e.currentTarget.dataset.id
     const idx = e.currentTarget.dataset.idx
     api.post('/square/like?postId=' + id + '&userId=' + app.globalData.userId).then((res) => {
@@ -73,10 +83,12 @@ Page({
   },
 
   goAuth() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/auth/auth' })
   },
 
   goPublish() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/post-publish/post-publish' })
   }
 })

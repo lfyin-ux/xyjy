@@ -12,6 +12,7 @@ Page({
   onLoad(options) {
     this.setData({ imgBase: app.globalData.baseUrl })
     if (options.my) {
+      if (!app.checkLogin()) return
       this.setData({ mode: 'my' })
       wx.setNavigationBarTitle({ title: '我的二手商品' })
     }
@@ -55,6 +56,7 @@ Page({
       confirmText: '联系卖家',
       success: (res) => {
         if (res.confirm) {
+          if (!app.checkLogin()) return
           wx.navigateTo({ url: '/pages/profile/profile?id=' + item.sellerId })
         }
       }
@@ -62,6 +64,7 @@ Page({
   },
 
   goPublish() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/second-publish/second-publish' })
   }
 })

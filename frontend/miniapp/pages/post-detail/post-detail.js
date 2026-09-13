@@ -117,6 +117,7 @@ Page({
   },
 
   replyComment(e) {
+    if (!app.checkLogin()) return
     const { userid, nickname, commentid } = e.currentTarget.dataset
     if (Number(userid) === Number(app.globalData.userId)) {
       wx.showToast({ title: '不能回复自己的评论', icon: 'none' })
@@ -142,6 +143,7 @@ Page({
   },
 
   submitComment() {
+    if (!app.checkLogin()) return
     if (!this.data.commentText) {
       wx.showToast({ title: '请输入评论内容', icon: 'none' })
       return

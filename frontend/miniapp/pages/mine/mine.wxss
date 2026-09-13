@@ -137,3 +137,27 @@
   color: #b1aebd;
   font-size: 26rpx;
 }
+.guest-card {
+  margin: 0 32rpx 28rpx;
+  padding: 36rpx 32rpx;
+  background: #ffffff;
+  border-radius: 44rpx;
+  display: flex;
+  align-items: center;
+  gap: 22rpx;
+}
+
+.guest-icon { font-size: 54rpx; }
+.guest-main { flex: 1; }
+.guest-title { font-size: 32rpx; font-weight: 800; }
+.guest-desc { margin-top: 8rpx; color: #8b8896; font-size: 23rpx; line-height: 1.55; }
+.guest-login {
+  margin: 0;
+  padding: 0 28rpx;
+  height: 68rpx;
+  line-height: 68rpx;
+  border-radius: 24rpx;
+  background: #6c5ce7;
+  color: #fff;
+  font-size: 26rpx;
+}

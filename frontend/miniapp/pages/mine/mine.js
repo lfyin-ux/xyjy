@@ -3,6 +3,7 @@ const app = getApp()
 
 Page({
   data: {
+    loggedIn: false,
     user: {},
     fullAccess: false,
     authSummary: '个人认证和学校认证均待完成',
@@ -15,11 +16,17 @@ Page({
   },
 
   onShow() {
+    if (this.getTabBar()) this.getTabBar().setData({ selected: 3 })
     this.loadUser()
   },
 
   loadUser() {
     const uid = app.globalData.userId
+    if (!uid) {
+      this.setData({ loggedIn: false, user: {}, fullAccess: false, profileExtra: '' })
+      return
+    }
+    this.setData({ loggedIn: true })
     api.get('/user/detail/' + uid).then((user) => {
       const extra = []
       if (user.gender === 1) extra.push('♂')
@@ -42,42 +49,52 @@ Page({
   },
 
   goAuth() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/auth/auth' })
   },
 
   goEditProfile() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/edit-profile/edit-profile' })
   },
 
   goAlbum() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/album/album' })
   },
 
   goMyPosts() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/post-detail/post-detail?my=1' })
   },
 
   goMyComments() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/my-comments/my-comments' })
   },
 
   goMyErrand() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/errand/errand?my=1' })
   },
 
   goMySecond() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/second/second?my=1' })
   },
 
   goOrders() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/order-list/order-list' })
   },
 
   goBlacklist() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/blacklist/blacklist' })
   },
 
   goAddress() {
+    if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/address/address' })
   },
 
@@ -91,6 +108,10 @@ Page({
 
   feedback() {
     wx.navigateTo({ url: '/pages/feedback/feedback' })
+  },
+
+  goLogin() {
+    app.checkLogin()
   },
 
   noop() {
@@ -108,8 +129,8 @@ Page({
           app.globalData.userId = null
           wx.removeStorageSync('userInfo')
           wx.removeStorageSync('userId')
-          // 跳转登录页
-          wx.redirectTo({ url: '/pages/login/login' })
+          // 退出后回到可游客浏览的首页
+          wx.switchTab({ url: '/pages/match/match' })
         }
       }
     })

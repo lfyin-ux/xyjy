@@ -63,6 +63,10 @@ Page({
     wx.navigateTo({ url })
   },
 
+  goBrowse() {
+    wx.switchTab({ url: '/pages/match/match' })
+  },
+
   devLogin() {
     if (!agreement.requireAccepted(this)) return
     if (!this.data.currentUser) return
