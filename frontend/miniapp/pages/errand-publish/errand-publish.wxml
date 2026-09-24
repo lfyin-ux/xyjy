@@ -26,7 +26,7 @@
     </view>
     <view class="field">
       <text class="label">联系方式（必填）</text>
-      <input placeholder="手机号或微信号" value="{{contact}}" bindinput="onContact" />
+      <input class="contact-input" placeholder="输入手机号后，请仔细确认，将用于展示联系。" value="{{contact}}" bindinput="onContact" />
     </view>
     <button class="primary" bindtap="publish">确认发单</button>
   </view>

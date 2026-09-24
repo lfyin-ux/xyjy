@@ -34,6 +34,8 @@ public class PayController {
     private AppUserMapper appUserMapper;
     @Resource
     private WxPayService wxPayService;
+    @Resource
+    private com.xyjy.service.MallSpendService mallSpendService;
 
     @Value("${app.mode:dev}")
     private String appMode;
@@ -55,6 +57,7 @@ public class PayController {
             order.setStatus(2);
             order.setPayTime(LocalDateTime.now());
             mallOrderMapper.updateById(order);
+            mallSpendService.refreshUserSpend(order.getUserId());
             Map<String, String> result = new HashMap<>();
             result.put("mode", "dev");
             result.put("msg", "开发模式已自动完成支付");
@@ -93,6 +96,7 @@ public class PayController {
                 order.setStatus(2);
                 order.setPayTime(LocalDateTime.now());
                 mallOrderMapper.updateById(order);
+                mallSpendService.refreshUserSpend(order.getUserId());
             }
             return ResponseEntity.ok().build();
         } catch (Exception e) {

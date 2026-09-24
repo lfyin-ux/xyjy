@@ -3,6 +3,19 @@
   padding-bottom: 200rpx;
 }
 
+.view-only-tip {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 24rpx 32rpx calc(24rpx + env(safe-area-inset-bottom));
+  background: #fff7ed;
+  color: #b45309;
+  font-size: 24rpx;
+  text-align: center;
+  border-top: 1rpx solid #fed7aa;
+}
+
 .post-head {
   display: flex;
   align-items: center;

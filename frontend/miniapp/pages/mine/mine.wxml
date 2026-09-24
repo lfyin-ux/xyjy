@@ -1,10 +1,20 @@
+<wxs src="../../utils/display.wxs" module="dsp" />
+
 <view class="page">
   <view class="top">
     <view class="brand">我的<i>空间</i></view>
   </view>
 
-  <!-- 认证提示条 未双认证时显示（审核期间暂时隐藏，恢复时将 wx:if 改回 !fullAccess） -->
-  <view wx:if="{{false && !fullAccess}}" class="auth-banner" bindtap="goAuth">
+  <view wx:if="{{loggedIn && violationUnread > 0}}" class="violation-banner" bindtap="goViolations">
+    <text class="auth-icon">📢</text>
+    <view class="auth-banner-main">
+      <view class="auth-banner-title">你有 {{violationUnread}} 条平台通知</view>
+      <view class="auth-banner-sub">管理员对你发出了警告或处置提醒，请及时查看</view>
+    </view>
+    <text class="auth-arrow">›</text>
+  </view>
+
+  <view wx:if="{{loggedIn && !authPassed}}" class="auth-banner" bindtap="goAuth">
     <text class="auth-icon">🛡️</text>
     <view class="auth-banner-main">
       <view class="auth-banner-title">完成认证后解锁全部功能</view>
@@ -32,16 +42,21 @@
       </view>
       <view>
         <view class="profile-name">{{user.nickname}}<text wx:if="{{profileExtra}}" class="profile-gender"> {{profileExtra}}</text></view>
-        <view class="profile-auth">{{fullAccess ? user.school + ' · 双认证已通过 ✓' : '账号已注册 · 待完成认证'}}</view>
+        <view class="profile-auth">{{dsp.mineAuthLine(user.school, authPassed)}}</view>
       </view>
     </view>
   </view>
 
   <view class="menu">
+    <view class="menu-row" bindtap="goSchoolSwitch">
+      <text class="menu-icon">🏫</text>
+      <text class="menu-name">当前学校</text>
+      <text class="menu-val">{{schoolContext.currentSchoolName || '未设置'}}{{schoolContext.viewOnly ? ' · 浏览' : ''}} ›</text>
+    </view>
     <view class="menu-row" bindtap="goAuth">
       <text class="menu-icon">🛡️</text>
       <text class="menu-name">认证中心</text>
-      <text class="menu-val">{{fullAccess ? '已认证 ✓' : '待认证'}} ›</text>
+      <text class="menu-val">{{authPassed ? '已认证 ✓' : '待认证'}} ›</text>
     </view>
     <view class="menu-row" bindtap="goEditProfile">
       <text class="menu-icon">🪪</text>
@@ -52,6 +67,16 @@
       <text class="menu-icon">🖼️</text>
       <text class="menu-name">我的相册</text>
       <text class="menu-val">›</text>
+    </view>
+    <view class="menu-row" bindtap="goMyFollows">
+      <text class="menu-icon">⭐</text>
+      <text class="menu-name">我的关注</text>
+      <text class="menu-val">›</text>
+    </view>
+    <view class="menu-row" bindtap="goViolations">
+      <text class="menu-icon">📢</text>
+      <text class="menu-name">平台通知</text>
+      <text class="menu-val">{{violationUnread > 0 ? violationUnread + '条未读' : ''}} ›</text>
     </view>
   </view>
 
@@ -84,11 +109,6 @@
   </view>
 
   <view class="menu">
-    <view class="menu-row" bindtap="goBlacklist">
-      <text class="menu-icon">🚫</text>
-      <text class="menu-name">黑名单管理</text>
-      <text class="menu-val">›</text>
-    </view>
     <view class="menu-row" bindtap="goAddress">
       <text class="menu-icon">📍</text>
       <text class="menu-name">收货地址管理</text>

@@ -39,6 +39,8 @@ public class ChatController {
     private com.xyjy.service.BlacklistService blacklistService;
     @Resource
     private com.xyjy.service.AuthCheckService authCheckService;
+    @Resource
+    private com.xyjy.service.SchoolScopeService schoolScopeService;
 
     /**
      * 会话列表
@@ -118,6 +120,7 @@ public class ChatController {
         }
         // 黑名单校验 存在拉黑关系时不能发送
         Long peerId = session.getUserA().equals(msg.getFromId()) ? session.getUserB() : session.getUserA();
+        schoolScopeService.assertSameSchool(msg.getFromId(), peerId);
         if (blacklistService.hasBlock(msg.getFromId(), peerId)) {
             throw new BusinessException("因黑名单关系，无法发送消息");
         }
@@ -168,6 +171,7 @@ public class ChatController {
         if (blacklistService.hasBlock(fromId, toId)) {
             throw new BusinessException("因黑名单关系，无法发送消息");
         }
+        schoolScopeService.assertSameSchool(fromId, toId);
         // 查询是否已有会话
         ChatSession session = chatSessionMapper.selectOne(new LambdaQueryWrapper<ChatSession>()
                 .and(w -> w.eq(ChatSession::getUserA, fromId).eq(ChatSession::getUserB, toId))

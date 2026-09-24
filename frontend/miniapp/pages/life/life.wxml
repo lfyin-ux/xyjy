@@ -1,18 +1,9 @@
+<wxs src="../../utils/display.wxs" module="dsp" />
+
 <view class="page">
   <view class="top">
     <view class="brand">校园<i>生活</i></view>
   </view>
-
-  <block wx:if="{{locked}}">
-    <view class="gate">
-      <view class="gate-icon">🔐</view>
-      <view class="gate-title">功能暂未解锁</view>
-      <view class="gate-desc">完成个人认证和学校认证后才能使用校园生活功能。</view>
-      <button class="primary" bindtap="goAuth">前往认证中心</button>
-    </view>
-  </block>
-
-  <block wx:else>
 
   <view class="banner">
     <view class="banner-title">今天，需要帮忙吗？</view>
@@ -44,14 +35,14 @@
     <text class="more" bindtap="goSecond">查看全部 →</text>
   </view>
 
-  <view class="list-card" wx:for="{{goods}}" wx:key="id" bindtap="goSecond">
+  <view class="list-card" wx:for="{{goods}}" wx:key="id" bindtap="goSecondDetail" data-id="{{item.id}}">
     <view class="list-pic">
       <image wx:if="{{item.images}}" src="{{imgBase}}{{item.firstImg}}" mode="aspectFill" class="list-img" />
       <text wx:else>🎁</text>
     </view>
     <view class="list-main">
       <view class="list-name">{{item.name}}</view>
-      <view class="list-sub">{{item.conditionDesc}} · 可当面验货</view>
+      <view class="list-sub">{{dsp.text(item.conditionDesc, '成色未知')}} · 可当面验货</view>
       <text class="price">¥ {{item.price}}</text>
     </view>
   </view>
@@ -65,9 +56,8 @@
     <view class="list-pic">📦</view>
     <view class="list-main">
       <view class="list-name">{{item.title}}</view>
-      <view class="list-sub">{{item.fromPlace}} → {{item.toPlace}} · {{item.finishTime}}</view>
+      <view class="list-sub">{{dsp.text(item.fromPlace, '取件地待定')}} → {{dsp.text(item.toPlace, '送达地待定')}} · {{dsp.text(item.finishTime, '时间待定')}}</view>
       <text class="price">赏金 ¥ {{item.fee}}</text>
     </view>
   </view>
-  </block>
 </view>

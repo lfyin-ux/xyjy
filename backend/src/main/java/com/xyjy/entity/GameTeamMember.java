@@ -17,5 +17,6 @@ public class GameTeamMember {
     private Long id;
     private Long teamId;
     private Long userId;
+    private String memberContact;
     private LocalDateTime createTime;
 }

@@ -22,15 +22,22 @@ public class SecondGoodsController {
     private SecondGoodsMapper secondGoodsMapper;
     @Resource
     private FilterService filterService;
+    @Resource
+    private com.xyjy.service.SchoolScopeService schoolScopeService;
 
     /**
      * 二手商品列表 支持搜索和分类
      */
     @GetMapping("/list")
     public Result<List<SecondGoods>> list(@RequestParam(required = false) String keyword,
-                                          @RequestParam(required = false) String category) {
+                                          @RequestParam(required = false) String category,
+                                          @RequestParam(required = false) Long userId) {
+        Long schoolId = schoolScopeService.resolveCampusLifeListSchoolId(userId);
         LambdaQueryWrapper<SecondGoods> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SecondGoods::getStatus, 1);
+        if (schoolId != null) {
+            wrapper.eq(SecondGoods::getSchoolId, schoolId);
+        }
         if (keyword != null && !keyword.isEmpty()) {
             wrapper.like(SecondGoods::getName, keyword);
         }
@@ -45,11 +52,13 @@ public class SecondGoodsController {
      * 商品详情
      */
     @GetMapping("/detail/{id}")
-    public Result<SecondGoods> detail(@PathVariable Long id) {
+    public Result<SecondGoods> detail(@PathVariable Long id,
+                                      @RequestParam(required = false) Long userId) {
         SecondGoods goods = secondGoodsMapper.selectById(id);
         if (goods == null) {
             throw new BusinessException("商品不存在");
         }
+        schoolScopeService.assertCampusLifeAccess(userId, goods.getSchoolId());
         return Result.success(goods);
     }
 
@@ -64,11 +73,16 @@ public class SecondGoodsController {
         if (goods.getName() == null || goods.getName().isEmpty()) {
             throw new BusinessException("请填写商品名称");
         }
+        if (goods.getSellerContact() == null || goods.getSellerContact().trim().isEmpty()) {
+            throw new BusinessException("请填写联系方式");
+        }
+        goods.setSellerContact(goods.getSellerContact().trim());
         String checkText = goods.getName() + (goods.getDescription() == null ? "" : goods.getDescription());
         FilterService.FilterResult fr = filterService.check(checkText, "二手商品", goods.getSellerId());
         if (fr.level == 2) {
             return Result.error(fr.tip);
         }
+        goods.setSchoolId(schoolScopeService.requireCampusLifeSchoolIdForWrite(goods.getSellerId()));
         // 命中审核词进入待审核 否则直接上架
         goods.setStatus(fr.level == 1 ? 0 : 1);
         secondGoodsMapper.insert(goods);

@@ -1,13 +1,11 @@
 const api = require('../../utils/api')
-const authGate = require('../../utils/authGate')
 const app = getApp()
 
 Page({
   data: {
     goods: [],
     tasks: [],
-    imgBase: '',
-    locked: false
+    imgBase: ''
   },
 
   onLoad() {
@@ -16,47 +14,15 @@ Page({
 
   onShow() {
     if (this.getTabBar()) this.getTabBar().setData({ selected: 1 })
-    this.checkAuth()
-  },
-
-  checkAuth() {
-    const userId = app.globalData.userId
-    // 校园生活的公开列表支持游客浏览。
-    if (!userId) {
-      this.setData({ locked: false })
-      this.loadGoods()
-      this.loadTasks()
-      return
-    }
-    authGate.checkFullAccess(userId, () => {
-      this.setData({ locked: false })
-      this.loadGoods()
-      this.loadTasks()
-    }, () => {
-      this.setData({ locked: true })
-    })
-    /* TODO: 审核通过后恢复双认证门禁（并将 authGate.js 中 AUTH_GATE_ENABLED 改为 true）
-    if (!userId) {
-      this.setData({ locked: true })
-      return
-    }
-    api.get('/auth/status/' + userId).then((res) => {
-      if (res.fullAccess) {
-        this.setData({ locked: false })
-        this.loadGoods()
-        this.loadTasks()
-      } else {
-        this.setData({ locked: true })
-      }
-    }).catch(() => {
-      this.setData({ locked: true })
-    })
-    */
+    this.loadGoods()
+    this.loadTasks()
   },
 
   // 二手商品预览
   loadGoods() {
-    api.get('/second/list').then((list) => {
+    const uid = app.globalData.userId
+    const url = '/second/list' + (uid ? '?userId=' + uid : '')
+    api.get(url).then((list) => {
       const goods = list.slice(0, 3).map((g) => {
         g.firstImg = g.images ? g.images.split(',')[0] : ''
         return g
@@ -67,7 +33,9 @@ Page({
 
   // 待接跑腿预览
   loadTasks() {
-    api.get('/errand/available').then((list) => {
+    const uid = app.globalData.userId
+    const url = '/errand/available' + (uid ? '?userId=' + uid : '')
+    api.get(url).then((list) => {
       this.setData({ tasks: list.slice(0, 3) })
     })
   },
@@ -80,6 +48,11 @@ Page({
     wx.navigateTo({ url: '/pages/second/second' })
   },
 
+  goSecondDetail(e) {
+    const id = e.currentTarget.dataset.id
+    wx.navigateTo({ url: '/pages/second-detail/second-detail?id=' + id })
+  },
+
   goGame() {
     wx.navigateTo({ url: '/pages/game/game' })
   },
@@ -88,8 +61,4 @@ Page({
     wx.showToast({ title: '更多服务即将开放', icon: 'none' })
   },
 
-  goAuth() {
-    if (!app.checkLogin()) return
-    wx.navigateTo({ url: '/pages/auth/auth' })
-  }
 })

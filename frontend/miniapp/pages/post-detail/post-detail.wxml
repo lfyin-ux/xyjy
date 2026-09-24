@@ -1,3 +1,4 @@
+<wxs src="../../utils/display.wxs" module="dsp" />
 <wxs module="fmt">
 function statusText(s) {
   var map = { '0': '草稿', '1': '审核中', '3': '已发布', '4': '审核驳回', '5': '违规拦截', '6': '已删除' }
@@ -41,7 +42,7 @@ module.exports = { statusText: statusText, visLabel: visLabel }
         </view>
         <view>
           <view class="post-name">{{post.user.nickname}}</view>
-          <view class="post-sub">{{post.user.school}} · {{post.post.place}}</view>
+          <view class="post-sub">{{post.subText || dsp.postSub(post.user.school, post.post.place)}}</view>
         </view>
       </view>
       <view class="post-text">{{post.post.content}}</view>
@@ -86,7 +87,8 @@ module.exports = { statusText: statusText, visLabel: visLabel }
       <view wx:if="{{comments.length===0}}" class="empty">还没有评论，来说点什么吧</view>
     </view>
 
-    <view class="comment-bar">
+    <view wx:if="{{viewOnly}}" class="view-only-tip">当前学校为浏览模式，暂不可评论</view>
+    <view class="comment-bar" wx:if="{{!viewOnly}}">
       <view class="comment-bar-top" wx:if="{{replyToNickname}}">
         <text class="reply-hint">回复 @{{replyToNickname}}</text>
         <text class="cancel-reply" bindtap="cancelReply">取消</text>

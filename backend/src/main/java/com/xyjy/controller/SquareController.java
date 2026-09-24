@@ -35,6 +35,8 @@ public class SquareController {
     private FilterService filterService;
     @Resource
     private com.xyjy.service.BlacklistService blacklistService;
+    @Resource
+    private com.xyjy.service.SchoolScopeService schoolScopeService;
 
     /**
      * 广场动态列表 仅展示已发布 附带发布者信息
@@ -44,9 +46,15 @@ public class SquareController {
                                                    @RequestParam(defaultValue = "10") Integer pageSize,
                                                    @RequestParam(required = false) String topic,
                                                    @RequestParam(required = false) Long userId) {
+        Long schoolId = schoolScopeService.resolveListSchoolId(userId);
         Page<SquarePost> page = new Page<>(pageNum, pageSize);
+        if (schoolId == null) {
+            Page<Map<String, Object>> empty = new Page<>(pageNum, pageSize, 0);
+            empty.setRecords(new java.util.ArrayList<>());
+            return Result.success(empty);
+        }
         LambdaQueryWrapper<SquarePost> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(SquarePost::getStatus, 3);
+        wrapper.eq(SquarePost::getStatus, 3).eq(SquarePost::getSchoolId, schoolId);
         if (topic != null && !topic.isEmpty()) {
             wrapper.eq(SquarePost::getTopic, topic);
         }
@@ -78,11 +86,13 @@ public class SquareController {
      * 动态详情
      */
     @GetMapping("/detail/{id}")
-    public Result<Map<String, Object>> detail(@PathVariable Long id) {
+    public Result<Map<String, Object>> detail(@PathVariable Long id,
+                                              @RequestParam(required = false) Long userId) {
         SquarePost post = squarePostMapper.selectById(id);
         if (post == null) {
             throw new BusinessException("动态不存在");
         }
+        schoolScopeService.assertCanAccess(userId, post.getSchoolId());
         return Result.success(toVo(post));
     }
 
@@ -97,6 +107,7 @@ public class SquareController {
         if (post.getContent() == null || post.getContent().isEmpty()) {
             throw new BusinessException("请输入动态内容");
         }
+        post.setSchoolId(schoolScopeService.requireViewSchoolIdForWrite(post.getUserId()));
         FilterService.FilterResult fr = filterService.check(post.getContent(), "动态", post.getUserId());
         Map<String, Object> result = new HashMap<>();
         if (fr.level == 2) {
@@ -131,6 +142,7 @@ public class SquareController {
         if (post == null) {
             throw new BusinessException("动态不存在");
         }
+        schoolScopeService.assertCanWrite(userId, post.getSchoolId());
         PostLike exist = postLikeMapper.selectOne(new LambdaQueryWrapper<PostLike>()
                 .eq(PostLike::getPostId, postId).eq(PostLike::getUserId, userId));
         Map<String, Object> result = new HashMap<>();
@@ -155,7 +167,13 @@ public class SquareController {
      * 点赞用户列表 查看谁给某动态点赞了
      */
     @GetMapping("/likeUsers/{postId}")
-    public Result<List<Map<String, Object>>> likeUsers(@PathVariable Long postId) {
+    public Result<List<Map<String, Object>>> likeUsers(@PathVariable Long postId,
+                                                       @RequestParam(required = false) Long userId) {
+        SquarePost post = squarePostMapper.selectById(postId);
+        if (post == null) {
+            throw new BusinessException("动态不存在");
+        }
+        schoolScopeService.assertCanAccess(userId, post.getSchoolId());
         List<PostLike> likes = postLikeMapper.selectList(new LambdaQueryWrapper<PostLike>()
                 .eq(PostLike::getPostId, postId).orderByDesc(PostLike::getCreateTime));
         List<Map<String, Object>> vos = likes.stream().map(l -> {
@@ -178,6 +196,7 @@ public class SquareController {
         if (post == null) {
             throw new BusinessException("动态不存在");
         }
+        schoolScopeService.assertCanAccess(userId, post.getSchoolId());
         Long postAuthorId = post.getUserId();
         List<PostComment> list = postCommentMapper.selectList(new LambdaQueryWrapper<PostComment>()
                 .eq(PostComment::getPostId, postId).eq(PostComment::getStatus, 3)
@@ -251,6 +270,11 @@ public class SquareController {
         if (comment.getReplyToUserId() != null && comment.getReplyToUserId().equals(comment.getUserId())) {
             throw new BusinessException("不能回复自己");
         }
+        SquarePost targetPost = squarePostMapper.selectById(comment.getPostId());
+        if (targetPost == null) {
+            throw new BusinessException("动态不存在");
+        }
+        schoolScopeService.assertCanWrite(comment.getUserId(), targetPost.getSchoolId());
         FilterService.FilterResult fr = filterService.check(comment.getContent(), "评论", comment.getUserId());
         if (fr.level == 2) {
             return Result.error(fr.tip);

@@ -1,4 +1,5 @@
-.auth-banner {
+.auth-banner,
+.violation-banner {
   margin: 0 32rpx 28rpx;
   padding: 32rpx;
   background: #fff5e6;
@@ -7,6 +8,15 @@
   display: flex;
   gap: 24rpx;
   align-items: center;
+}
+
+.violation-banner {
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+
+.violation-banner .auth-banner-sub {
+  color: #be123c;
 }
 
 .auth-icon {

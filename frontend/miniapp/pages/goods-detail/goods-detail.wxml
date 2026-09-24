@@ -1,7 +1,11 @@
 <view class="page">
-  <view class="goods-cover">
-    <image wx:if="{{goods.cover}}" src="{{imgBase}}{{goods.cover}}" mode="aspectFill" class="cover-img" />
-    <text wx:else>🛍️</text>
+  <swiper wx:if="{{imageList.length>0}}" class="goods-swiper" indicator-dots circular>
+    <swiper-item wx:for="{{imageList}}" wx:key="*this">
+      <image src="{{imgBase}}{{item}}" mode="aspectFill" class="cover-img" />
+    </swiper-item>
+  </swiper>
+  <view wx:else class="goods-cover">
+    <text>🛍️</text>
   </view>
 
   <view class="card">

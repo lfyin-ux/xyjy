@@ -17,6 +17,7 @@ public class ErrandOrder {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long publisherId;
+    private Long schoolId;
     private Long takerId;
     private String title;
     private String content;

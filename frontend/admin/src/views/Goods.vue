@@ -66,12 +66,25 @@
         <el-form-item label="规格">
           <el-input v-model="form.spec" placeholder="多个规格用逗号分隔" />
         </el-form-item>
-        <el-form-item label="封面图">
-          <el-upload :action="uploadUrl" :data="{ bizDir: 'mall' }" :show-file-list="false"
-            :on-success="onCoverSuccess" accept="image/*">
-            <el-image v-if="form.cover" :src="fileUrl(form.cover)" fit="cover" style="width: 90px; height: 90px" />
-            <el-button v-else>上传封面</el-button>
-          </el-upload>
+        <el-form-item label="商品图片">
+          <div class="img-grid">
+            <div v-for="(img, idx) in imageList" :key="img + idx" class="img-item">
+              <el-image :src="fileUrl(img)" fit="cover" class="img-preview" />
+              <el-button class="img-del" size="small" type="danger" link @click="removeImage(idx)">删除</el-button>
+            </div>
+            <el-upload
+              v-if="imageList.length < 9"
+              :action="uploadUrl"
+              :data="{ bizDir: 'mall' }"
+              :show-file-list="false"
+              :on-success="onImageSuccess"
+              accept="image/*"
+              class="img-upload"
+            >
+              <div class="img-add">+</div>
+            </el-upload>
+          </div>
+          <div class="img-tip">最多上传 9 张，第一张将作为列表封面</div>
         </el-form-item>
         <el-form-item label="商品详情">
           <el-input v-model="form.detail" type="textarea" :rows="3" />
@@ -118,6 +131,7 @@ const loading = ref(false)
 const query = ref({ pageNum: 1, pageSize: 10, keyword: '' })
 const dialog = ref(false)
 const form = ref({})
+const imageList = ref([])
 const categories = ref([])
 const categoryDialog = ref(false)
 const newCategory = ref('')
@@ -145,12 +159,27 @@ const loadCategories = async () => {
 
 const openDialog = (row) => {
   form.value = row ? { ...row } : { price: 0, stock: 0, status: 1 }
+  const imgs = []
+  if (form.value.cover) imgs.push(form.value.cover)
+  if (form.value.images) {
+    form.value.images.split(',').forEach((url) => {
+      const u = (url || '').trim()
+      if (u && !imgs.includes(u)) imgs.push(u)
+    })
+  }
+  imageList.value = imgs
   dialog.value = true
 }
 
-const onCoverSuccess = (res) => {
-  form.value.cover = res.data.url
-  ElMessage.success('封面上传成功')
+const onImageSuccess = (res) => {
+  if (res?.data?.url) {
+    imageList.value.push(res.data.url)
+    ElMessage.success('图片上传成功')
+  }
+}
+
+const removeImage = (idx) => {
+  imageList.value.splice(idx, 1)
 }
 
 const doSave = async () => {
@@ -158,6 +187,12 @@ const doSave = async () => {
     ElMessage.warning('请填写商品名称')
     return
   }
+  if (!imageList.value.length) {
+    ElMessage.warning('请上传至少一张商品图片')
+    return
+  }
+  form.value.images = imageList.value.join(',')
+  form.value.cover = imageList.value[0]
   await goodsSave(form.value)
   ElMessage.success('保存成功')
   dialog.value = false
@@ -203,3 +238,46 @@ onMounted(() => {
   loadCategories()
 })
 </script>
+
+<style scoped>
+.img-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.img-item,
+.img-upload {
+  width: 90px;
+}
+
+.img-preview {
+  width: 90px;
+  height: 90px;
+  border-radius: 8px;
+}
+
+.img-del {
+  margin-top: 4px;
+  padding: 0;
+}
+
+.img-add {
+  width: 90px;
+  height: 90px;
+  border: 1px dashed #dcdfe6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #909399;
+  cursor: pointer;
+}
+
+.img-tip {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #909399;
+}
+</style>

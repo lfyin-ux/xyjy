@@ -14,7 +14,9 @@ Page({
   },
 
   loadOrder(id) {
-    api.get('/errand/detail/' + id).then((order) => {
+    const uid = app.globalData.userId
+    const url = '/errand/detail/' + id + (uid ? '?userId=' + uid : '')
+    api.get(url).then((order) => {
       this.setData({ order })
     })
   },
@@ -24,6 +26,7 @@ Page({
   },
 
   confirm() {
+    if (!app.checkLogin()) return
     if (!this.data.contact.trim()) {
       wx.showToast({ title: '请填写联系方式', icon: 'none' })
       return

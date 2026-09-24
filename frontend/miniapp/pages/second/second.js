@@ -26,8 +26,12 @@ Page({
     if (this.data.mode === 'my') {
       api.get('/second/my/' + app.globalData.userId).then((list) => this.fill(list))
     } else {
-      let url = '/second/list'
-      if (this.data.keyword) url += '?keyword=' + this.data.keyword
+      const uid = app.globalData.userId
+      let url = '/second/list?'
+      const parts = []
+      if (uid) parts.push('userId=' + uid)
+      if (this.data.keyword) parts.push('keyword=' + encodeURIComponent(this.data.keyword))
+      url += parts.join('&')
       api.get(url).then((list) => this.fill(list))
     }
   },
@@ -47,20 +51,9 @@ Page({
     this.load()
   },
 
-  contact(e) {
-    const item = e.currentTarget.dataset.item
-    if (this.data.mode === 'my') return
-    wx.showModal({
-      title: item.name,
-      content: item.description + '\n价格：¥' + item.price,
-      confirmText: '联系卖家',
-      success: (res) => {
-        if (res.confirm) {
-          if (!app.checkLogin()) return
-          wx.navigateTo({ url: '/pages/profile/profile?id=' + item.sellerId })
-        }
-      }
-    })
+  goDetail(e) {
+    const id = e.currentTarget.dataset.id
+    wx.navigateTo({ url: '/pages/second-detail/second-detail?id=' + id })
   },
 
   goPublish() {

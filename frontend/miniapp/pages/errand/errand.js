@@ -35,7 +35,9 @@ Page({
 
   // 可接单列表
   loadTasks() {
-    api.get('/errand/available').then((list) => this.setData({ tasks: list }))
+    const uid = app.globalData.userId
+    const url = '/errand/available' + (uid ? '?userId=' + uid : '')
+    api.get(url).then((list) => this.setData({ tasks: list }))
   },
 
   // 我发布的
@@ -45,7 +47,7 @@ Page({
       const tasks = list.map((item) => {
         item.takerInfo = null
         if (item.takerId) {
-          api.get('/user/detail/' + item.takerId).then((user) => {
+          api.get('/user/detail/' + item.takerId + '?visitorId=' + app.globalData.userId).then((user) => {
             item.takerInfo = user
             this.setData({ myPublish: this.data.myPublish })
           })

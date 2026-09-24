@@ -16,6 +16,7 @@ public class SchoolAuth {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long userId;
+    private Long schoolId;
     private String schoolName;
     private String college;
     private String grade;

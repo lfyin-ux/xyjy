@@ -1,3 +1,5 @@
+<wxs src="../../utils/display.wxs" module="dsp" />
+
 <view class="page">
   <!-- 开发模式 显示用户列表选择登录 -->
   <block wx:if="{{mode==='dev'}}">
@@ -14,7 +16,7 @@
         </view>
         <view class="uc-main">
           <view class="uc-name">{{item.nickname}}</view>
-          <view class="uc-info">{{item.school}} · {{item.college}}</view>
+          <view class="uc-info">{{dsp.userSub(item.school, item.college)}}</view>
         </view>
         <view wx:if="{{currentId===item.id}}" class="uc-check">✓</view>
       </view>

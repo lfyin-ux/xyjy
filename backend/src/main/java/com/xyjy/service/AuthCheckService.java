@@ -38,6 +38,18 @@ public class AuthCheckService {
     }
 
     /**
+     * 校验账号是否可登录 封禁账号禁止登录
+     */
+    public void assertCanLogin(AppUser user) {
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        if (user.getStatus() != null && user.getStatus() == 3) {
+            throw new BusinessException("账号已被封禁，无法登录");
+        }
+    }
+
+    /**
      * 判断用户是否已完成双认证
      */
     public boolean isFullAuth(Long userId) {

@@ -17,12 +17,14 @@ public class SecondGoods {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long sellerId;
+    private Long schoolId;
     private String name;
     private String category;
     private String conditionDesc;
     private BigDecimal price;
     private String description;
     private String images;
+    private String sellerContact;
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

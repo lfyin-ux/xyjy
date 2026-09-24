@@ -40,7 +40,7 @@ Page({
       this.setData({ myAvatar: me.avatar ? imgBase + me.avatar : '' })
     })
     // 加载对方头像
-    api.get('/user/detail/' + options.otherId).then((user) => {
+    api.get('/user/detail/' + options.otherId + '?visitorId=' + app.globalData.userId).then((user) => {
       this.setData({ otherAvatar: user.avatar ? imgBase + user.avatar : '' })
     })
     // 加载历史消息

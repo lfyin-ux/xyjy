@@ -7,6 +7,7 @@ Page({
     category: '',
     conditionDesc: '',
     price: '',
+    sellerContact: '',
     description: '',
     images: [],
     imgBase: ''
@@ -14,17 +15,21 @@ Page({
 
   onLoad() {
     this.setData({ imgBase: app.globalData.baseUrl })
+    if (!app.checkLogin()) {
+      setTimeout(() => wx.navigateBack(), 300)
+    }
   },
 
   onName(e) { this.setData({ name: e.detail.value }) },
   onCategory(e) { this.setData({ category: e.detail.value }) },
   onCondition(e) { this.setData({ conditionDesc: e.detail.value }) },
   onPrice(e) { this.setData({ price: e.detail.value }) },
+  onContact(e) { this.setData({ sellerContact: e.detail.value }) },
   onDesc(e) { this.setData({ description: e.detail.value }) },
 
   addImg() {
     wx.chooseMedia({
-      count: 6 - this.data.images.length,
+      count: 9 - this.data.images.length,
       mediaType: ['image'],
       success: (res) => {
         wx.showLoading({ title: '上传中' })
@@ -49,12 +54,17 @@ Page({
       wx.showToast({ title: '请填写商品名称和价格', icon: 'none' })
       return
     }
+    if (!d.sellerContact || !d.sellerContact.trim()) {
+      wx.showToast({ title: '请填写联系方式', icon: 'none' })
+      return
+    }
     api.post('/second/publish', {
       sellerId: app.globalData.userId,
       name: d.name,
       category: d.category,
       conditionDesc: d.conditionDesc,
       price: Number(d.price),
+      sellerContact: d.sellerContact.trim(),
       description: d.description,
       images: d.images.join(',')
     }).then((tip) => {

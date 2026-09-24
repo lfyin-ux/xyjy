@@ -17,17 +17,21 @@
       <input type="digit" placeholder="请输入价格" value="{{price}}" bindinput="onPrice" />
     </view>
     <view class="field">
+      <text class="label">联系方式（必填）</text>
+      <input class="contact-input" placeholder="输入手机号后，请仔细确认，将用于展示联系。" value="{{sellerContact}}" bindinput="onContact" />
+    </view>
+    <view class="field">
       <text class="label">商品描述</text>
       <textarea placeholder="描述商品状况" value="{{description}}" bindinput="onDesc" />
     </view>
     <view class="field">
-      <text class="label">商品图片</text>
+      <text class="label">商品图片（最多9张）</text>
       <view class="img-grid">
         <view class="img-item" wx:for="{{images}}" wx:key="*this">
           <image src="{{imgBase}}{{item}}" mode="aspectFill" class="grid-img" />
           <text class="img-del" catchtap="delImg" data-idx="{{index}}">×</text>
         </view>
-        <view wx:if="{{images.length<6}}" class="img-add" bindtap="addImg">＋</view>
+        <view wx:if="{{images.length<9}}" class="img-add" bindtap="addImg">＋</view>
       </view>
     </view>
     <button class="primary" bindtap="publish">发布商品</button>

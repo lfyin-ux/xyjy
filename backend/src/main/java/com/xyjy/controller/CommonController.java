@@ -35,6 +35,8 @@ public class CommonController {
         if (keyword != null && !keyword.isEmpty()) {
             wrapper.like(SchoolInfo::getSchoolName, keyword);
         }
+        wrapper.orderByAsc(SchoolInfo::getSchoolName);
+        wrapper.last("limit 50");
         return Result.success(schoolInfoMapper.selectList(wrapper));
     }
 

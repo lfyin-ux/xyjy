@@ -4,6 +4,7 @@ const app = getApp()
 Page({
   data: {
     goods: {},
+    imageList: [],
     specList: [],
     spec: '',
     quantity: 1,
@@ -24,8 +25,17 @@ Page({
   loadGoods(id) {
     api.get('/mall/goods/' + id).then((goods) => {
       const specList = goods.spec ? goods.spec.split(',') : []
+      const imageList = []
+      if (goods.cover) imageList.push(goods.cover)
+      if (goods.images) {
+        goods.images.split(',').forEach((url) => {
+          const u = (url || '').trim()
+          if (u && imageList.indexOf(u) === -1) imageList.push(u)
+        })
+      }
       this.setData({
         goods,
+        imageList,
         specList,
         spec: specList.length ? specList[0] : ''
       })

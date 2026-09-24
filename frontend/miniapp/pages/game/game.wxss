@@ -157,6 +157,24 @@
   margin-top: 4rpx;
 }
 
+.member-contact {
+  font-size: 22rpx;
+  color: #555;
+  margin-top: 6rpx;
+}
+
+.copy-btn {
+  flex-shrink: 0;
+  padding: 0 20rpx;
+  height: 52rpx;
+  line-height: 52rpx;
+  border-radius: 18rpx;
+  background: #f3f1ff;
+  color: var(--purple);
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
 .member-msg {
   border: 2rpx solid var(--purple);
   color: var(--purple);

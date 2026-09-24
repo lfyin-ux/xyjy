@@ -35,6 +35,8 @@ public class MatchController {
     private ChatSessionMapper chatSessionMapper;
     @Resource
     private com.xyjy.service.AuthCheckService authCheckService;
+    @Resource
+    private com.xyjy.service.SchoolScopeService schoolScopeService;
 
     /**
      * 推荐列表 排除本人 已喜欢 已跳过 黑名单 封禁用户 支持筛选
@@ -70,8 +72,10 @@ public class MatchController {
                 .eq(AppUser::getSchoolVerified, 1)
                 .notIn(AppUser::getId, excludeIds);
         // 同校隔离
-        if (me.getSchool() != null) {
-            wrapper.eq(AppUser::getSchool, me.getSchool());
+        if (me.getSchoolId() != null) {
+            wrapper.eq(AppUser::getSchoolId, me.getSchoolId());
+        } else {
+            return Result.success(new ArrayList<>());
         }
         if (gender != null) {
             wrapper.eq(AppUser::getGender, gender);
@@ -93,6 +97,7 @@ public class MatchController {
     public Result<Map<String, Object>> like(@RequestParam Long userId,
                                             @RequestParam Long targetId,
                                             @RequestParam(defaultValue = "1") Integer type) {
+        schoolScopeService.assertSameSchool(userId, targetId);
         // 记录喜欢
         UserLike like = new UserLike();
         like.setUserId(userId);
@@ -134,6 +139,7 @@ public class MatchController {
      */
     @PostMapping("/skip")
     public Result<Void> skip(@RequestParam Long userId, @RequestParam Long targetId) {
+        schoolScopeService.assertSameSchool(userId, targetId);
         UserSkip skip = new UserSkip();
         skip.setUserId(userId);
         skip.setTargetId(targetId);
@@ -146,6 +152,7 @@ public class MatchController {
      */
     @GetMapping("/list/{userId}")
     public Result<List<AppUser>> matchList(@PathVariable Long userId) {
+        Long schoolId = schoolScopeService.resolveListSchoolId(userId);
         List<UserMatch> matches = userMatchMapper.selectList(new LambdaQueryWrapper<UserMatch>()
                 .eq(UserMatch::getStatus, 1)
                 .and(w -> w.eq(UserMatch::getUserA, userId).or().eq(UserMatch::getUserB, userId)));
@@ -155,7 +162,13 @@ public class MatchController {
         if (ids.isEmpty()) {
             return Result.success(new ArrayList<>());
         }
-        return Result.success(appUserMapper.selectBatchIds(ids));
+        List<AppUser> users = appUserMapper.selectBatchIds(ids);
+        if (schoolId == null) {
+            return Result.success(new ArrayList<>());
+        }
+        return Result.success(users.stream()
+                .filter(u -> schoolId.equals(u.getSchoolId()))
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -178,13 +191,16 @@ public class MatchController {
      */
     @GetMapping("/whoLikesMe/{userId}")
     public Result<List<AppUser>> whoLikesMe(@PathVariable Long userId) {
+        Long schoolId = schoolScopeService.resolveListSchoolId(userId);
         List<UserLike> likes = userLikeMapper.selectList(new LambdaQueryWrapper<UserLike>()
                 .eq(UserLike::getTargetId, userId));
         List<Long> ids = likes.stream().map(UserLike::getUserId).distinct().collect(Collectors.toList());
-        if (ids.isEmpty()) {
+        if (ids.isEmpty() || schoolId == null) {
             return Result.success(new ArrayList<>());
         }
-        return Result.success(appUserMapper.selectBatchIds(ids));
+        return Result.success(appUserMapper.selectBatchIds(ids).stream()
+                .filter(u -> schoolId.equals(u.getSchoolId()))
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -192,12 +208,15 @@ public class MatchController {
      */
     @GetMapping("/myStars/{userId}")
     public Result<List<AppUser>> myStars(@PathVariable Long userId) {
+        Long schoolId = schoolScopeService.resolveListSchoolId(userId);
         List<UserLike> stars = userLikeMapper.selectList(new LambdaQueryWrapper<UserLike>()
                 .eq(UserLike::getUserId, userId).eq(UserLike::getType, 2));
         List<Long> ids = stars.stream().map(UserLike::getTargetId).distinct().collect(Collectors.toList());
-        if (ids.isEmpty()) {
+        if (ids.isEmpty() || schoolId == null) {
             return Result.success(new ArrayList<>());
         }
-        return Result.success(appUserMapper.selectBatchIds(ids));
+        return Result.success(appUserMapper.selectBatchIds(ids).stream()
+                .filter(u -> schoolId.equals(u.getSchoolId()))
+                .collect(Collectors.toList()));
     }
 }

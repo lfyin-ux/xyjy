@@ -1,4 +1,5 @@
 const api = require('../../utils/api')
+const schoolContext = require('../../utils/schoolContext')
 const app = getApp()
 
 Page({
@@ -12,6 +13,9 @@ Page({
 
   onLoad() {
     this.setData({ imgBase: app.globalData.baseUrl })
+    if (!schoolContext.ensureWrite(app, '发布动态')) {
+      setTimeout(() => wx.navigateBack(), 300)
+    }
   },
 
   onContent(e) { this.setData({ content: e.detail.value }) },

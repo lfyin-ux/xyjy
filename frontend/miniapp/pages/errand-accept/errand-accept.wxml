@@ -1,8 +1,10 @@
+<wxs src="../../utils/display.wxs" module="dsp" />
+
 <view class="page">
   <view class="card">
     <view class="order-title">{{order.title}}</view>
-    <view class="order-route">{{order.fromPlace}} → {{order.toPlace}}</view>
-    <view class="order-time">{{order.finishTime}}</view>
+    <view class="order-route">{{dsp.text(order.fromPlace, '取件地待定')}} → {{dsp.text(order.toPlace, '送达地待定')}}</view>
+    <view class="order-time">{{dsp.text(order.finishTime, '时间待定')}}</view>
     <view class="order-fee">赏金 <text class="price">¥ {{order.fee}}</text></view>
     <view wx:if="{{order.remark}}" class="order-remark">备注：{{order.remark}}</view>
   </view>

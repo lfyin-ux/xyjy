@@ -72,6 +72,10 @@ Page({
     if (!this.data.currentUser) return
     const user = this.data.currentUser
     api.post('/auth/wxLogin?openid=' + encodeURIComponent(user.openid)).then((loginUser) => {
+      if (loginUser.status === 3) {
+        wx.showToast({ title: '账号已被封禁，无法登录', icon: 'none' })
+        return
+      }
       app.globalData.userInfo = loginUser
       app.globalData.userId = loginUser.id
       wx.setStorageSync('userInfo', loginUser)
@@ -92,6 +96,10 @@ Page({
           return
         }
         api.post('/auth/wxCodeLogin?code=' + loginRes.code).then((user) => {
+          if (user.status === 3) {
+            wx.showToast({ title: '账号已被封禁，无法登录', icon: 'none' })
+            return
+          }
           app.globalData.userInfo = user
           app.globalData.userId = user.id
           wx.setStorageSync('userInfo', user)

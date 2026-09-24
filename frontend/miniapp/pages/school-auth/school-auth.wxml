@@ -13,8 +13,34 @@
   <view class="card">
     <view class="field">
       <text class="label">学校名称</text>
-      <input placeholder="请输入学校全称" value="{{schoolName}}" bindinput="onSchool" />
+      <view class="mode-tabs">
+        <view class="mode-tab {{schoolMode==='select'?'on':''}}" bindtap="switchToSelect">从列表选择</view>
+        <view class="mode-tab {{schoolMode==='manual'?'on':''}}" bindtap="switchToManual">手动输入</view>
+      </view>
     </view>
+
+    <block wx:if="{{schoolMode==='select'}}">
+      <view class="field">
+        <input placeholder="搜索学校名称" value="{{schoolKeyword}}" bindinput="onSchoolKeyword" />
+      </view>
+      <view class="school-picked" wx:if="{{schoolId}}">已选：{{schoolName}}</view>
+      <scroll-view scroll-y class="school-list" wx:if="{{schoolOptions.length}}">
+        <view class="school-item {{schoolId===item.id?'picked':''}}"
+          wx:for="{{schoolOptions}}" wx:key="id"
+          data-item="{{item}}" bindtap="pickSchool">
+          {{item.schoolName}}
+        </view>
+      </scroll-view>
+      <view class="school-empty" wx:elif="{{schoolKeyword}}">未找到匹配学校，可切换到「手动输入」</view>
+    </block>
+
+    <block wx:else>
+      <view class="field">
+        <input placeholder="请输入学校全称" value="{{schoolName}}" bindinput="onSchoolManual" />
+      </view>
+      <view class="school-tip">手填学校需后台审核确认后才会加入学校字典</view>
+    </block>
+
     <view class="field">
       <text class="label">证明材料类型</text>
       <picker range="{{docTypes}}" bindchange="onDocType">

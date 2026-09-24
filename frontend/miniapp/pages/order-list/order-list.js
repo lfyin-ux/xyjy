@@ -1,4 +1,5 @@
 const api = require('../../utils/api')
+const schoolContext = require('../../utils/schoolContext')
 const app = getApp()
 
 Page({
@@ -38,6 +39,7 @@ Page({
     api.post('/pay/create/' + orderId).then((payResult) => {
       if (payResult.mode === 'dev') {
         wx.showToast({ title: '支付成功', icon: 'success' })
+        schoolContext.load(app)
         this.load()
       } else {
         wx.requestPayment({
@@ -48,6 +50,7 @@ Page({
           paySign: payResult.paySign,
           success: () => {
             wx.showToast({ title: '支付成功', icon: 'success' })
+            schoolContext.load(app)
             this.load()
           },
           fail: () => {
@@ -68,6 +71,7 @@ Page({
   confirm(e) {
     api.post('/mall/order/confirm/' + e.currentTarget.dataset.id).then(() => {
       wx.showToast({ title: '已确认收货', icon: 'success' })
+      schoolContext.load(app)
       this.load()
     })
   },

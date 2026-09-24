@@ -1,3 +1,4 @@
+<wxs src="../../utils/display.wxs" module="dsp" />
 <wxs module="fmt">
 function statusText(s) {
   var map = { '1': '待付款', '2': '待备货', '3': '配送中', '4': '已完成', '5': '退款售后' }
@@ -28,7 +29,7 @@ module.exports = { statusText: statusText }
       </view>
       <view class="g-main">
         <view class="g-name">{{g.goodsName}}</view>
-        <view class="g-spec">{{g.spec}} × {{g.quantity}}</view>
+        <view class="g-spec">{{dsp.text(g.spec, '默认规格')}} × {{g.quantity}}</view>
       </view>
       <text class="price">¥ {{g.price}}</text>
     </view>

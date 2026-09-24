@@ -1,4 +1,6 @@
 const api = require('../../utils/api')
+const { formatPostSub } = require('../../utils/format')
+const schoolContext = require('../../utils/schoolContext')
 const app = getApp()
 
 const VIS_OPTIONS = [
@@ -23,11 +25,15 @@ Page({
     replyToUserId: null,
     replyToNickname: '',
     parentId: null,
-    myUserId: null
+    myUserId: null,
+    viewOnly: false
   },
 
   onLoad(options) {
     this.setData({ imgBase: app.globalData.baseUrl, myUserId: app.globalData.userId })
+    schoolContext.load(app).then((ctx) => {
+      if (ctx) this.setData({ viewOnly: ctx.viewOnly })
+    })
     if (options.my) {
       this.setData({ mode: 'my' })
       wx.setNavigationBarTitle({ title: '我的动态' })
@@ -41,8 +47,11 @@ Page({
   },
 
   loadDetail(id) {
-    api.get('/square/detail/' + id).then((vo) => {
+    const userId = app.globalData.userId
+    const url = '/square/detail/' + id + (userId ? '?userId=' + userId : '')
+    api.get(url).then((vo) => {
       vo.firstImg = vo.post.images ? vo.post.images.split(',')[0] : ''
+      vo.subText = formatPostSub(vo.user && vo.user.school, vo.post && vo.post.place)
       this.setData({ post: vo })
     })
   },
@@ -79,7 +88,9 @@ Page({
   },
 
   loadLikeUsers(id) {
-    api.get('/square/likeUsers/' + id).then((list) => {
+    const userId = app.globalData.userId
+    const url = '/square/likeUsers/' + id + (userId ? '?userId=' + userId : '')
+    api.get(url).then((list) => {
       this.setData({ likeUsers: list })
     })
   },
@@ -144,6 +155,7 @@ Page({
 
   submitComment() {
     if (!app.checkLogin()) return
+    if (!schoolContext.ensureWrite(app, '评论')) return
     if (!this.data.commentText) {
       wx.showToast({ title: '请输入评论内容', icon: 'none' })
       return

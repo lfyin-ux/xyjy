@@ -34,6 +34,8 @@ public class MallController {
     private MallOrderMapper mallOrderMapper;
     @Resource
     private MallOrderItemMapper mallOrderItemMapper;
+    @Resource
+    private com.xyjy.service.MallSpendService mallSpendService;
 
     /**
      * 商品分类列表
@@ -215,6 +217,7 @@ public class MallController {
         order.setStatus(2);
         order.setPayTime(LocalDateTime.now());
         mallOrderMapper.updateById(order);
+        mallSpendService.refreshUserSpend(order.getUserId());
         return Result.success();
     }
 
@@ -268,6 +271,7 @@ public class MallController {
         }
         order.setStatus(4);
         mallOrderMapper.updateById(order);
+        mallSpendService.refreshUserSpend(order.getUserId());
         return Result.success();
     }
 

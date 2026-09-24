@@ -97,6 +97,8 @@ CREATE TABLE app_user (
   identity_verified TINYINT DEFAULT 0 COMMENT '个人认证是否通过 0否 1是',
   school_verified TINYINT DEFAULT 0 COMMENT '学校认证是否通过 0否 1是',
   school_id BIGINT COMMENT '绑定学校ID',
+  current_school_id BIGINT COMMENT '当前浏览的学校ID',
+  mall_total_spent DECIMAL(12,2) DEFAULT 0 COMMENT '商城累计有效消费金额',
   avatar_audit_status TINYINT DEFAULT 0 COMMENT '头像审核 0待审 1通过 2驳回',
   intro_audit_status TINYINT DEFAULT 0 COMMENT '简介审核 0待审 1通过 2驳回',
   status TINYINT DEFAULT 1 COMMENT '账号状态 1正常 2限制发言 3封禁',
@@ -135,6 +137,7 @@ DROP TABLE IF EXISTS school_auth;
 CREATE TABLE school_auth (
   id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
   user_id BIGINT NOT NULL COMMENT '用户ID',
+  school_id BIGINT COMMENT '用户选择的学校ID，手填时为NULL',
   school_name VARCHAR(100) COMMENT '学校全称',
   college VARCHAR(100) COMMENT '院系',
   grade VARCHAR(50) COMMENT '年级',
@@ -168,6 +171,18 @@ CREATE TABLE user_like (
   type TINYINT DEFAULT 1 COMMENT '类型 1喜欢 2特别关注',
   create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
 ) ENGINE=InnoDB COMMENT='喜欢记录表';
+
+-- 用户关注表
+DROP TABLE IF EXISTS user_follow;
+CREATE TABLE user_follow (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '关注者用户ID',
+  target_id BIGINT NOT NULL COMMENT '被关注用户ID',
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '关注时间',
+  UNIQUE KEY uk_user_target (user_id, target_id),
+  KEY idx_user_id (user_id),
+  KEY idx_target_id (target_id)
+) ENGINE=InnoDB COMMENT='用户关注表';
 
 -- 跳过记录表
 DROP TABLE IF EXISTS user_skip;
@@ -211,6 +226,7 @@ DROP TABLE IF EXISTS square_post;
 CREATE TABLE square_post (
   id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
   user_id BIGINT NOT NULL COMMENT '发布用户ID',
+  school_id BIGINT COMMENT '所属学校ID',
   content VARCHAR(2000) COMMENT '正文',
   images VARCHAR(1000) COMMENT '图片,逗号分隔',
   topic VARCHAR(100) COMMENT '话题或标签',
@@ -278,6 +294,7 @@ DROP TABLE IF EXISTS errand_order;
 CREATE TABLE errand_order (
   id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
   publisher_id BIGINT NOT NULL COMMENT '发单人ID',
+  school_id BIGINT COMMENT '所属学校ID',
   taker_id BIGINT COMMENT '接单人ID',
   title VARCHAR(100) NOT NULL COMMENT '任务标题',
   content VARCHAR(500) COMMENT '任务内容',
@@ -298,12 +315,14 @@ DROP TABLE IF EXISTS second_goods;
 CREATE TABLE second_goods (
   id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
   seller_id BIGINT NOT NULL COMMENT '卖家ID',
+  school_id BIGINT COMMENT '所属学校ID',
   name VARCHAR(100) NOT NULL COMMENT '商品名称',
   category VARCHAR(50) COMMENT '分类',
   condition_desc VARCHAR(50) COMMENT '成色',
   price DECIMAL(10,2) DEFAULT 0 COMMENT '价格',
   description VARCHAR(1000) COMMENT '描述',
   images VARCHAR(1000) COMMENT '商品图片',
+  seller_contact VARCHAR(100) COMMENT '卖家联系方式',
   status TINYINT DEFAULT 1 COMMENT '状态 0待审核 1在售 2已下架 5违规',
   create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
@@ -314,11 +333,13 @@ DROP TABLE IF EXISTS game_team;
 CREATE TABLE game_team (
   id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
   creator_id BIGINT NOT NULL COMMENT '发起人ID',
+  school_id BIGINT COMMENT '所属学校ID',
   game_name VARCHAR(100) NOT NULL COMMENT '游戏名称',
   play_time VARCHAR(100) COMMENT '时间',
   need_num INT DEFAULT 1 COMMENT '需要人数',
   joined_num INT DEFAULT 1 COMMENT '已加入人数',
   require_desc VARCHAR(255) COMMENT '参与要求',
+  creator_contact VARCHAR(100) COMMENT '发起人联系方式',
   status TINYINT DEFAULT 1 COMMENT '状态 1招募中 2已满 3已结束',
   create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
 ) ENGINE=InnoDB COMMENT='游戏组局表';
@@ -329,6 +350,7 @@ CREATE TABLE game_team_member (
   id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键',
   team_id BIGINT NOT NULL COMMENT '组局ID',
   user_id BIGINT NOT NULL COMMENT '用户ID',
+  member_contact VARCHAR(100) COMMENT '成员联系方式',
   create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
 ) ENGINE=InnoDB COMMENT='组局成员表';
 
@@ -485,6 +507,7 @@ CREATE TABLE violation_record (
   type VARCHAR(50) COMMENT '处置类型 warn警告 limit限制发言 ban封禁',
   reason VARCHAR(255) COMMENT '原因',
   admin_name VARCHAR(50) COMMENT '操作管理员',
+  read_status TINYINT DEFAULT 0 COMMENT '是否已读 0未读 1已读',
   create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
 ) ENGINE=InnoDB COMMENT='违规记录表';
 

@@ -30,25 +30,34 @@ public class GameTeamController {
     private AppUserMapper appUserMapper;
     @Resource
     private FilterService filterService;
+    @Resource
+    private com.xyjy.service.SchoolScopeService schoolScopeService;
 
     /**
      * 组局列表
      */
     @GetMapping("/list")
-    public Result<List<GameTeam>> list() {
-        return Result.success(gameTeamMapper.selectList(new LambdaQueryWrapper<GameTeam>()
-                .orderByDesc(GameTeam::getCreateTime)));
+    public Result<List<GameTeam>> list(@RequestParam(required = false) Long userId) {
+        Long schoolId = schoolScopeService.resolveCampusLifeListSchoolId(userId);
+        LambdaQueryWrapper<GameTeam> wrapper = new LambdaQueryWrapper<>();
+        if (schoolId != null) {
+            wrapper.eq(GameTeam::getSchoolId, schoolId);
+        }
+        wrapper.orderByDesc(GameTeam::getCreateTime);
+        return Result.success(gameTeamMapper.selectList(wrapper));
     }
 
     /**
      * 组局详情
      */
     @GetMapping("/detail/{id}")
-    public Result<GameTeam> detail(@PathVariable Long id) {
+    public Result<GameTeam> detail(@PathVariable Long id,
+                                   @RequestParam(required = false) Long userId) {
         GameTeam team = gameTeamMapper.selectById(id);
         if (team == null) {
             throw new BusinessException("组局不存在");
         }
+        schoolScopeService.assertCampusLifeAccess(userId, team.getSchoolId());
         return Result.success(team);
     }
 
@@ -63,11 +72,16 @@ public class GameTeamController {
         if (team.getGameName() == null || team.getGameName().isEmpty()) {
             throw new BusinessException("请填写游戏名称");
         }
+        if (team.getCreatorContact() == null || team.getCreatorContact().trim().isEmpty()) {
+            throw new BusinessException("请填写联系方式");
+        }
+        team.setCreatorContact(team.getCreatorContact().trim());
         String checkText = team.getGameName() + (team.getRequireDesc() == null ? "" : team.getRequireDesc());
         FilterService.FilterResult fr = filterService.check(checkText, "组局", team.getCreatorId());
         if (fr.level == 2) {
             throw new BusinessException(fr.tip);
         }
+        team.setSchoolId(schoolScopeService.requireCampusLifeSchoolIdForWrite(team.getCreatorId()));
         team.setJoinedNum(1);
         team.setStatus(1);
         gameTeamMapper.insert(team);
@@ -75,6 +89,7 @@ public class GameTeamController {
         GameTeamMember member = new GameTeamMember();
         member.setTeamId(team.getId());
         member.setUserId(team.getCreatorId());
+        member.setMemberContact(team.getCreatorContact());
         gameTeamMemberMapper.insert(member);
         return Result.success();
     }
@@ -83,7 +98,8 @@ public class GameTeamController {
      * 申请加入组局
      */
     @PostMapping("/join")
-    public Result<Void> join(@RequestParam Long teamId, @RequestParam Long userId) {
+    public Result<Void> join(@RequestParam Long teamId, @RequestParam Long userId,
+                             @RequestParam String contact) {
         GameTeam team = gameTeamMapper.selectById(teamId);
         if (team == null) {
             throw new BusinessException("组局不存在");
@@ -91,14 +107,19 @@ public class GameTeamController {
         if (team.getStatus() != 1) {
             throw new BusinessException("组局已满或已结束");
         }
+        schoolScopeService.requireCampusLifeSchoolIdForWrite(userId);
         Long exist = gameTeamMemberMapper.selectCount(new LambdaQueryWrapper<GameTeamMember>()
                 .eq(GameTeamMember::getTeamId, teamId).eq(GameTeamMember::getUserId, userId));
         if (exist != null && exist > 0) {
             throw new BusinessException("你已加入该组局");
         }
+        if (contact == null || contact.trim().isEmpty()) {
+            throw new BusinessException("请填写联系方式");
+        }
         GameTeamMember member = new GameTeamMember();
         member.setTeamId(teamId);
         member.setUserId(userId);
+        member.setMemberContact(contact.trim());
         gameTeamMemberMapper.insert(member);
         team.setJoinedNum(team.getJoinedNum() + 1);
         if (team.getJoinedNum() >= team.getNeedNum()) {
@@ -133,7 +154,13 @@ public class GameTeamController {
      * 组局成员列表 查看某个组局有哪些人加入
      */
     @GetMapping("/members/{teamId}")
-    public Result<List<Map<String, Object>>> members(@PathVariable Long teamId) {
+    public Result<List<Map<String, Object>>> members(@PathVariable Long teamId,
+                                                      @RequestParam(required = false) Long userId) {
+        GameTeam team = gameTeamMapper.selectById(teamId);
+        if (team == null) {
+            throw new BusinessException("组局不存在");
+        }
+        schoolScopeService.assertCampusLifeAccess(userId, team.getSchoolId());
         List<GameTeamMember> members = gameTeamMemberMapper.selectList(
                 new LambdaQueryWrapper<GameTeamMember>().eq(GameTeamMember::getTeamId, teamId));
         List<Map<String, Object>> result = members.stream().map(m -> {

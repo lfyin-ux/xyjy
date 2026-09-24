@@ -3,7 +3,11 @@ const app = getApp()
 
 Page({
   data: {
+    schoolMode: 'select',
+    schoolId: null,
     schoolName: '',
+    schoolKeyword: '',
+    schoolOptions: [],
     docTypes: ['录取通知书', '学生证', '校园卡', '学位证', '毕业证', '学信网证明/截图'],
     docType: '学生证',
     college: '',
@@ -16,6 +20,7 @@ Page({
 
   onLoad() {
     this.setData({ imgBase: app.globalData.baseUrl })
+    this.searchSchools('')
   },
 
   toggleAgree() {
@@ -32,7 +37,44 @@ Page({
     return false
   },
 
-  onSchool(e) { this.setData({ schoolName: e.detail.value }) },
+  switchToSelect() {
+    this.setData({ schoolMode: 'select', schoolId: null, schoolName: '', schoolKeyword: '' })
+    this.searchSchools('')
+  },
+
+  switchToManual() {
+    this.setData({ schoolMode: 'manual', schoolId: null, schoolName: '', schoolKeyword: '' })
+  },
+
+  onSchoolKeyword(e) {
+    const kw = e.detail.value
+    this.setData({ schoolKeyword: kw })
+    this.searchSchools(kw)
+  },
+
+  searchSchools(keyword) {
+    const url = '/common/schools' + (keyword ? '?keyword=' + encodeURIComponent(keyword) : '')
+    api.get(url).then((list) => {
+      this.setData({ schoolOptions: list || [] })
+    }).catch(() => {
+      this.setData({ schoolOptions: [] })
+    })
+  },
+
+  pickSchool(e) {
+    const item = e.currentTarget.dataset.item
+    if (!item) return
+    this.setData({
+      schoolId: item.id,
+      schoolName: item.schoolName,
+      schoolKeyword: item.schoolName
+    })
+  },
+
+  onSchoolManual(e) {
+    this.setData({ schoolName: e.detail.value, schoolId: null })
+  },
+
   onCollege(e) { this.setData({ college: e.detail.value }) },
   onStudentNo(e) { this.setData({ studentNo: e.detail.value }) },
   onRemark(e) { this.setData({ remark: e.detail.value }) },
@@ -58,10 +100,10 @@ Page({
     if (!this.ensureAgreed()) return
     const d = this.data
     if (!d.schoolName || !d.docImg) {
-      wx.showToast({ title: '请输入学校并上传证明材料', icon: 'none' })
+      wx.showToast({ title: '请选择或输入学校并上传证明材料', icon: 'none' })
       return
     }
-    api.post('/auth/school/submit', {
+    const payload = {
       userId: app.globalData.userId,
       schoolName: d.schoolName,
       college: d.college,
@@ -69,7 +111,11 @@ Page({
       docType: d.docType,
       docImgs: d.docImg,
       remark: d.remark
-    }).then(() => {
+    }
+    if (d.schoolMode === 'select' && d.schoolId) {
+      payload.schoolId = d.schoolId
+    }
+    api.post('/auth/school/submit', payload).then(() => {
       wx.showModal({
         title: '材料已提交',
         content: '后台正在审核你的学校认证材料，审核通过后认证才会生效。',

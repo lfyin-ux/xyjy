@@ -157,6 +157,13 @@ button::after {
   font-size: 28rpx;
 }
 
+.field input.contact-input {
+  height: 80rpx;
+  line-height: 80rpx;
+  padding: 0 18rpx;
+  font-size: 20rpx;
+}
+
 .field textarea {
   width: 100%;
   border: 2rpx solid var(--line);

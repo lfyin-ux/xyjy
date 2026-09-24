@@ -1,0 +1,16 @@
+<wxs src="../../utils/display.wxs" module="dsp" />
+
+<view class="page">
+  <view class="user-row" wx:for="{{list}}" wx:key="id" bindtap="openProfile" data-id="{{item.id}}">
+    <view class="user-avatar">
+      <image wx:if="{{item.avatar}}" src="{{imgBase}}{{item.avatar}}" mode="aspectFill" class="avatar-img" />
+      <text wx:else>🧑</text>
+    </view>
+    <view class="user-main">
+      <view class="user-name">{{item.nickname}}</view>
+      <view class="user-sub">{{dsp.userSub(item.school, item.college)}}</view>
+    </view>
+    <button class="unfollow-btn" catchtap="unfollow" data-id="{{item.id}}">取消关注</button>
+  </view>
+  <view wx:if="{{list.length===0}}" class="empty">还没有关注任何人</view>
+</view>

@@ -1,0 +1,34 @@
+<wxs src="../../utils/display.wxs" module="dsp" />
+
+<view class="page">
+  <swiper wx:if="{{imageList.length>0}}" class="goods-swiper" indicator-dots circular>
+    <swiper-item wx:for="{{imageList}}" wx:key="*this">
+      <image src="{{imgBase}}{{item}}" mode="aspectFill" class="cover-img" bindtap="previewImg" data-idx="{{index}}" />
+    </swiper-item>
+  </swiper>
+  <view wx:else class="goods-cover">
+    <text>📦</text>
+  </view>
+
+  <view class="card">
+    <view class="goods-name">{{goods.name}}</view>
+    <view class="goods-price">¥ {{goods.price}}</view>
+    <view class="goods-meta">
+      <text wx:if="{{goods.category}}" class="tag">{{goods.category}}</text>
+      <text class="tag">{{dsp.text(goods.conditionDesc, '成色未知')}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{goods.description}}" class="card">
+    <view class="card-title">商品描述</view>
+    <view class="goods-desc">{{goods.description}}</view>
+  </view>
+
+  <view class="contact-bar">
+    <view class="contact-info">
+      <text class="contact-label">卖家联系方式</text>
+      <text class="contact-value">{{dsp.text(goods.sellerContact, '未填写')}}</text>
+    </view>
+    <view class="contact-btn" bindtap="copyContact">复制联系</view>
+  </view>
+</view>

@@ -29,9 +29,18 @@ export const personalPass = (id) => request.post(`/admin/audit/personal/pass/${i
 export const personalReject = (id, reason) =>
   request.post(`/admin/audit/personal/reject/${id}?reason=${encodeURIComponent(reason)}`)
 export const schoolAuditList = (params) => request.get('/admin/audit/school/list', { params })
-export const schoolPass = (id) => request.post(`/admin/audit/school/pass/${id}`)
+export const schoolPass = (id, schoolId, schoolName) => {
+  let url = `/admin/audit/school/pass/${id}`
+  const qs = []
+  if (schoolId) qs.push(`schoolId=${schoolId}`)
+  if (schoolName) qs.push(`schoolName=${encodeURIComponent(schoolName)}`)
+  if (qs.length) url += '?' + qs.join('&')
+  return request.post(url)
+}
 export const schoolReject = (id, reason) =>
   request.post(`/admin/audit/school/reject/${id}?reason=${encodeURIComponent(reason)}`)
+export const schoolDictList = (keyword) =>
+  request.get('/common/schools', { params: keyword ? { keyword } : {} })
 
 // 内容审核
 export const postAuditList = (params) => request.get('/admin/content/post/auditList', { params })

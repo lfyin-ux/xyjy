@@ -1,4 +1,6 @@
 const api = require('../../utils/api')
+const schoolContext = require('../../utils/schoolContext')
+const violationNotice = require('../../utils/violationNotice')
 const app = getApp()
 
 Page({
@@ -6,9 +8,12 @@ Page({
     loggedIn: false,
     user: {},
     fullAccess: false,
+    authPassed: false,
     authSummary: '个人认证和学校认证均待完成',
     profileExtra: '',
-    imgBase: ''
+    imgBase: '',
+    schoolContext: {},
+    violationUnread: 0
   },
 
   onLoad() {
@@ -23,10 +28,17 @@ Page({
   loadUser() {
     const uid = app.globalData.userId
     if (!uid) {
-      this.setData({ loggedIn: false, user: {}, fullAccess: false, profileExtra: '' })
+      this.setData({ loggedIn: false, user: {}, fullAccess: false, authPassed: false, profileExtra: '', violationUnread: 0 })
       return
     }
     this.setData({ loggedIn: true })
+    violationNotice.loadUnreadCount(uid).then((count) => {
+      this.setData({ violationUnread: count })
+      violationNotice.checkAndPrompt(uid)
+    })
+    schoolContext.load(app).then((ctx) => {
+      if (ctx) this.setData({ schoolContext: ctx })
+    })
     api.get('/user/detail/' + uid).then((user) => {
       const extra = []
       if (user.gender === 1) extra.push('♂')
@@ -40,12 +52,19 @@ Page({
     // 认证状态
     api.get('/auth/status/' + uid).then((res) => {
       const statusText = (s) => (s === 2 ? '已通过' : s === 1 ? '审核中' : s === 3 ? '未通过' : '待认证')
+      const authPassed = res.identityVerified === 1 && res.schoolVerified === 1
       this.setData({
         fullAccess: res.fullAccess,
-        authSummary: res.fullAccess ? '个人认证和学校认证均已通过'
+        authPassed,
+        authSummary: authPassed ? '个人认证和学校认证均已通过'
           : '个人认证：' + statusText(res.personalStatus) + ' · 学校认证：' + statusText(res.schoolStatus)
       })
     })
+  },
+
+  goSchoolSwitch() {
+    if (!app.checkLogin()) return
+    wx.navigateTo({ url: '/pages/school-switch/school-switch' })
   },
 
   goAuth() {
@@ -61,6 +80,16 @@ Page({
   goAlbum() {
     if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/album/album' })
+  },
+
+  goMyFollows() {
+    if (!app.checkLogin()) return
+    wx.navigateTo({ url: '/pages/my-follows/my-follows' })
+  },
+
+  goViolations() {
+    if (!app.checkLogin()) return
+    wx.navigateTo({ url: '/pages/violation-notices/violation-notices' })
   },
 
   goMyPosts() {
@@ -86,11 +115,6 @@ Page({
   goOrders() {
     if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/order-list/order-list' })
-  },
-
-  goBlacklist() {
-    if (!app.checkLogin()) return
-    wx.navigateTo({ url: '/pages/blacklist/blacklist' })
   },
 
   goAddress() {
@@ -127,8 +151,10 @@ Page({
           // 清除登录状态
           app.globalData.userInfo = null
           app.globalData.userId = null
+          app.globalData.schoolContext = null
           wx.removeStorageSync('userInfo')
           wx.removeStorageSync('userId')
+          wx.removeStorageSync('schoolContext')
           // 退出后回到可游客浏览的首页
           wx.switchTab({ url: '/pages/match/match' })
         }

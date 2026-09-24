@@ -11,6 +11,8 @@ import com.xyjy.entity.SchoolAuth;
 import com.xyjy.mapper.AppUserMapper;
 import com.xyjy.mapper.PersonalAuthMapper;
 import com.xyjy.mapper.SchoolAuthMapper;
+import com.xyjy.entity.SchoolInfo;
+import com.xyjy.service.SchoolInfoService;
 import com.xyjy.service.SmsService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +36,8 @@ public class AuthController {
     private PersonalAuthMapper personalAuthMapper;
     @Resource
     private SchoolAuthMapper schoolAuthMapper;
+    @Resource
+    private SchoolInfoService schoolInfoService;
 
     @Value("${app.mode:dev}")
     private String appMode;
@@ -43,6 +47,8 @@ public class AuthController {
     private String appSecret;
     @Resource
     private com.xyjy.service.SmsService smsService;
+    @Resource
+    private com.xyjy.service.AuthCheckService authCheckService;
 
     /**
      * 获取当前应用模式 前端据此决定走哪种登录流程
@@ -85,6 +91,7 @@ public class AuthController {
             user.setSchoolVerified(0);
             appUserMapper.insert(user);
         }
+        authCheckService.assertCanLogin(user);
         return Result.success(user);
     }
 
@@ -127,6 +134,7 @@ public class AuthController {
             user.setSchoolVerified(0);
             appUserMapper.insert(user);
         }
+        authCheckService.assertCanLogin(user);
         return Result.success(user);
     }
 
@@ -221,10 +229,14 @@ public class AuthController {
             throw new BusinessException("请先完成并通过个人认证");
         }
         if (auth.getSchoolName() == null || auth.getSchoolName().isEmpty()) {
-            throw new BusinessException("请填写学校名称");
+            throw new BusinessException("请填写或选择学校");
         }
         if (auth.getDocImgs() == null || auth.getDocImgs().isEmpty()) {
             throw new BusinessException("请上传学校证明材料");
+        }
+        if (auth.getSchoolId() != null) {
+            SchoolInfo school = schoolInfoService.requireById(auth.getSchoolId());
+            auth.setSchoolName(school.getSchoolName());
         }
         schoolAuthMapper.delete(new LambdaQueryWrapper<SchoolAuth>().eq(SchoolAuth::getUserId, auth.getUserId()));
         auth.setStatus(1);

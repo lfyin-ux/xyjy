@@ -7,7 +7,10 @@ Page({
     tagList: [],
     imgBase: '',
     album: [],
-    previewUrl: ''
+    previewUrl: '',
+    targetId: null,
+    showFollow: false,
+    followed: false
   },
 
   onLoad(options) {
@@ -19,7 +22,12 @@ Page({
   },
 
   loadDetail(id) {
-    api.get('/user/detail/' + id).then((user) => {
+    const visitorId = app.globalData.userId
+    const showFollow = !!(visitorId && String(visitorId) !== String(id))
+    this.setData({ showFollow })
+    let url = '/user/detail/' + id
+    if (visitorId) url += '?visitorId=' + visitorId
+    api.get(url).then((user) => {
       const ageText = user.age != null && user.age !== '' ? String(user.age) : ''
       this.setData({
         user,
@@ -29,6 +37,29 @@ Page({
     })
     api.get('/user/photos/' + id).then((list) => {
       this.setData({ album: list.filter((p) => p.auditStatus === 1) })
+    })
+    if (showFollow) {
+      api.get('/user/follow/status?userId=' + visitorId + '&targetId=' + id).then((res) => {
+        this.setData({ followed: !!res.followed })
+      })
+    }
+  },
+
+  toggleFollow() {
+    if (!app.checkLogin()) return
+    const userId = app.globalData.userId
+    const targetId = this.data.targetId
+    if (!userId || !targetId) return
+    if (this.data.followed) {
+      api.del('/user/follow?userId=' + userId + '&targetId=' + targetId).then(() => {
+        this.setData({ followed: false })
+        wx.showToast({ title: '已取消关注', icon: 'none' })
+      })
+      return
+    }
+    api.post('/user/follow/add?userId=' + userId + '&targetId=' + targetId).then(() => {
+      this.setData({ followed: true })
+      wx.showToast({ title: '关注成功', icon: 'success' })
     })
   },
 

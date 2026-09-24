@@ -52,6 +52,64 @@
   color: var(--purple);
 }
 
+.mode-tabs {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+
+.mode-tab {
+  flex: 1;
+  text-align: center;
+  padding: 18rpx 0;
+  border-radius: 24rpx;
+  background: #f3f1ff;
+  color: #625a91;
+  font-size: 26rpx;
+}
+
+.mode-tab.on {
+  background: var(--purple);
+  color: #fff;
+}
+
+.school-picked {
+  margin-bottom: 16rpx;
+  padding: 16rpx 20rpx;
+  background: #f0fdf4;
+  color: #166534;
+  border-radius: 20rpx;
+  font-size: 26rpx;
+}
+
+.school-list {
+  max-height: 320rpx;
+  margin-bottom: 20rpx;
+  border: 2rpx solid var(--line);
+  border-radius: 24rpx;
+  background: #fafafd;
+}
+
+.school-item {
+  padding: 22rpx 24rpx;
+  font-size: 28rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.school-item.picked {
+  background: #f3f1ff;
+  color: var(--purple);
+  font-weight: 600;
+}
+
+.school-empty,
+.school-tip {
+  font-size: 24rpx;
+  color: #888;
+  margin-bottom: 20rpx;
+  line-height: 1.6;
+}
+
 .picker-val {
   border: 2rpx solid var(--line);
   border-radius: 28rpx;

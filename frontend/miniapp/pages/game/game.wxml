@@ -1,3 +1,4 @@
+<wxs src="../../utils/display.wxs" module="dsp" />
 <wxs module="fmt">
 function statusText(s) {
   var map = { '1': '招募中', '2': '已满员', '3': '已结束' }
@@ -18,8 +19,8 @@ module.exports = { statusText: statusText }
       <text class="team-name">🎮 {{item.gameName}}</text>
       <text class="status-tag" wx:if="{{fmt.statusText(item.status)}}">{{fmt.statusText(item.status)}}</text>
     </view>
-    <view class="team-info">时间：{{item.playTime}}</view>
-    <view class="team-info">要求：{{item.requireDesc}}</view>
+    <view class="team-info">时间：{{dsp.text(item.playTime, '待定')}}</view>
+    <view class="team-info">要求：{{dsp.text(item.requireDesc, '暂无要求')}}</view>
     <view class="team-foot">
       <text class="team-num">{{item.joinedNum}} / {{item.needNum}} 人</text>
       <view wx:if="{{item.status===1 && tab==='all'}}" class="join-btn" catchtap="join" data-id="{{item.id}}">申请加入</view>
@@ -42,9 +43,11 @@ module.exports = { statusText: statusText }
           </view>
           <view class="member-info">
             <text class="member-name">{{item.user.nickname}}</text>
-            <text class="member-school">{{item.user.school}}</text>
+            <text class="member-school">{{dsp.text(item.user.school, '学校待认证')}}</text>
+            <text class="member-contact">联系方式：{{item.member.memberContact || '未填写'}}</text>
           </view>
         </view>
+        <text wx:if="{{item.member.memberContact}}" class="copy-btn" catchtap="copyContact" data-contact="{{item.member.memberContact}}">复制</text>
       </view>
       <view wx:if="{{members.length===0}}" class="empty">暂无成员</view>
     </view>
@@ -70,7 +73,23 @@ module.exports = { statusText: statusText }
         <text class="label">参与要求</text>
         <input placeholder="如 有麦，钻石以上" value="{{requireDesc}}" bindinput="onReq" />
       </view>
+      <view class="field">
+        <text class="label">联系方式（必填）</text>
+        <input class="contact-input" placeholder="输入手机号后，请仔细确认，将用于展示联系。" value="{{creatorContact}}" bindinput="onCreatorContact" />
+      </view>
       <button class="primary" bindtap="create">确认发起</button>
+    </view>
+  </view>
+
+  <!-- 申请加入弹窗 -->
+  <view wx:if="{{showJoin}}" class="mask" bindtap="closeJoin">
+    <view class="dialog" catchtap="noop">
+      <view class="dialog-title">申请加入</view>
+      <view class="field">
+        <text class="label">联系方式（必填）</text>
+        <input class="contact-input" placeholder="输入手机号后，请仔细确认，将用于展示联系。" value="{{joinContact}}" bindinput="onJoinContact" />
+      </view>
+      <button class="primary" bindtap="confirmJoin">确认加入</button>
     </view>
   </view>
 </view>

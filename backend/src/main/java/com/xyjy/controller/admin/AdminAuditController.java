@@ -7,9 +7,11 @@ import com.xyjy.common.Result;
 import com.xyjy.entity.AppUser;
 import com.xyjy.entity.PersonalAuth;
 import com.xyjy.entity.SchoolAuth;
+import com.xyjy.entity.SchoolInfo;
 import com.xyjy.mapper.AppUserMapper;
 import com.xyjy.mapper.PersonalAuthMapper;
 import com.xyjy.mapper.SchoolAuthMapper;
+import com.xyjy.service.SchoolInfoService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -29,6 +31,8 @@ public class AdminAuditController {
     private SchoolAuthMapper schoolAuthMapper;
     @Resource
     private AppUserMapper appUserMapper;
+    @Resource
+    private SchoolInfoService schoolInfoService;
 
     /**
      * 个人认证审核队列 默认审核中
@@ -133,17 +137,33 @@ public class AdminAuditController {
      * 学校认证审核通过 绑定school_id
      */
     @PostMapping("/school/pass/{id}")
-    public Result<Void> schoolPass(@PathVariable Long id) {
+    public Result<Void> schoolPass(@PathVariable Long id,
+                                   @RequestParam(required = false) Long schoolId,
+                                   @RequestParam(required = false) String schoolName) {
         SchoolAuth auth = schoolAuthMapper.selectById(id);
         if (auth == null) {
             throw new BusinessException("认证记录不存在");
         }
+        SchoolInfo school;
+        if (schoolId != null) {
+            school = schoolInfoService.requireById(schoolId);
+        } else if (schoolName != null && !schoolName.trim().isEmpty()) {
+            school = schoolInfoService.findOrCreate(schoolName);
+        } else if (auth.getSchoolId() != null) {
+            school = schoolInfoService.requireById(auth.getSchoolId());
+        } else {
+            school = schoolInfoService.findOrCreate(auth.getSchoolName());
+        }
         auth.setStatus(2);
+        auth.setSchoolId(school.getId());
+        auth.setSchoolName(school.getSchoolName());
         schoolAuthMapper.updateById(auth);
         AppUser user = appUserMapper.selectById(auth.getUserId());
         if (user != null) {
             user.setSchoolVerified(1);
-            user.setSchool(auth.getSchoolName());
+            user.setSchoolId(school.getId());
+            user.setCurrentSchoolId(school.getId());
+            user.setSchool(school.getSchoolName());
             user.setCollege(auth.getCollege());
             user.setGrade(auth.getGrade());
             user.setStudentNo(auth.getStudentNo());

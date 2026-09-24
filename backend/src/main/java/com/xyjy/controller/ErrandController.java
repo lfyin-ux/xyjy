@@ -22,25 +22,35 @@ public class ErrandController {
     private ErrandOrderMapper errandOrderMapper;
     @Resource
     private FilterService filterService;
+    @Resource
+    private com.xyjy.service.SchoolScopeService schoolScopeService;
 
     /**
      * 可接订单列表 待接单状态
      */
     @GetMapping("/available")
-    public Result<List<ErrandOrder>> available() {
-        return Result.success(errandOrderMapper.selectList(new LambdaQueryWrapper<ErrandOrder>()
-                .eq(ErrandOrder::getStatus, 1).orderByDesc(ErrandOrder::getCreateTime)));
+    public Result<List<ErrandOrder>> available(@RequestParam(required = false) Long userId) {
+        Long schoolId = schoolScopeService.resolveCampusLifeListSchoolId(userId);
+        LambdaQueryWrapper<ErrandOrder> wrapper = new LambdaQueryWrapper<ErrandOrder>()
+                .eq(ErrandOrder::getStatus, 1);
+        if (schoolId != null) {
+            wrapper.eq(ErrandOrder::getSchoolId, schoolId);
+        }
+        wrapper.orderByDesc(ErrandOrder::getCreateTime);
+        return Result.success(errandOrderMapper.selectList(wrapper));
     }
 
     /**
      * 订单详情
      */
     @GetMapping("/detail/{id}")
-    public Result<ErrandOrder> detail(@PathVariable Long id) {
+    public Result<ErrandOrder> detail(@PathVariable Long id,
+                                      @RequestParam(required = false) Long userId) {
         ErrandOrder order = errandOrderMapper.selectById(id);
         if (order == null) {
             throw new BusinessException("订单不存在");
         }
+        schoolScopeService.assertCampusLifeAccess(userId, order.getSchoolId());
         return Result.success(order);
     }
 
@@ -66,6 +76,7 @@ public class ErrandController {
         if (fr.level == 2) {
             throw new BusinessException(fr.tip);
         }
+        order.setSchoolId(schoolScopeService.requireCampusLifeSchoolIdForWrite(order.getPublisherId()));
         order.setStatus(1);
         errandOrderMapper.insert(order);
         return Result.success();
@@ -87,6 +98,7 @@ public class ErrandController {
         if (order.getStatus() != 1) {
             throw new BusinessException("订单已被接取或已取消");
         }
+        schoolScopeService.requireCampusLifeSchoolIdForWrite(takerId);
         order.setTakerId(takerId);
         order.setTakerContact(contact);
         order.setStatus(2);

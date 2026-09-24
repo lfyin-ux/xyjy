@@ -1,3 +1,18 @@
+.school-banner {
+  margin: 0 32rpx 20rpx;
+  padding: 18rpx 22rpx;
+  border-radius: 22rpx;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.school-banner.warn {
+  background: #fff7ed;
+  color: #b45309;
+}
+
 .hero .h2 {
   margin: 14rpx 0 10rpx;
   font-size: 50rpx;
@@ -78,20 +93,21 @@
 .fab {
   position: fixed;
   right: 36rpx;
-  bottom: 60rpx;
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 22rpx;
+  bottom: calc(120rpx + env(safe-area-inset-bottom));
+  z-index: 1000;
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
   background: var(--purple);
   color: #fff;
-  font-size: 36rpx;
+  font-size: 48rpx;
+  font-weight: 300;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 12rpx 32rpx rgba(108, 92, 231, 0.4);
   padding: 0;
   line-height: 1;
-  overflow: hidden;
 }
 
 .gate {

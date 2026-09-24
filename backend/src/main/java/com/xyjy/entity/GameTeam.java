@@ -16,11 +16,13 @@ public class GameTeam {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long creatorId;
+    private Long schoolId;
     private String gameName;
     private String playTime;
     private Integer needNum;
     private Integer joinedNum;
     private String requireDesc;
+    private String creatorContact;
     private Integer status;
     private LocalDateTime createTime;
 }

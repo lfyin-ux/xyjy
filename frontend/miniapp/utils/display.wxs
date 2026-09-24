@@ -1,0 +1,59 @@
+/** 模板层统一处理空值，避免页面显示 null */
+function isEmpty(val) {
+  return val === undefined || val === null || val === '' || val === 'null' || val === 'undefined'
+}
+
+function text(val, fallback) {
+  if (isEmpty(val)) return fallback || ''
+  var s = '' + val
+  if (s === 'null' || s === 'undefined') return fallback || ''
+  return s
+}
+
+function join(parts, sep, fallback) {
+  var arr = []
+  var separator = sep || ' · '
+  if (!parts) return fallback || ''
+  for (var i = 0; i < parts.length; i++) {
+    var v = text(parts[i], '')
+    if (v) arr.push(v)
+  }
+  if (!arr.length) return fallback || ''
+  var result = arr[0]
+  for (var j = 1; j < arr.length; j++) {
+    result = result + separator + arr[j]
+  }
+  return result
+}
+
+function postSub(school, place) {
+  return join([school, place], ' · ', '同校动态')
+}
+
+function profileSchool(school, identityVerified) {
+  var schoolText = text(school, '')
+  var verified = identityVerified == 1
+  if (schoolText && verified) return join([schoolText, '已实名 ✓'], ' · ', '已实名 ✓')
+  if (schoolText && !verified) return join([schoolText, '待实名认证'], ' · ', '待实名认证')
+  if (!schoolText && verified) return '学校待认证 · 已实名 ✓'
+  return '待完成认证'
+}
+
+function mineAuthLine(school, authPassed) {
+  if (!authPassed) return '账号已注册 · 待完成认证'
+  var schoolText = text(school, '')
+  return schoolText ? schoolText + ' · 双认证已通过 ✓' : '双认证已通过 ✓'
+}
+
+function userSub(school, college) {
+  return join([school, college], ' · ', '校园用户')
+}
+
+module.exports = {
+  text: text,
+  join: join,
+  postSub: postSub,
+  profileSchool: profileSchool,
+  mineAuthLine: mineAuthLine,
+  userSub: userSub
+}

@@ -1,12 +1,16 @@
 const api = require('../../utils/api')
 const authGate = require('../../utils/authGate')
+const { formatPostSub } = require('../../utils/format')
+const schoolContext = require('../../utils/schoolContext')
 const app = getApp()
 
 Page({
   data: {
     posts: [],
     imgBase: '',
-    locked: false
+    locked: false,
+    viewOnly: false,
+    schoolBanner: ''
   },
 
   onLoad() {
@@ -15,7 +19,24 @@ Page({
 
   onShow() {
     if (this.getTabBar()) this.getTabBar().setData({ selected: 0 })
+    this.refreshSchoolContext()
     this.checkAuth()
+  },
+
+  refreshSchoolContext() {
+    const uid = app.globalData.userId
+    if (!uid) {
+      this.setData({ viewOnly: false, schoolBanner: '' })
+      return
+    }
+    schoolContext.load(app).then((ctx) => {
+      if (!ctx) return
+      let banner = '当前：' + (ctx.currentSchoolName || '所属学校')
+      if (ctx.viewOnly) {
+        banner += '（浏览模式，商城消费满2000元可互动，已消费¥' + ctx.mallTotalSpent + '）'
+      }
+      this.setData({ viewOnly: ctx.viewOnly, schoolBanner: banner })
+    })
   },
 
   checkAuth() {
@@ -57,6 +78,7 @@ Page({
       const posts = (page.records || []).map((item) => {
         item.firstImg = item.post.images ? item.post.images.split(',')[0] : ''
         item.liked = false
+        item.subText = formatPostSub(item.user && item.user.school, item.post && item.post.place)
         return item
       })
       this.setData({ posts })
@@ -73,6 +95,7 @@ Page({
 
   toggleLike(e) {
     if (!app.checkLogin()) return
+    if (!schoolContext.ensureWrite(app, '点赞')) return
     const id = e.currentTarget.dataset.id
     const idx = e.currentTarget.dataset.idx
     api.post('/square/like?postId=' + id + '&userId=' + app.globalData.userId).then((res) => {
@@ -89,6 +112,7 @@ Page({
 
   goPublish() {
     if (!app.checkLogin()) return
+    if (!schoolContext.ensureWrite(app, '发布动态')) return
     wx.navigateTo({ url: '/pages/post-publish/post-publish' })
   }
 })

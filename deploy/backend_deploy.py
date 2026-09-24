@@ -74,6 +74,12 @@ def main():
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/05_user_address.sql'), f'{APP_DIR}/sql/05_user_address.sql')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/06_refund_apply.sql'), f'{APP_DIR}/sql/06_refund_apply.sql')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/07_refunded_order_status.sql'), f'{APP_DIR}/sql/07_refunded_order_status.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/08_school_scope.sql'), f'{APP_DIR}/sql/08_school_scope.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/09_school_switch.sql'), f'{APP_DIR}/sql/09_school_switch.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/10_user_follow.sql'), f'{APP_DIR}/sql/10_user_follow.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/11_violation_read.sql'), f'{APP_DIR}/sql/11_violation_read.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/12_second_contact.sql'), f'{APP_DIR}/sql/12_second_contact.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/13_game_contact.sql'), f'{APP_DIR}/sql/13_game_contact.sql')
     wechat_secret = os.environ.get('WECHAT_APP_SECRET', '')
     sms_key_id = os.environ.get('SMS_ACCESS_KEY_ID', '')
     sms_key_secret = os.environ.get('SMS_ACCESS_KEY_SECRET', '')
@@ -200,17 +206,32 @@ app:
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/05_user_address.sql', timeout=120)
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/06_refund_apply.sql', timeout=120)
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/07_refunded_order_status.sql', timeout=120)
+    for sql_file in ('08_school_scope.sql', '09_school_switch.sql', '10_user_follow.sql', '11_violation_read.sql', '12_second_contact.sql', '13_game_contact.sql'):
+        cmd = f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/{sql_file}'
+        print(f'\n>>> {cmd}')
+        stdin, stdout, stderr = client.exec_command(cmd, timeout=120)
+        out = stdout.read().decode()
+        err = stderr.read().decode()
+        code = stdout.channel.recv_exit_status()
+        if out.strip():
+            print(out.strip())
+        if err.strip():
+            print(err.strip())
+        if code != 0 and 'Duplicate column name' not in err and 'Duplicate key name' not in err:
+            raise RuntimeError(f'命令失败({code}): {cmd}')
+        elif code != 0:
+            print(f'跳过已执行的迁移: {sql_file}')
     run(client, 'sudo systemctl restart xyjy-backend')
 
     for i in range(15):
         time.sleep(2)
-        stdin, stdout, stderr = client.exec_command('curl -s http://127.0.0.1:8080/api/square/comments/1?userId=2')
+        stdin, stdout, stderr = client.exec_command('curl -s "http://127.0.0.1:8080/api/user/school/context?userId=1"')
         body = stdout.read().decode()
-        if 'visibility' in body or 'replyToUserId' in body:
-            print('迁移成功：评论接口已返回 visibility 字段')
+        if 'currentSchoolId' in body or 'homeSchoolId' in body:
+            print('部署成功：学校切换接口已可用')
             break
         if i == 14:
-            print('警告：接口暂未返回新字段，请检查服务日志')
+            print('警告：学校切换接口暂未就绪，请检查服务日志')
 
     client.close()
     print('\n生产环境部署完成（后端 + 管理后台）。小程序请在开发者工具中重新上传。')

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -36,6 +37,8 @@ public class AppUser {
     private Integer identityVerified;
     private Integer schoolVerified;
     private Long schoolId;
+    private Long currentSchoolId;
+    private BigDecimal mallTotalSpent;
     private Integer avatarAuditStatus;
     private Integer introAuditStatus;
     private Integer status;

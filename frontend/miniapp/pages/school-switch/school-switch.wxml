@@ -1,0 +1,58 @@
+<view class="page">
+  <view class="tip-card">
+    <text class="tip-icon">💡</text>
+    <text class="tip-text">默认展示所属学校内容。切换外校后仅可浏览，本校商城累计消费满 ¥2000 可解锁外校互动。</text>
+  </view>
+
+  <view class="hero-card">
+    <view class="hero-head">
+      <text class="hero-label">当前浏览</text>
+      <view class="status-badge {{isHomeSchool ? 'home' : (viewOnly ? 'view' : 'unlock')}}">
+        {{isHomeSchool ? '所属学校' : (viewOnly ? '浏览模式' : '已解锁')}}
+      </view>
+    </view>
+    <view class="hero-school">{{currentSchoolName || '未设置'}}</view>
+
+    <block wx:if="{{viewOnly}}">
+      <view class="progress-meta">
+        <text>解锁进度</text>
+        <text class="progress-num">¥{{mallTotalSpent}} / ¥{{unlockAmount}}</text>
+      </view>
+      <view class="progress-track">
+        <view class="progress-fill" style="width: {{progressPercent}}%;"></view>
+      </view>
+      <view class="hero-desc">在本校商城继续消费，满 ¥2000 后可在外校发布、评论和接单</view>
+    </block>
+    <view wx:elif="{{isHomeSchool}}" class="hero-desc">全部功能可用，可正常发布与互动</view>
+    <view wx:else class="hero-desc ok">外校互动已解锁，可正常使用全部功能</view>
+
+    <view wx:if="{{!isHomeSchool && homeSchoolId}}" class="back-home" bindtap="backHome">
+      <text class="back-icon">↩</text>
+      <text>回到{{homeSchoolName || '所属学校'}}</text>
+    </view>
+  </view>
+
+  <view class="section-head">
+    <text class="section-title">选择学校</text>
+    <text class="section-sub">点击即可切换</text>
+  </view>
+
+  <view class="list-card">
+    <view class="search-box">
+      <text class="search-icon">🔍</text>
+      <input class="search-input" placeholder="搜索学校名称" value="{{keyword}}" bindinput="onKeyword" />
+    </view>
+    <scroll-view scroll-y class="school-list" enhanced show-scrollbar="{{false}}">
+      <view class="school-item {{item.id===currentSchoolId?'picked':''}}"
+        wx:for="{{schoolOptions}}" wx:key="id"
+        data-id="{{item.id}}" data-name="{{item.schoolName}}" bindtap="pickSchool">
+        <view class="school-main">
+          <text class="school-name">{{item.schoolName}}</text>
+          <text wx:if="{{item.id===homeSchoolId}}" class="home-tag">所属</text>
+        </view>
+        <view wx:if="{{item.id===currentSchoolId}}" class="picked-mark">✓</view>
+      </view>
+      <view wx:if="{{keyword && !schoolOptions.length}}" class="list-empty">未找到相关学校</view>
+    </scroll-view>
+  </view>
+</view>

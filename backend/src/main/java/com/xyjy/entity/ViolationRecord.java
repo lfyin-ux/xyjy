@@ -19,5 +19,7 @@ public class ViolationRecord {
     private String type;
     private String reason;
     private String adminName;
+    /** 是否已读 0未读 1已读 */
+    private Integer readStatus;
     private LocalDateTime createTime;
 }

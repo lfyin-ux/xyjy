@@ -1,5 +1,6 @@
 .page {
   padding: 32rpx;
+  padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
 }
 
 .big-profile {
@@ -65,8 +66,28 @@
 }
 
 .profile-actions {
-  display: flex;
-  gap: 20rpx;
+  position: fixed;
+  left: 32rpx;
+  right: 32rpx;
+  bottom: calc(32rpx + env(safe-area-inset-bottom));
+  z-index: 20;
+}
+
+.follow-btn {
+  width: 100%;
+  border: 0;
+  border-radius: 34rpx;
+  padding: 28rpx;
+  background: var(--purple);
+  color: #fff;
+  font-weight: 800;
+  font-size: 30rpx;
+}
+
+.follow-btn.followed {
+  background: #fff;
+  color: var(--purple);
+  border: 2rpx solid var(--purple);
 }
 
 .user-row {

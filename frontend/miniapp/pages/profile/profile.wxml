@@ -1,3 +1,5 @@
+<wxs src="../../utils/display.wxs" module="dsp" />
+
 <view class="page">
   <view wx:if="{{previewUrl}}" class="preview-mask" bindtap="closePreview">
     <image src="{{previewUrl}}" mode="aspectFit" class="preview-img" />
@@ -9,7 +11,7 @@
       <text wx:else>🧑‍🎓</text>
     </view>
     <view class="big-name">{{displayName || user.nickname}}</view>
-    <view class="big-school">{{user.school}} · 已实名 ✓</view>
+    <view class="big-school">{{dsp.profileSchool(user.school, user.identityVerified)}}</view>
     <view class="chips-center">
       <text class="chip" wx:for="{{tagList}}" wx:key="*this">{{item}}</text>
     </view>
@@ -24,5 +26,11 @@
     <view class="profile-album">
       <image wx:for="{{album}}" wx:key="id" src="{{imgBase}}{{item.imgUrl}}" mode="aspectFill" class="profile-photo" data-url="{{imgBase}}{{item.imgUrl}}" bindtap="previewPhoto" />
     </view>
+  </view>
+
+  <view wx:if="{{showFollow}}" class="profile-actions">
+    <button class="follow-btn {{followed ? 'followed' : ''}}" bindtap="toggleFollow">
+      {{followed ? '已关注' : '＋ 关注'}}
+    </button>
   </view>
 </view>

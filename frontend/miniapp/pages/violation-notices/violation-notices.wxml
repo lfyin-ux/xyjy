@@ -1,0 +1,11 @@
+<view class="page">
+  <view class="notice-item {{item.readStatus ? '' : 'unread'}}" wx:for="{{list}}" wx:key="id">
+    <view class="notice-head">
+      <text class="notice-type {{item.type}}">{{item.typeText}}</text>
+      <text class="notice-time">{{item.timeText}}</text>
+    </view>
+    <view class="notice-reason">{{item.reason || '请遵守平台社区规范，文明交流。'}}</view>
+    <view wx:if="{{!item.readStatus}}" class="notice-badge">未读</view>
+  </view>
+  <view wx:if="{{list.length===0}}" class="empty">暂无平台通知</view>
+</view>

@@ -16,6 +16,7 @@ public class SquarePost {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long userId;
+    private Long schoolId;
     private String content;
     private String images;
     private String topic;

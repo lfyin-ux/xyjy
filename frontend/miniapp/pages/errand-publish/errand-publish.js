@@ -2,6 +2,12 @@ const api = require('../../utils/api')
 const app = getApp()
 
 Page({
+  onLoad() {
+    if (!app.checkLogin()) {
+      setTimeout(() => wx.navigateBack(), 300)
+    }
+  },
+
   data: {
     title: '',
     fromPlace: '',
