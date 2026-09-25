@@ -10,7 +10,7 @@
 
     <div class="table-card">
       <el-table :data="list" v-loading="loading" stripe>
-        <el-table-column label="用户" width="120">
+        <el-table-column label="名称" width="120">
           <template #default="{ row }">{{ row.user?.nickname }}</template>
         </el-table-column>
         <el-table-column label="学校" width="160">

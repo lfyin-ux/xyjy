@@ -85,6 +85,16 @@ npm run dev
 
 用微信开发者工具打开 `frontend/miniapp` 目录。真机调试时请将 `app.js` 中的 `baseUrl` 改为电脑局域网 IP。
 
+#### 本地测试人脸核身（真实调用阿里云）
+
+1. 复制 `backend/src/main/resources/application-local.yml.example` 为 `application-local.yml`，填入阿里云 AccessKey（可与短信相同）和 SceneId `1000021483`
+2. 启动后端：`cd backend && mvn spring-boot:run -Dspring-boot.run.profiles=local`
+3. 小程序 `app.js` 把 `baseUrl` 改为 `http://你的电脑局域网IP:8080/api`（模拟器可用 `http://localhost:8080/api`）
+4. 微信开发者工具 → 详情 → 本地设置 → 勾选「不校验合法域名、web-view、TLS…」
+5. 进入个人认证 → 填写姓名身份证 → 拍照核身
+
+说明：配置了 AccessKey 后会**真实调用**阿里云（按次计费）；未配置时 `dev` 模式才走 mock。
+
 ## 文件上传说明
 
 所有图片/附件均为本地上传，保存在项目根目录 `uploads` 文件夹下，按业务类型和日期分目录，数据库中仅存储可访问的相对路径。

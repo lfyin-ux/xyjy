@@ -15,6 +15,11 @@
             <el-option label="封禁" :value="3" />
           </el-select>
         </el-form-item>
+        <el-form-item label="待审内容">
+          <el-select v-model="query.pendingAudit" placeholder="全部" clearable style="width: 120px">
+            <el-option label="有待审核" :value="true" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="load">查询</el-button>
           <el-button @click="reset">重置</el-button>
@@ -24,17 +29,36 @@
 
     <div class="table-card">
       <el-table :data="list" v-loading="loading" stripe>
-        <el-table-column label="头像" width="80">
+        <el-table-column label="头像" width="88">
           <template #default="{ row }">
-            <el-avatar :src="fileUrl(row.avatar)" shape="square">{{ row.nickname?.charAt(0) }}</el-avatar>
+            <div class="avatar-wrap">
+              <el-avatar :src="fileUrl(row.avatar)" shape="square">{{ row.nickname?.charAt(0) }}</el-avatar>
+              <span v-if="row.pendingAudit" class="pending-dot" title="有待审核内容" />
+            </div>
           </template>
         </el-table-column>
-        <el-table-column prop="nickname" label="昵称" width="110" />
+        <el-table-column label="昵称" min-width="140">
+          <template #default="{ row }">
+            <div class="nickname-cell">
+              <span>{{ row.nickname }}</span>
+              <el-tag v-if="row.pendingAudit" type="danger" size="small" effect="dark" class="pending-tag">待审核</el-tag>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="待审内容" width="200">
+          <template #default="{ row }">
+            <div v-if="row.pendingAudit" class="pending-cell">
+              <el-tag type="danger" effect="dark" size="default">需审核</el-tag>
+              <div class="pending-hint">{{ row.pendingAuditHint }}</div>
+            </div>
+            <span v-else class="muted">—</span>
+          </template>
+        </el-table-column>
         <el-table-column label="性别" width="70">
           <template #default="{ row }">{{ genderText(row.gender) }}</template>
         </el-table-column>
         <el-table-column prop="age" label="年龄" width="70" />
-        <el-table-column prop="school" label="学校" />
+        <el-table-column prop="school" label="学校" min-width="120" />
         <el-table-column prop="phone" label="手机号" width="130" />
         <el-table-column label="认证" width="140">
           <template #default="{ row }">
@@ -51,7 +75,11 @@
         </el-table-column>
         <el-table-column label="操作" width="260" fixed="right">
           <template #default="{ row }">
-            <el-button size="small" @click="showDetail(row.id)">详情</el-button>
+            <el-button
+              size="small"
+              :type="row.pendingAudit ? 'danger' : 'default'"
+              @click="showDetail(row.id)"
+            >{{ row.pendingAudit ? '去审核' : '详情' }}</el-button>
             <el-button size="small" type="warning" @click="doWarn(row)">警告</el-button>
             <el-button v-if="row.status === 1" size="small" type="danger" @click="doBan(row)">封禁</el-button>
             <el-button v-else size="small" type="success" @click="doUnban(row)">解封</el-button>
@@ -69,11 +97,7 @@
         <el-descriptions :column="1" border>
           <el-descriptions-item label="昵称">{{ detail.user.nickname }}</el-descriptions-item>
           <el-descriptions-item label="学校">{{ detail.user.school }} {{ detail.user.college }}</el-descriptions-item>
-          <el-descriptions-item label="简介">
-            {{ detail.user.intro }}
-            <el-button v-if="detail.user.introAuditStatus === 0" size="small" type="primary"
-              @click="doAuditProfile(detail.user.id, 'intro', true)">通过简介</el-button>
-          </el-descriptions-item>
+          <el-descriptions-item label="简介">{{ detail.user.intro }}</el-descriptions-item>
           <el-descriptions-item label="标签">{{ detail.user.tags }}</el-descriptions-item>
         </el-descriptions>
 
@@ -105,13 +129,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { userList, userDetail, warnUser, banUser, unbanUser, auditProfile, auditPhoto } from '../api'
+import { userList, userDetail, warnUser, banUser, unbanUser, auditPhoto } from '../api'
 import { fileUrl } from '../utils/file'
 
 const list = ref([])
 const total = ref(0)
 const loading = ref(false)
-const query = ref({ pageNum: 1, pageSize: 10, keyword: '', school: '', status: null })
+const query = ref({ pageNum: 1, pageSize: 10, keyword: '', school: '', status: null, pendingAudit: null })
 const drawer = ref(false)
 const detail = ref({})
 
@@ -131,7 +155,7 @@ const load = async () => {
 }
 
 const reset = () => {
-  query.value = { pageNum: 1, pageSize: 10, keyword: '', school: '', status: null }
+  query.value = { pageNum: 1, pageSize: 10, keyword: '', school: '', status: null, pendingAudit: null }
   load()
 }
 
@@ -167,22 +191,57 @@ const doUnban = async (row) => {
   load()
 }
 
-const doAuditProfile = async (userId, type, pass) => {
-  await auditProfile(userId, type, pass)
-  ElMessage.success('审核完成')
-  showDetail(userId)
-}
-
 const doAuditPhoto = async (photoId, pass) => {
   await auditPhoto(photoId, pass)
   ElMessage.success('审核完成')
-  showDetail(detail.value.user.id)
+  await showDetail(detail.value.user.id)
+  load()
 }
 
 onMounted(load)
 </script>
 
 <style scoped>
+.avatar-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.pending-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  background: #f56c6c;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(245, 108, 108, 0.35);
+  animation: pending-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pending-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.85; }
+}
+
+.nickname-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pending-tag {
+  animation: pending-pulse 1.2s ease-in-out infinite;
+}
+
+.pending-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .photo-list {
   display: flex;
   flex-wrap: wrap;
@@ -191,5 +250,16 @@ onMounted(load)
 
 .photo-item {
   text-align: center;
+}
+
+.pending-hint {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f56c6c;
+  line-height: 1.4;
+}
+
+.muted {
+  color: #c0c4cc;
 }
 </style>

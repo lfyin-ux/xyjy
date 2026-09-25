@@ -23,7 +23,7 @@
         </div>
         <div class="table-card">
           <el-table :data="postList" v-loading="loading" stripe>
-            <el-table-column prop="userId" label="用户ID" width="90" />
+            <el-table-column prop="userName" label="名称" width="110" />
             <el-table-column prop="content" label="内容" />
             <el-table-column prop="topic" label="话题" width="90" />
             <el-table-column prop="likeCount" label="点赞" width="70" />

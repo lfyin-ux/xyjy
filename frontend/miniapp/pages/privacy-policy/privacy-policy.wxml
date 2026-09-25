@@ -1,6 +1,6 @@
 <view class="legal-page">
   <view class="legal-title">同行时空隐私政策</view>
-  <view class="legal-meta">更新日期：2026年9月11日 · 生效日期：2026年9月11日</view>
+  <view class="legal-meta">更新日期：2026年9月25日 · 生效日期：2026年9月25日</view>
 
   <view class="legal-section">
     <view class="legal-h">一、引言</view>
@@ -13,7 +13,7 @@
     <text class="legal-p">为实现服务功能，我们可能收集以下信息：</text>
     <text class="legal-li">1. 账号信息：微信 OpenID、昵称、头像（用于登录与展示）。</text>
     <text class="legal-li">2. 个人资料：性别、年龄、身高、简介、兴趣标签、相册图片（由您自愿填写）。</text>
-    <text class="legal-li">3. 身份认证信息（敏感个人信息）：真实姓名、身份证号码、身份证正反面照片、手机号码及短信验证码（仅用于个人实名认证审核）。</text>
+    <text class="legal-li">3. 身份认证信息（敏感个人信息）：真实姓名、身份证号码、手机号码、短信验证码，以及人脸影像信息（通过前置摄像头拍照采集，并由阿里云实人认证服务完成人脸比对，仅用于个人实名认证审核）。</text>
     <text class="legal-li">4. 学校认证信息：学校名称、院系、学号、学籍/在校证明材料（用于学校认证审核）。</text>
     <text class="legal-li">5. 交易与地址信息：收货地址、联系人、联系电话、订单信息（用于商城、跑腿等服务）。</text>
     <text class="legal-li">6. 内容与行为信息：您发布的动态、评论、点赞、举报、反馈等互动记录。</text>
@@ -23,7 +23,7 @@
   <view class="legal-section">
     <view class="legal-h">三、信息的使用目的与方式</view>
     <text class="legal-li">1. 账号注册与登录：使用微信授权信息创建和识别您的账号。</text>
-    <text class="legal-li">2. 身份与学校认证：核验您提交的手机号、身份证、学籍材料，完成实名与校园认证。</text>
+    <text class="legal-li">2. 身份与学校认证：核验您提交的手机号、身份证、人脸核身结果、学籍材料，完成实名与校园认证。</text>
     <text class="legal-li">3. 社交与生活服务：展示个人主页、广场动态、评论互动、组队与跑腿撮合等。</text>
     <text class="legal-li">4. 商城与订单：处理下单、配送、退款等交易流程。</text>
     <text class="legal-li">5. 安全与合规：内容审核、违规处理、反欺诈、满足法律法规要求。</text>
@@ -32,7 +32,7 @@
 
   <view class="legal-section">
     <view class="legal-h">四、敏感个人信息的特别说明</view>
-    <text class="legal-p">身份证号码、身份证照片、手机号码等属于敏感个人信息。我们仅在您主动提交认证、明确勾选同意后收集，并严格用于身份审核，不会用于与认证无关的营销目的。</text>
+    <text class="legal-p">身份证号码、人脸影像、手机号码等属于敏感个人信息。我们仅在您主动提交认证、明确勾选同意后收集，人脸核身由阿里云金融级实人认证服务提供，并严格用于身份审核与人脸比对，不会用于与认证无关的营销目的。</text>
     <text class="legal-p">未经您的单独同意，我们不会向第三方提供您的敏感个人信息，法律法规另有规定的除外。</text>
   </view>
 
@@ -47,7 +47,7 @@
     <view class="legal-h">六、信息的共享与披露</view>
     <text class="legal-p">我们不会出售您的个人信息。仅在以下情形共享或披露：</text>
     <text class="legal-li">1. 获得您的明确同意；</text>
-    <text class="legal-li">2. 为完成支付、短信验证等必要功能，向合作服务商提供（仅限实现功能所需的最少信息）；</text>
+    <text class="legal-li">2. 为完成支付、短信验证、人脸核身（阿里云实人认证）等必要功能，向合作服务商提供（仅限实现功能所需的最少信息）；</text>
     <text class="legal-li">3. 依据法律法规、诉讼、政府主管部门要求。</text>
   </view>
 

@@ -126,6 +126,8 @@ CREATE TABLE personal_auth (
   id_card VARCHAR(20) COMMENT '身份证号',
   id_front_img VARCHAR(255) COMMENT '身份证人像面',
   id_back_img VARCHAR(255) COMMENT '身份证国徽面',
+  eid_token VARCHAR(128) COMMENT 'E证通Token',
+  face_verified TINYINT DEFAULT 0 COMMENT '人脸核身是否通过 0否 1是',
   status TINYINT DEFAULT 0 COMMENT '状态 0未提交 1审核中 2已通过 3未通过',
   reject_reason VARCHAR(255) COMMENT '驳回原因',
   create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',

@@ -11,11 +11,11 @@
 
     <div class="table-card">
       <el-table :data="list" v-loading="loading" stripe>
-        <el-table-column prop="reporterId" label="举报人ID" width="100" />
+        <el-table-column prop="reporterName" label="举报人" width="110" />
         <el-table-column label="举报类型" width="110">
           <template #default="{ row }">{{ typeText(row.targetType) }}</template>
         </el-table-column>
-        <el-table-column prop="targetId" label="目标ID" width="90" />
+        <el-table-column prop="targetName" label="举报对象" width="120" />
         <el-table-column prop="reason" label="举报原因" />
         <el-table-column label="状态" width="100">
           <template #default="{ row }">

@@ -23,7 +23,7 @@
         <el-table-column prop="category" label="分类" width="90" />
         <el-table-column prop="conditionDesc" label="成色" width="90" />
         <el-table-column prop="price" label="价格" width="90" />
-        <el-table-column prop="sellerId" label="卖家ID" width="90" />
+        <el-table-column prop="sellerName" label="名称" width="110" />
         <el-table-column label="状态" width="100">
           <template #default="{ row }">
             <el-tag :type="statusType(row.status)">{{ statusText(row.status) }}</el-tag>

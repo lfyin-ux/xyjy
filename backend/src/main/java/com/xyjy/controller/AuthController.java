@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.xyjy.common.BusinessException;
+import com.xyjy.common.IdCardUtil;
 import com.xyjy.common.Result;
 import com.xyjy.entity.AppUser;
 import com.xyjy.entity.PersonalAuth;
@@ -12,11 +13,15 @@ import com.xyjy.mapper.AppUserMapper;
 import com.xyjy.mapper.PersonalAuthMapper;
 import com.xyjy.mapper.SchoolAuthMapper;
 import com.xyjy.entity.SchoolInfo;
+import com.xyjy.service.AliyunFaceVerifyService;
+import com.xyjy.service.FaceVerifySessionService;
+import com.xyjy.service.PersonalAuthService;
 import com.xyjy.service.SchoolInfoService;
 import com.xyjy.service.SmsService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -49,6 +54,12 @@ public class AuthController {
     private com.xyjy.service.SmsService smsService;
     @Resource
     private com.xyjy.service.AuthCheckService authCheckService;
+    @Resource
+    private AliyunFaceVerifyService aliyunFaceVerifyService;
+    @Resource
+    private FaceVerifySessionService faceVerifySessionService;
+    @Resource
+    private PersonalAuthService personalAuthService;
 
     /**
      * 获取当前应用模式 前端据此决定走哪种登录流程
@@ -89,6 +100,8 @@ public class AuthController {
             user.setStatus(1);
             user.setIdentityVerified(0);
             user.setSchoolVerified(0);
+            user.setAvatarAuditStatus(1);
+            user.setIntroAuditStatus(1);
             appUserMapper.insert(user);
         }
         authCheckService.assertCanLogin(user);
@@ -132,6 +145,8 @@ public class AuthController {
             user.setStatus(1);
             user.setIdentityVerified(0);
             user.setSchoolVerified(0);
+            user.setAvatarAuditStatus(1);
+            user.setIntroAuditStatus(1);
             appUserMapper.insert(user);
         }
         authCheckService.assertCanLogin(user);
@@ -185,14 +200,61 @@ public class AuthController {
     }
 
     /**
-     * 提交个人认证
+     * 阿里云照片实人认证（ID_MIN）
+     */
+    @PostMapping("/personal/face/verify")
+    public Result<Map<String, Object>> personalFaceVerify(@RequestParam Long userId,
+                                                         @RequestParam String realName,
+                                                         @RequestParam String idCard,
+                                                         @RequestParam(required = false) String phone,
+                                                         @RequestParam("file") MultipartFile file) {
+        if (userId == null) {
+            throw new BusinessException("缺少用户ID");
+        }
+        if (realName == null || realName.isEmpty()) {
+            throw new BusinessException("请填写真实姓名");
+        }
+        if (idCard == null || !IdCardUtil.isValid(idCard)) {
+            throw new BusinessException("身份证号码格式或校验位不正确，请核对后重试");
+        }
+        if (file == null || file.isEmpty()) {
+            throw new BusinessException("请上传人脸照片");
+        }
+        personalAuthService.ensureNotVerified(userId);
+        personalAuthService.reserveDailyFaceVerify(userId);
+        AliyunFaceVerifyService.FaceVerifyResult verify;
+        if (aliyunFaceVerifyService.isConfigured()) {
+            try {
+                verify = aliyunFaceVerifyService.verify(
+                        realName, idCard.trim(), phone, userId, file.getBytes());
+            } catch (BusinessException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new BusinessException("人脸核身失败：" + e.getMessage());
+            }
+        } else if ("dev".equals(appMode)) {
+            verify = aliyunFaceVerifyService.mockVerify(realName, idCard.trim());
+        } else {
+            throw new BusinessException("人脸核身服务未配置，请联系管理员");
+        }
+        faceVerifySessionService.save(userId, verify.outerOrderNo, realName, idCard.trim());
+        Map<String, Object> map = new HashMap<>();
+        map.put("faceVerifyNo", verify.outerOrderNo);
+        return Result.success(map);
+    }
+
+    /**
+     * 提交个人认证（需先完成人脸核身）
      */
     @PostMapping("/personal/submit")
     public Result<Void> submitPersonal(@RequestBody PersonalAuth auth,
-                                       @RequestParam(required = false) String smsCode) {
+                                       @RequestParam(required = false) String smsCode,
+                                       @RequestParam(required = false) String faceVerifyNo,
+                                       @RequestParam(required = false) String eidToken) {
         if (auth.getUserId() == null) {
             throw new BusinessException("缺少用户ID");
         }
+        personalAuthService.ensureNotVerified(auth.getUserId());
         if (auth.getPhone() == null || !auth.getPhone().matches("^1\\d{10}$")) {
             throw new BusinessException("请输入正确的手机号码");
         }
@@ -206,13 +268,19 @@ public class AuthController {
         if (auth.getIdCard() == null || !auth.getIdCard().matches("^[1-9]\\d{16}[\\dXx]$")) {
             throw new BusinessException("身份证号码格式不正确");
         }
-        if (auth.getIdFrontImg() == null || auth.getIdBackImg() == null) {
-            throw new BusinessException("请上传身份证正反面照片");
+        String verifyNo = faceVerifyNo != null && !faceVerifyNo.isEmpty()
+                ? faceVerifyNo
+                : (eidToken != null && !eidToken.isEmpty() ? eidToken : auth.getEidToken());
+        if (verifyNo == null || verifyNo.isEmpty()) {
+            throw new BusinessException("请先完成人脸核身");
         }
+        if (!faceVerifySessionService.consume(auth.getUserId(), verifyNo, auth.getRealName(), auth.getIdCard())) {
+            throw new BusinessException("人脸核身已失效或未通过，请重新拍照核身");
+        }
+        auth.setIdCard(auth.getIdCard().trim().toUpperCase());
         personalAuthMapper.delete(new LambdaQueryWrapper<PersonalAuth>().eq(PersonalAuth::getUserId, auth.getUserId()));
-        auth.setStatus(1);
-        auth.setRejectReason(null);
-        personalAuthMapper.insert(auth);
+        auth.setEidToken(verifyNo);
+        personalAuthService.approvePersonalAuth(auth);
         return Result.success();
     }
 

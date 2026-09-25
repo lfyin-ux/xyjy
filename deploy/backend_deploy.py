@@ -56,9 +56,8 @@ def main():
 
     jar_local = os.path.join(PROJECT_ROOT, 'backend/target/xyjy-backend.jar')
     admin_dist = os.path.join(PROJECT_ROOT, 'frontend/admin/dist')
-    if not os.path.exists(jar_local):
-        print('正在打包后端...')
-        subprocess.check_call(['mvn', 'package', '-DskipTests', '-q'], cwd=os.path.join(PROJECT_ROOT, 'backend'))
+    print('正在打包后端...')
+    subprocess.check_call(['mvn', 'package', '-DskipTests', '-q'], cwd=os.path.join(PROJECT_ROOT, 'backend'))
     if os.path.isdir(os.path.join(PROJECT_ROOT, 'frontend/admin')):
         print('正在构建管理后台...')
         subprocess.check_call(['npm', 'run', 'build'], cwd=os.path.join(PROJECT_ROOT, 'frontend/admin'))
@@ -80,7 +79,14 @@ def main():
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/11_violation_read.sql'), f'{APP_DIR}/sql/11_violation_read.sql')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/12_second_contact.sql'), f'{APP_DIR}/sql/12_second_contact.sql')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/13_game_contact.sql'), f'{APP_DIR}/sql/13_game_contact.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/14_personal_eid.sql'), f'{APP_DIR}/sql/14_personal_eid.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/15_personal_verify_daily.sql'), f'{APP_DIR}/sql/15_personal_verify_daily.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/16_reset_business_data.sql'), f'{APP_DIR}/sql/16_reset_business_data.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/17_skip_profile_audit.sql'), f'{APP_DIR}/sql/17_skip_profile_audit.sql')
     wechat_secret = os.environ.get('WECHAT_APP_SECRET', '')
+    cloudauth_key_id = os.environ.get('ALIYUN_CLOUDAUTH_ACCESS_KEY_ID', '')
+    cloudauth_key_secret = os.environ.get('ALIYUN_CLOUDAUTH_ACCESS_KEY_SECRET', '')
+    cloudauth_scene_id = os.environ.get('ALIYUN_CLOUDAUTH_SCENE_ID', '')
     sms_key_id = os.environ.get('SMS_ACCESS_KEY_ID', '')
     sms_key_secret = os.environ.get('SMS_ACCESS_KEY_SECRET', '')
     sms_sign = os.environ.get('SMS_SIGN_NAME', '内蒙古因源果网络科技服务有限公司')
@@ -113,6 +119,23 @@ def main():
         m = re.search(r'template-code:\s*(\S+)', existing_yml)
         if m and not os.environ.get('SMS_TEMPLATE_CODE'):
             sms_template = m.group(1).strip()
+        if not cloudauth_key_id:
+            m = re.search(r'cloudauth:\s*\n\s*access-key-id:\s*(\S+)', existing_yml)
+            if m:
+                cloudauth_key_id = m.group(1)
+        if not cloudauth_key_secret:
+            m = re.search(r'cloudauth:\s*\n\s*access-key-id:\s*\S+\s*\n\s*access-key-secret:\s*(\S+)', existing_yml)
+            if m:
+                cloudauth_key_secret = m.group(1)
+        if not cloudauth_scene_id:
+            m = re.search(r'scene-id:\s*(\S+)', existing_yml)
+            if m:
+                cloudauth_scene_id = m.group(1)
+
+    if not cloudauth_key_id and sms_key_id:
+        cloudauth_key_id = sms_key_id
+    if not cloudauth_key_secret and sms_key_secret:
+        cloudauth_key_secret = sms_key_secret
 
     wx_mch_id = os.environ.get('WXPAY_MCH_ID', '')
     wx_api_v3_key = os.environ.get('WXPAY_API_V3_KEY', '')
@@ -153,7 +176,7 @@ def main():
         for local_path, remote_path in cert_files:
             sftp.put(local_path, remote_path)
 
-    if wechat_secret or (sms_key_id and sms_key_secret) or (wx_mch_id and wx_api_v3_key):
+    if wechat_secret or (sms_key_id and sms_key_secret) or (wx_mch_id and wx_api_v3_key) or (cloudauth_key_id and cloudauth_key_secret and cloudauth_scene_id):
         sms_enabled = 'true' if sms_key_id and sms_key_secret else 'false'
         sms_block = f"""sms:
   enabled: {sms_enabled}
@@ -172,6 +195,14 @@ def main():
   sec-check:
     enabled: true
 """ if wechat_secret else ''
+        cloudauth_block = ''
+        if cloudauth_key_id and cloudauth_key_secret and cloudauth_scene_id:
+            cloudauth_block = f"""aliyun:
+  cloudauth:
+    access-key-id: {cloudauth_key_id}
+    access-key-secret: {cloudauth_key_secret}
+    scene-id: {cloudauth_scene_id}
+"""
         wxpay_block = ''
         if wx_mch_id and wx_api_v3_key and wx_serial:
             public_key_lines = ''
@@ -195,7 +226,7 @@ file:
   upload-dir: {APP_DIR}/uploads
 app:
   mode: prod
-{sms_block}{wxpay_block}{wechat_block}"""
+{sms_block}{wxpay_block}{wechat_block}{cloudauth_block}"""
         with sftp.file(f'{APP_DIR}/application-prod.yml', 'w') as f:
             f.write(prod_yml)
     if os.path.isdir(admin_dist):
@@ -206,7 +237,7 @@ app:
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/05_user_address.sql', timeout=120)
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/06_refund_apply.sql', timeout=120)
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/07_refunded_order_status.sql', timeout=120)
-    for sql_file in ('08_school_scope.sql', '09_school_switch.sql', '10_user_follow.sql', '11_violation_read.sql', '12_second_contact.sql', '13_game_contact.sql'):
+    for sql_file in ('08_school_scope.sql', '09_school_switch.sql', '10_user_follow.sql', '11_violation_read.sql', '12_second_contact.sql', '13_game_contact.sql', '14_personal_eid.sql', '15_personal_verify_daily.sql', '17_skip_profile_audit.sql'):
         cmd = f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/{sql_file}'
         print(f'\n>>> {cmd}')
         stdin, stdout, stderr = client.exec_command(cmd, timeout=120)

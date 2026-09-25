@@ -21,7 +21,7 @@
       <el-table :data="list" v-loading="loading" stripe>
         <el-table-column prop="word" label="命中词" width="120" />
         <el-table-column prop="content" label="命中内容" />
-        <el-table-column prop="userId" label="用户ID" width="90" />
+        <el-table-column prop="userName" label="名称" width="110" />
         <el-table-column prop="bizType" label="业务类型" width="100" />
         <el-table-column prop="handleResult" label="处理结果" width="120" />
         <el-table-column prop="createTime" label="时间" width="180" />

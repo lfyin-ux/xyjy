@@ -21,6 +21,8 @@ public class PersonalAuth {
     private String idCard;
     private String idFrontImg;
     private String idBackImg;
+    private String eidToken;
+    private Integer faceVerified;
     private Integer status;
     private String rejectReason;
     private LocalDateTime createTime;

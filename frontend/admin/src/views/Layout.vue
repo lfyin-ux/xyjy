@@ -5,16 +5,19 @@
       <el-menu :default-active="$route.path" router background-color="#201a3b" text-color="#c3c0d6"
         active-text-color="#fff">
         <el-menu-item index="/dashboard"><el-icon><DataLine /></el-icon><span>数据总览</span></el-menu-item>
-        <el-menu-item index="/users"><el-icon><User /></el-icon><span>用户管理</span></el-menu-item>
-        <el-sub-menu index="audit">
-          <template #title><el-icon><Stamp /></el-icon><span>认证审核</span></template>
-          <el-menu-item index="/personal-audit">个人认证审核</el-menu-item>
-          <el-menu-item index="/school-audit">学校认证审核</el-menu-item>
-        </el-sub-menu>
+        <el-menu-item index="/users">
+          <el-icon><User /></el-icon>
+          <span class="menu-item-label">
+            用户管理
+            <el-badge v-if="userPendingCount > 0" :value="userPendingCount" :max="99" class="menu-badge" />
+          </span>
+        </el-menu-item>
+        <el-menu-item index="/school-audit"><el-icon><Stamp /></el-icon><span>学校认证审核</span></el-menu-item>
         <el-sub-menu index="content">
           <template #title><el-icon><ChatDotSquare /></el-icon><span>内容管理</span></template>
           <el-menu-item index="/content-audit">内容审核</el-menu-item>
           <el-menu-item index="/reports">举报处理</el-menu-item>
+          <el-menu-item index="/feedback">意见反馈</el-menu-item>
           <el-menu-item index="/filter-words">词库管理</el-menu-item>
           <el-menu-item index="/hit-log">命中记录</el-menu-item>
           <el-menu-item index="/square">校园广场管理</el-menu-item>
@@ -57,14 +60,27 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { userPendingAuditCount } from '../api'
 
 const router = useRouter()
+const userPendingCount = ref(0)
 const adminName = computed(() => {
   const a = sessionStorage.getItem('admin')
   return a ? JSON.parse(a).nickname || JSON.parse(a).username : '管理员'
 })
+
+const loadUserPendingCount = async () => {
+  try {
+    const res = await userPendingAuditCount()
+    userPendingCount.value = Number(res.data) || 0
+  } catch {
+    userPendingCount.value = 0
+  }
+}
+
+onMounted(loadUserPendingCount)
 
 // 顶部下拉操作
 const handleCommand = (cmd) => {
@@ -126,5 +142,17 @@ const handleCommand = (cmd) => {
 
 .main {
   background: #f0f2f5;
+}
+
+.menu-item-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.menu-badge :deep(.el-badge__content) {
+  position: static;
+  transform: none;
+  vertical-align: middle;
 }
 </style>

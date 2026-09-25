@@ -2,15 +2,18 @@ package com.xyjy.controller.admin;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xyjy.common.AdminUserNames;
 import com.xyjy.common.BusinessException;
 import com.xyjy.common.Result;
 import com.xyjy.entity.ErrandOrder;
 import com.xyjy.entity.SecondGoods;
+import com.xyjy.mapper.AppUserMapper;
 import com.xyjy.mapper.ErrandOrderMapper;
 import com.xyjy.mapper.SecondGoodsMapper;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * 管理后台 校园生活管理接口 跑腿与二手
@@ -23,21 +26,30 @@ public class AdminLifeController {
     private ErrandOrderMapper errandOrderMapper;
     @Resource
     private SecondGoodsMapper secondGoodsMapper;
+    @Resource
+    private AppUserMapper appUserMapper;
 
     /**
      * 跑腿订单列表
      */
     @GetMapping("/errand/list")
-    public Result<Page<ErrandOrder>> errandList(@RequestParam(defaultValue = "1") Integer pageNum,
-                                                @RequestParam(defaultValue = "10") Integer pageSize,
-                                                @RequestParam(required = false) Integer status) {
+    public Result<Page<Map<String, Object>>> errandList(@RequestParam(defaultValue = "1") Integer pageNum,
+                                                        @RequestParam(defaultValue = "10") Integer pageSize,
+                                                        @RequestParam(required = false) Integer status) {
         Page<ErrandOrder> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<ErrandOrder> wrapper = new LambdaQueryWrapper<>();
         if (status != null) {
             wrapper.eq(ErrandOrder::getStatus, status);
         }
         wrapper.orderByDesc(ErrandOrder::getCreateTime);
-        return Result.success(errandOrderMapper.selectPage(page, wrapper));
+        Page<ErrandOrder> result = errandOrderMapper.selectPage(page, wrapper);
+        Page<Map<String, Object>> voPage = new Page<>(pageNum, pageSize, result.getTotal());
+        voPage.setRecords(result.getRecords().stream().map(o -> {
+            Map<String, Object> map = AdminUserNames.enrich(appUserMapper, o, o.getPublisherId(), "publisherName");
+            map.put("takerName", AdminUserNames.of(appUserMapper, o.getTakerId()));
+            return map;
+        }).collect(java.util.stream.Collectors.toList()));
+        return Result.success(voPage);
     }
 
     /**
@@ -58,16 +70,21 @@ public class AdminLifeController {
      * 二手商品列表
      */
     @GetMapping("/second/list")
-    public Result<Page<SecondGoods>> secondList(@RequestParam(defaultValue = "1") Integer pageNum,
-                                               @RequestParam(defaultValue = "10") Integer pageSize,
-                                               @RequestParam(required = false) Integer status) {
+    public Result<Page<Map<String, Object>>> secondList(@RequestParam(defaultValue = "1") Integer pageNum,
+                                                        @RequestParam(defaultValue = "10") Integer pageSize,
+                                                        @RequestParam(required = false) Integer status) {
         Page<SecondGoods> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<SecondGoods> wrapper = new LambdaQueryWrapper<>();
         if (status != null) {
             wrapper.eq(SecondGoods::getStatus, status);
         }
         wrapper.orderByDesc(SecondGoods::getCreateTime);
-        return Result.success(secondGoodsMapper.selectPage(page, wrapper));
+        Page<SecondGoods> result = secondGoodsMapper.selectPage(page, wrapper);
+        Page<Map<String, Object>> voPage = new Page<>(pageNum, pageSize, result.getTotal());
+        voPage.setRecords(result.getRecords().stream()
+                .map(g -> AdminUserNames.enrich(appUserMapper, g, g.getSellerId(), "sellerName"))
+                .collect(java.util.stream.Collectors.toList()));
+        return Result.success(voPage);
     }
 
     /**

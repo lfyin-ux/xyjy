@@ -30,6 +30,10 @@ Page({
   },
 
   goPersonal() {
+    if (this.data.personalStatus === 2) {
+      wx.showToast({ title: '个人认证已通过', icon: 'none' })
+      return
+    }
     if (this.data.personalStatus === 1) {
       wx.showToast({ title: '个人认证审核中', icon: 'none' })
       return

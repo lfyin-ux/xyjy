@@ -1,6 +1,7 @@
 package com.xyjy.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -45,4 +46,14 @@ public class AppUser {
     private LocalDateTime speakLimitEnd;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+
+    /** 列表展示：待审相册数量 */
+    @TableField(exist = false)
+    private Integer pendingPhotoCount;
+    /** 列表展示：是否有待审资料/相册 */
+    @TableField(exist = false)
+    private Boolean pendingAudit;
+    /** 列表展示：待审内容摘要，如「简介、相册×2」 */
+    @TableField(exist = false)
+    private String pendingAuditHint;
 }

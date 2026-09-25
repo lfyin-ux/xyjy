@@ -10,6 +10,7 @@ export const roleList = () => request.get('/admin/auth/roles')
 
 // 用户管理
 export const userList = (params) => request.get('/admin/user/list', { params })
+export const userPendingAuditCount = () => request.get('/admin/user/pendingAuditCount')
 export const userDetail = (id) => request.get(`/admin/user/detail/${id}`)
 export const auditProfile = (userId, type, pass) =>
   request.post(`/admin/user/auditProfile?userId=${userId}&type=${type}&pass=${pass}`)
@@ -24,10 +25,6 @@ export const warnUser = (userId, reason) =>
   request.post(`/admin/user/warn?userId=${userId}&reason=${encodeURIComponent(reason || '')}`)
 
 // 认证审核
-export const personalAuditList = (params) => request.get('/admin/audit/personal/list', { params })
-export const personalPass = (id) => request.post(`/admin/audit/personal/pass/${id}`)
-export const personalReject = (id, reason) =>
-  request.post(`/admin/audit/personal/reject/${id}?reason=${encodeURIComponent(reason)}`)
 export const schoolAuditList = (params) => request.get('/admin/audit/school/list', { params })
 export const schoolPass = (id, schoolId, schoolName) => {
   let url = `/admin/audit/school/pass/${id}`
@@ -54,6 +51,10 @@ export const reportList = (params) => request.get('/admin/content/report/list', 
 export const handleReport = (id, status, result) =>
   request.post(`/admin/content/report/handle/${id}?status=${status}&result=${encodeURIComponent(result || '')}`)
 export const hitLogList = (params) => request.get('/admin/content/hitLog', { params })
+
+// 意见反馈
+export const feedbackList = (params) => request.get('/admin/feedback/list', { params })
+export const handleFeedback = (id) => request.post(`/admin/feedback/handle/${id}`)
 
 // 词库管理
 export const filterList = (params) => request.get('/admin/filter/list', { params })

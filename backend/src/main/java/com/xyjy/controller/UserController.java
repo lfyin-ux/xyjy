@@ -149,16 +149,9 @@ public class UserController {
         if (fr.level == 2) {
             throw new BusinessException(fr.tip);
         }
-        // 修改已展示资料后头像和简介重新进入审核
-        AppUser old = appUserMapper.selectById(user.getId());
-        if (old != null) {
-            if (user.getAvatar() != null && !user.getAvatar().equals(old.getAvatar())) {
-                user.setAvatarAuditStatus(0);
-            }
-            if (user.getIntro() != null && !user.getIntro().equals(old.getIntro())) {
-                user.setIntroAuditStatus(0);
-            }
-        }
+        // 头像、简介上传后直接生效
+        user.setAvatarAuditStatus(1);
+        user.setIntroAuditStatus(1);
         appUserMapper.updateById(user);
         return Result.success();
     }

@@ -6,7 +6,7 @@
     <view class="agree-text">
       我已阅读
       <text class="agree-link" catchtap="openPrivacy">《隐私政策》</text>
-      ，同意平台收集并使用我的手机号码、真实姓名、身份证号码及身份证影像，用于个人实名认证审核。
+      ，同意平台收集并使用我的手机号码、真实姓名、身份证号码及人脸信息，用于个人实名认证与人脸核身审核。
     </view>
   </view>
 
@@ -32,26 +32,19 @@
       <input maxlength="18" placeholder="请输入18位身份证号码" value="{{idCard}}" bindinput="onIdCard" />
     </view>
 
-    <view class="upload {{idFrontImg?'has':''}}" bindtap="uploadFront">
-      <block wx:if="{{idFrontImg}}">
-        <image src="{{imgBase}}{{idFrontImg}}" mode="aspectFill" class="upload-img" />
-      </block>
-      <block wx:else>
-        <view class="upload-icon">🪪</view>
-        <text>上传身份证人像面</text>
-      </block>
+    <view class="face-card">
+      <view class="face-title">人脸核身（拍照）</view>
+      <view class="face-tip">请使用前置摄像头拍摄本人正脸照片，系统将比对姓名与身份证信息。每人每天仅可核身 1 次（失败也计入），请确认信息无误后再拍照。正式提交仍需完成手机号验证。</view>
+      <image wx:if="{{facePreview}}" class="face-preview" src="{{facePreview}}" mode="aspectFill" />
+      <view class="face-status {{faceVerified?'ok':''}}">
+        {{faceVerified ? '✓ 人脸核身已完成' : (faceVerifying ? '核身进行中…' : '尚未完成人脸核身')}}
+      </view>
+      <view wx:if="{{faceError}}" class="face-error">{{faceError}}</view>
+      <button class="face-btn" bindtap="startFaceVerify" disabled="{{!agreed || faceVerifying}}">
+        {{faceVerified ? '重新拍照核身' : '拍照人脸核身'}}
+      </button>
     </view>
 
-    <view class="upload {{idBackImg?'has':''}}" bindtap="uploadBack">
-      <block wx:if="{{idBackImg}}">
-        <image src="{{imgBase}}{{idBackImg}}" mode="aspectFill" class="upload-img" />
-      </block>
-      <block wx:else>
-        <view class="upload-icon">🏛️</view>
-        <text>上传身份证国徽面</text>
-      </block>
-    </view>
-
-    <button class="primary" bindtap="submit" disabled="{{!agreed}}">提交个人认证审核</button>
+    <button class="primary" bindtap="submit" disabled="{{!agreed || !faceVerified}}">完成个人认证</button>
   </view>
 </view>

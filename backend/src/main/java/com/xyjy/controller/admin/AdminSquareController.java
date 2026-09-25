@@ -2,11 +2,13 @@ package com.xyjy.controller.admin;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xyjy.common.AdminUserNames;
 import com.xyjy.common.BusinessException;
 import com.xyjy.common.Result;
 import com.xyjy.entity.PostComment;
 import com.xyjy.entity.SquarePost;
 import com.xyjy.entity.TopicTag;
+import com.xyjy.mapper.AppUserMapper;
 import com.xyjy.mapper.PostCommentMapper;
 import com.xyjy.mapper.SquarePostMapper;
 import com.xyjy.mapper.TopicTagMapper;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 管理后台 校园广场管理接口
@@ -28,15 +31,17 @@ public class AdminSquareController {
     private PostCommentMapper postCommentMapper;
     @Resource
     private TopicTagMapper topicTagMapper;
+    @Resource
+    private AppUserMapper appUserMapper;
 
     /**
      * 动态列表与搜索
      */
     @GetMapping("/list")
-    public Result<Page<SquarePost>> list(@RequestParam(defaultValue = "1") Integer pageNum,
-                                         @RequestParam(defaultValue = "10") Integer pageSize,
-                                         @RequestParam(required = false) String keyword,
-                                         @RequestParam(required = false) Integer status) {
+    public Result<Page<Map<String, Object>>> list(@RequestParam(defaultValue = "1") Integer pageNum,
+                                                 @RequestParam(defaultValue = "10") Integer pageSize,
+                                                 @RequestParam(required = false) String keyword,
+                                                 @RequestParam(required = false) Integer status) {
         Page<SquarePost> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<SquarePost> wrapper = new LambdaQueryWrapper<>();
         if (keyword != null && !keyword.isEmpty()) {
@@ -46,7 +51,12 @@ public class AdminSquareController {
             wrapper.eq(SquarePost::getStatus, status);
         }
         wrapper.orderByDesc(SquarePost::getCreateTime);
-        return Result.success(squarePostMapper.selectPage(page, wrapper));
+        Page<SquarePost> result = squarePostMapper.selectPage(page, wrapper);
+        Page<Map<String, Object>> voPage = new Page<>(pageNum, pageSize, result.getTotal());
+        voPage.setRecords(result.getRecords().stream()
+                .map(p -> AdminUserNames.enrich(appUserMapper, p, p.getUserId(), "userName"))
+                .collect(java.util.stream.Collectors.toList()));
+        return Result.success(voPage);
     }
 
     /**

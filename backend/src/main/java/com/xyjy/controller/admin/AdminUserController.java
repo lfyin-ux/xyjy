@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 管理后台 用户管理接口
@@ -40,7 +41,8 @@ public class AdminUserController {
                                       @RequestParam(defaultValue = "10") Integer pageSize,
                                       @RequestParam(required = false) String keyword,
                                       @RequestParam(required = false) String school,
-                                      @RequestParam(required = false) Integer status) {
+                                      @RequestParam(required = false) Integer status,
+                                      @RequestParam(required = false) Boolean pendingAudit) {
         Page<AppUser> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<AppUser> wrapper = new LambdaQueryWrapper<>();
         if (keyword != null && !keyword.isEmpty()) {
@@ -54,8 +56,42 @@ public class AdminUserController {
         if (status != null) {
             wrapper.eq(AppUser::getStatus, status);
         }
-        wrapper.orderByDesc(AppUser::getCreateTime);
-        return Result.success(appUserMapper.selectPage(page, wrapper));
+        if (Boolean.TRUE.equals(pendingAudit)) {
+            wrapper.apply("EXISTS (SELECT 1 FROM user_photo p WHERE p.user_id = app_user.id AND p.audit_status = 0)");
+        }
+        wrapper.last("ORDER BY (CASE WHEN EXISTS (SELECT 1 FROM user_photo p WHERE p.user_id = app_user.id AND p.audit_status = 0) "
+                + "THEN 1 ELSE 0 END) DESC, create_time DESC");
+        Page<AppUser> result = appUserMapper.selectPage(page, wrapper);
+        enrichPendingAudit(result.getRecords());
+        return Result.success(result);
+    }
+
+    /**
+     * 有待审资料的用户数量
+     */
+    @GetMapping("/pendingAuditCount")
+    public Result<Long> pendingAuditCount() {
+        LambdaQueryWrapper<AppUser> wrapper = new LambdaQueryWrapper<>();
+        wrapper.apply("EXISTS (SELECT 1 FROM user_photo p WHERE p.user_id = app_user.id AND p.audit_status = 0)");
+        return Result.success(appUserMapper.selectCount(wrapper));
+    }
+
+    private void enrichPendingAudit(List<AppUser> users) {
+        if (users == null || users.isEmpty()) {
+            return;
+        }
+        List<Long> userIds = users.stream().map(AppUser::getId).collect(Collectors.toList());
+        Map<Long, Long> photoPendingMap = userPhotoMapper.selectList(new LambdaQueryWrapper<UserPhoto>()
+                        .in(UserPhoto::getUserId, userIds)
+                        .eq(UserPhoto::getAuditStatus, 0))
+                .stream()
+                .collect(Collectors.groupingBy(UserPhoto::getUserId, Collectors.counting()));
+        for (AppUser user : users) {
+            int photoCount = photoPendingMap.getOrDefault(user.getId(), 0L).intValue();
+            user.setPendingPhotoCount(photoCount);
+            user.setPendingAudit(photoCount > 0);
+            user.setPendingAuditHint(photoCount > 0 ? "相册×" + photoCount : "");
+        }
     }
 
     private boolean isNumber(String s) {

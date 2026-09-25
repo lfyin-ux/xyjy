@@ -59,6 +59,13 @@ wxpay:
   # 支付结果回调地址
   notify-url: https://tongxingshikong.cn/api/pay/notify
 
+# 阿里云金融级实人认证（ID_MIN 照片核身）
+aliyun:
+  cloudauth:
+    access-key-id: ${ALIYUN_CLOUDAUTH_ACCESS_KEY_ID:}
+    access-key-secret: ${ALIYUN_CLOUDAUTH_ACCESS_KEY_SECRET:}
+    scene-id: ${ALIYUN_CLOUDAUTH_SCENE_ID:1000021483}
+
 # 应用模式 dev开发模式 prod生产模式
 app:
   mode: dev

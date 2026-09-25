@@ -64,6 +64,7 @@ function imgUrl(path) {
 }
 
 module.exports = {
+  getBaseUrl,
   get: (url, data) => request(url, 'GET', data),
   post: (url, data) => request(url, 'POST', data),
   del: (url, data) => request(url, 'DELETE', data),

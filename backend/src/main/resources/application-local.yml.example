@@ -1,0 +1,16 @@
+# 本地真实调用阿里云实人认证：复制本文件为 application-local.yml 并填入密钥
+# application-local.yml 已加入 .gitignore，不会提交到 Git
+#
+# 启动：mvn spring-boot:run -Dspring-boot.run.profiles=local
+# 或在 IDE 里设置 Active profiles = local
+
+aliyun:
+  cloudauth:
+    access-key-id: 填你的AccessKeyId
+    access-key-secret: 填你的AccessKeySecret
+    scene-id: 1000021483
+
+# 可与上面相同（短信与实人认证共用阿里云账号时）
+sms:
+  access-key-id: 填你的AccessKeyId
+  access-key-secret: 填你的AccessKeySecret

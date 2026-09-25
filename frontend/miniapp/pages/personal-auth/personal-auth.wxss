@@ -110,3 +110,58 @@
   width: 100%;
   height: 320rpx;
 }
+
+.face-card {
+  background: #f8f7ff;
+  border-radius: 32rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+}
+
+.face-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  margin-bottom: 10rpx;
+}
+
+.face-tip {
+  font-size: 24rpx;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 16rpx;
+}
+
+.face-status {
+  font-size: 26rpx;
+  color: #b07a00;
+  margin-bottom: 16rpx;
+}
+
+.face-status.ok {
+  color: #1f9d55;
+}
+
+.face-error {
+  font-size: 24rpx;
+  color: #d93025;
+  line-height: 1.6;
+  margin-bottom: 12rpx;
+}
+
+.face-preview {
+  width: 100%;
+  height: 320rpx;
+  border-radius: 24rpx;
+  margin-bottom: 16rpx;
+  background: #eceaf8;
+}
+
+.face-btn {
+  background: #fff;
+  color: var(--purple);
+  border: 2rpx solid var(--purple);
+  border-radius: 28rpx;
+  font-size: 28rpx;
+  line-height: 84rpx;
+  height: 84rpx;
+}

@@ -2,6 +2,7 @@ package com.xyjy.controller.admin;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xyjy.common.AdminUserNames;
 import com.xyjy.common.BusinessException;
 import com.xyjy.common.Result;
 import com.xyjy.entity.*;
@@ -9,6 +10,7 @@ import com.xyjy.mapper.*;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,9 +88,22 @@ public class AdminContentController {
      * 待审核评论列表
      */
     @GetMapping("/comment/auditList")
-    public Result<List<PostComment>> commentAuditList() {
-        return Result.success(postCommentMapper.selectList(new LambdaQueryWrapper<PostComment>()
-                .eq(PostComment::getStatus, 1).orderByDesc(PostComment::getCreateTime)));
+    public Result<List<Map<String, Object>>> commentAuditList() {
+        List<PostComment> comments = postCommentMapper.selectList(new LambdaQueryWrapper<PostComment>()
+                .eq(PostComment::getStatus, 1).orderByDesc(PostComment::getCreateTime));
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (PostComment comment : comments) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("comment", comment);
+            map.put("commentUser", appUserMapper.selectById(comment.getUserId()));
+            SquarePost post = squarePostMapper.selectById(comment.getPostId());
+            map.put("post", post);
+            if (post != null) {
+                map.put("postUser", appUserMapper.selectById(post.getUserId()));
+            }
+            result.add(map);
+        }
+        return Result.success(result);
     }
 
     /**
@@ -116,16 +131,27 @@ public class AdminContentController {
      * 举报列表
      */
     @GetMapping("/report/list")
-    public Result<Page<ReportRecord>> reportList(@RequestParam(defaultValue = "1") Integer pageNum,
-                                                @RequestParam(defaultValue = "10") Integer pageSize,
-                                                @RequestParam(required = false) Integer status) {
+    public Result<Page<Map<String, Object>>> reportList(@RequestParam(defaultValue = "1") Integer pageNum,
+                                                        @RequestParam(defaultValue = "10") Integer pageSize,
+                                                        @RequestParam(required = false) Integer status) {
         Page<ReportRecord> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<ReportRecord> wrapper = new LambdaQueryWrapper<>();
         if (status != null) {
             wrapper.eq(ReportRecord::getStatus, status);
         }
         wrapper.orderByDesc(ReportRecord::getCreateTime);
-        return Result.success(reportRecordMapper.selectPage(page, wrapper));
+        Page<ReportRecord> result = reportRecordMapper.selectPage(page, wrapper);
+        Page<Map<String, Object>> voPage = new Page<>(pageNum, pageSize, result.getTotal());
+        voPage.setRecords(result.getRecords().stream().map(r -> {
+            Map<String, Object> map = AdminUserNames.enrich(appUserMapper, r, r.getReporterId(), "reporterName");
+            if ("user".equals(r.getTargetType())) {
+                map.put("targetName", AdminUserNames.of(appUserMapper, r.getTargetId()));
+            } else {
+                map.put("targetName", String.valueOf(r.getTargetId()));
+            }
+            return map;
+        }).collect(java.util.stream.Collectors.toList()));
+        return Result.success(voPage);
     }
 
     /**
@@ -148,16 +174,21 @@ public class AdminContentController {
      * 过滤词命中记录查询
      */
     @GetMapping("/hitLog")
-    public Result<Page<FilterHitLog>> hitLog(@RequestParam(defaultValue = "1") Integer pageNum,
-                                             @RequestParam(defaultValue = "10") Integer pageSize,
-                                             @RequestParam(required = false) String bizType) {
+    public Result<Page<Map<String, Object>>> hitLog(@RequestParam(defaultValue = "1") Integer pageNum,
+                                                   @RequestParam(defaultValue = "10") Integer pageSize,
+                                                   @RequestParam(required = false) String bizType) {
         Page<FilterHitLog> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<FilterHitLog> wrapper = new LambdaQueryWrapper<>();
         if (bizType != null && !bizType.isEmpty()) {
             wrapper.eq(FilterHitLog::getBizType, bizType);
         }
         wrapper.orderByDesc(FilterHitLog::getCreateTime);
-        return Result.success(filterHitLogMapper.selectPage(page, wrapper));
+        Page<FilterHitLog> result = filterHitLogMapper.selectPage(page, wrapper);
+        Page<Map<String, Object>> voPage = new Page<>(pageNum, pageSize, result.getTotal());
+        voPage.setRecords(result.getRecords().stream()
+                .map(log -> AdminUserNames.enrich(appUserMapper, log, log.getUserId(), "userName"))
+                .collect(java.util.stream.Collectors.toList()));
+        return Result.success(voPage);
     }
 
     /**

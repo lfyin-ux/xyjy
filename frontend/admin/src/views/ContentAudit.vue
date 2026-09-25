@@ -4,7 +4,7 @@
       <el-tab-pane label="动态审核" name="post">
         <div class="table-card">
           <el-table :data="postList" v-loading="loading" stripe>
-            <el-table-column label="发布者" width="120">
+            <el-table-column label="名称" width="120">
               <template #default="{ row }">{{ row.user?.nickname }}</template>
             </el-table-column>
             <el-table-column label="内容">
@@ -34,13 +34,39 @@
       <el-tab-pane label="评论审核" name="comment">
         <div class="table-card">
           <el-table :data="commentList" v-loading="loading" stripe>
-            <el-table-column prop="postId" label="动态ID" width="90" />
-            <el-table-column prop="content" label="评论内容" />
-            <el-table-column prop="createTime" label="时间" width="180" />
+            <el-table-column label="所属动态" min-width="260">
+              <template #default="{ row }">
+                <div v-if="row.post" class="post-ref">
+                  <div class="post-meta">
+                    <span class="post-author">{{ row.postUser?.nickname || '未知用户' }}</span>
+                    <span v-if="row.post.topic" class="post-topic">#{{ row.post.topic }}</span>
+                    <span class="post-id">ID {{ row.post.id }}</span>
+                  </div>
+                  <div class="post-content">{{ row.post.content || '（无文字）' }}</div>
+                  <el-image
+                    v-if="row.post.images"
+                    :src="firstImg(row.post.images)"
+                    fit="cover"
+                    class="post-thumb"
+                    :preview-src-list="splitImgs(row.post.images)"
+                  />
+                </div>
+                <span v-else class="muted">动态 #{{ row.comment.postId }}（已删除）</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="评论人" width="100">
+              <template #default="{ row }">{{ row.commentUser?.nickname || '-' }}</template>
+            </el-table-column>
+            <el-table-column label="评论内容" min-width="160">
+              <template #default="{ row }">{{ row.comment.content }}</template>
+            </el-table-column>
+            <el-table-column label="时间" width="170">
+              <template #default="{ row }">{{ formatTime(row.comment.createTime) }}</template>
+            </el-table-column>
             <el-table-column label="操作" width="180" fixed="right">
               <template #default="{ row }">
-                <el-button size="small" type="success" @click="doCommentAudit(row.id, true)">通过</el-button>
-                <el-button size="small" type="danger" @click="doCommentAudit(row.id, false)">拦截</el-button>
+                <el-button size="small" type="success" @click="doCommentAudit(row.comment.id, true)">通过</el-button>
+                <el-button size="small" type="danger" @click="doCommentAudit(row.comment.id, false)">拦截</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -56,6 +82,7 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { postAuditList, postPass, postReject, commentAuditList, commentAudit } from '../api'
 import { firstFileUrl, splitFileUrls } from '../utils/file'
+import { formatTime } from '../utils/time'
 
 const tab = ref('post')
 const postList = ref([])
@@ -99,3 +126,45 @@ const doCommentAudit = async (id, pass) => {
 
 onMounted(load)
 </script>
+
+<style scoped>
+.post-ref {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: #909399;
+}
+
+.post-author {
+  color: #303133;
+  font-weight: 600;
+}
+
+.post-topic {
+  color: #409eff;
+}
+
+.post-content {
+  color: #606266;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.post-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+}
+
+.muted {
+  color: #c0c4cc;
+}
+</style>
