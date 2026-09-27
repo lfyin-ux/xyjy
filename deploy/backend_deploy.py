@@ -69,6 +69,9 @@ def main():
     sftp = client.open_sftp()
     print(f'上传 {jar_local}')
     sftp.put(jar_local, f'{APP_DIR}/xyjy-backend.jar')
+    mock_square_dir = os.path.join(PROJECT_ROOT, 'uploads/mock/square')
+    if os.path.isdir(mock_square_dir):
+        upload_dir(sftp, mock_square_dir, f'{APP_DIR}/uploads/mock/square')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/04_comment_visibility.sql'), f'{APP_DIR}/sql/04_comment_visibility.sql')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/05_user_address.sql'), f'{APP_DIR}/sql/05_user_address.sql')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/06_refund_apply.sql'), f'{APP_DIR}/sql/06_refund_apply.sql')
@@ -83,6 +86,9 @@ def main():
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/15_personal_verify_daily.sql'), f'{APP_DIR}/sql/15_personal_verify_daily.sql')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/16_reset_business_data.sql'), f'{APP_DIR}/sql/16_reset_business_data.sql')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/17_skip_profile_audit.sql'), f'{APP_DIR}/sql/17_skip_profile_audit.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/18_personal_verify_daily_limit.sql'), f'{APP_DIR}/sql/18_personal_verify_daily_limit.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/19_sys_app_setting.sql'), f'{APP_DIR}/sql/19_sys_app_setting.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/20_mock_square_posts.sql'), f'{APP_DIR}/sql/20_mock_square_posts.sql')
     wechat_secret = os.environ.get('WECHAT_APP_SECRET', '')
     cloudauth_key_id = os.environ.get('ALIYUN_CLOUDAUTH_ACCESS_KEY_ID', '')
     cloudauth_key_secret = os.environ.get('ALIYUN_CLOUDAUTH_ACCESS_KEY_SECRET', '')
@@ -98,6 +104,15 @@ def main():
             existing_yml = f.read().decode()
     except Exception:
         pass
+
+    mall_enabled = os.environ.get('XYJY_MALL_ENABLED', '').strip().lower()
+    if not mall_enabled and existing_yml:
+        import re
+        m = re.search(r'mall-enabled:\s*(\S+)', existing_yml)
+        if m:
+            mall_enabled = m.group(1).strip().lower()
+    if mall_enabled not in ('true', 'false'):
+        mall_enabled = 'true'
 
     if existing_yml:
         import re
@@ -226,6 +241,7 @@ file:
   upload-dir: {APP_DIR}/uploads
 app:
   mode: prod
+  mall-enabled: {mall_enabled}
 {sms_block}{wxpay_block}{wechat_block}{cloudauth_block}"""
         with sftp.file(f'{APP_DIR}/application-prod.yml', 'w') as f:
             f.write(prod_yml)
@@ -237,7 +253,7 @@ app:
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/05_user_address.sql', timeout=120)
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/06_refund_apply.sql', timeout=120)
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/07_refunded_order_status.sql', timeout=120)
-    for sql_file in ('08_school_scope.sql', '09_school_switch.sql', '10_user_follow.sql', '11_violation_read.sql', '12_second_contact.sql', '13_game_contact.sql', '14_personal_eid.sql', '15_personal_verify_daily.sql', '17_skip_profile_audit.sql'):
+    for sql_file in ('08_school_scope.sql', '09_school_switch.sql', '10_user_follow.sql', '11_violation_read.sql', '12_second_contact.sql', '13_game_contact.sql', '14_personal_eid.sql', '15_personal_verify_daily.sql', '17_skip_profile_audit.sql', '18_personal_verify_daily_limit.sql', '19_sys_app_setting.sql', '20_mock_square_posts.sql'):
         cmd = f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/{sql_file}'
         print(f'\n>>> {cmd}')
         stdin, stdout, stderr = client.exec_command(cmd, timeout=120)

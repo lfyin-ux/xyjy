@@ -10,6 +10,7 @@ Page({
   },
 
   onLoad(options) {
+    if (require('../../utils/appConfig').blockMallPages()) return
     this.setData({ orderId: options.orderId })
     this.loadItems()
   },

@@ -2,6 +2,7 @@ package com.xyjy.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.xyjy.common.Result;
+import com.xyjy.config.AppProperties;
 import com.xyjy.entity.SchoolInfo;
 import com.xyjy.entity.TopicTag;
 import com.xyjy.mapper.SchoolInfoMapper;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 公共接口 学校字典与话题标签
@@ -25,6 +28,18 @@ public class CommonController {
     private SchoolInfoMapper schoolInfoMapper;
     @Resource
     private TopicTagMapper topicTagMapper;
+    @Resource
+    private AppProperties appProperties;
+
+    /**
+     * 小程序端功能开关（无需登录）
+     */
+    @GetMapping("/app-config")
+    public Result<Map<String, Object>> appConfig() {
+        Map<String, Object> cfg = new HashMap<>();
+        cfg.put("mallEnabled", appProperties.isMallEnabled());
+        return Result.success(cfg);
+    }
 
     /**
      * 学校列表 支持模糊搜索

@@ -20,7 +20,12 @@ Page({
   },
 
   onShow() {
-    if (this.getTabBar()) this.getTabBar().setData({ selected: 2 })
+    const appConfig = require('../../utils/appConfig')
+    if (!appConfig.isMallEnabled(app)) {
+      wx.switchTab({ url: '/pages/match/match' })
+      return
+    }
+    appConfig.setTabSelected(this)
     this.checkAuth()
   },
 

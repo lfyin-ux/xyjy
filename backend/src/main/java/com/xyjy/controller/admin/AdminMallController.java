@@ -13,6 +13,7 @@ import com.xyjy.mapper.MallCategoryMapper;
 import com.xyjy.mapper.MallGoodsMapper;
 import com.xyjy.mapper.MallOrderItemMapper;
 import com.xyjy.mapper.MallOrderMapper;
+import com.xyjy.service.AppFeatureService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -36,6 +37,26 @@ public class AdminMallController {
     private MallOrderMapper mallOrderMapper;
     @Resource
     private MallOrderItemMapper mallOrderItemMapper;
+    @Resource
+    private AppFeatureService appFeatureService;
+
+    /**
+     * 小程序商城功能开关
+     */
+    @GetMapping("/feature")
+    public Result<Map<String, Object>> mallFeature() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("mallEnabled", appFeatureService.isMallEnabled());
+        return Result.success(map);
+    }
+
+    @PostMapping("/feature")
+    public Result<Map<String, Object>> setMallFeature(@RequestParam boolean mallEnabled) {
+        appFeatureService.setMallEnabled(mallEnabled);
+        Map<String, Object> map = new HashMap<>();
+        map.put("mallEnabled", appFeatureService.isMallEnabled());
+        return Result.success(map);
+    }
 
     /**
      * 商品列表

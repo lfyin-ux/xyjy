@@ -1,37 +1,47 @@
+const appConfig = require('../utils/appConfig')
+
 Component({
   data: {
     selected: 0,
     color: '#bbb9c4',
     selectedColor: '#171527',
-    list: [
-      {
-        pagePath: '/pages/match/match',
-        text: '广场',
-        iconPath: '/images/tabbar/match_solid.png',
-        selectedIconPath: '/images/tabbar/match_on_solid.png'
-      },
-      {
-        pagePath: '/pages/life/life',
-        text: '生活',
-        iconPath: '/images/tabbar/life_solid.png',
-        selectedIconPath: '/images/tabbar/life_on_solid.png'
-      },
-      {
-        pagePath: '/pages/mall/mall',
-        text: '商城',
-        iconPath: '/images/tabbar/mall_solid.png',
-        selectedIconPath: '/images/tabbar/mall_on_solid.png'
-      },
-      {
-        pagePath: '/pages/mine/mine',
-        text: '我的',
-        iconPath: '/images/tabbar/mine_solid.png',
-        selectedIconPath: '/images/tabbar/mine_on_solid.png'
-      }
-    ]
+    list: appConfig.TAB_LIST
+  },
+
+  lifetimes: {
+    attached() {
+      this.updateTabList()
+    }
+  },
+
+  pageLifetimes: {
+    show() {
+      this.updateTabList()
+    }
   },
 
   methods: {
+    updateTabList() {
+      const app = getApp()
+      const list = appConfig.tabListForApp(app)
+      const route = this._currentRoute()
+      let selected = list.findIndex((item) => item.pagePath === route)
+      if (selected < 0) selected = 0
+      this.setData({ list, selected })
+    },
+
+    setSelected(pagePath) {
+      const idx = this.data.list.findIndex((item) => item.pagePath === pagePath)
+      if (idx >= 0) this.setData({ selected: idx })
+    },
+
+    _currentRoute() {
+      const pages = getCurrentPages()
+      if (!pages.length) return ''
+      const route = pages[pages.length - 1].route
+      return route ? '/' + route : ''
+    },
+
     switchTab(e) {
       const index = Number(e.currentTarget.dataset.index)
       const item = this.data.list[index]

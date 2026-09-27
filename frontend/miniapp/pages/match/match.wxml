@@ -37,7 +37,13 @@
           </view>
         </view>
         <view class="post-text">{{item.post.content}}</view>
-        <image wx:if="{{item.post.images}}" src="{{imgBase}}{{item.firstImg}}" mode="aspectFill" class="post-img" bindtap="openPost" data-id="{{item.post.id}}" />
+        <image wx:if="{{item.imageSrc}}" src="{{item.imageSrc}}" mode="aspectFill" class="post-img" bindtap="openPost" data-id="{{item.post.id}}" />
+        <view class="comment-preview" wx:if="{{item.previewComments && item.previewComments.length}}" bindtap="openPost" data-id="{{item.post.id}}">
+          <view class="comment-preview-line" wx:for="{{item.previewComments}}" wx:for-item="c" wx:key="content">
+            <text class="cp-name">{{c.nickname}}：</text><text class="cp-text">{{c.content}}</text>
+          </view>
+          <text wx:if="{{item.post.commentCount > item.previewComments.length}}" class="cp-more">查看全部 {{item.post.commentCount}} 条评论 ›</text>
+        </view>
         <view class="post-foot">
           <text class="post-action {{item.liked?'on':''}}" catchtap="toggleLike" data-id="{{item.post.id}}" data-idx="{{index}}">♥ {{item.post.likeCount}}</text>
           <text class="post-action" catchtap="openPost" data-id="{{item.post.id}}">💬 {{item.post.commentCount}}</text>

@@ -1,4 +1,5 @@
 const schoolContext = require('./utils/schoolContext')
+const appConfig = require('./utils/appConfig')
 const api = require('./utils/api')
 
 // 小程序入口
@@ -11,10 +12,18 @@ App({
     // 当前用户ID
     userId: null,
     // 学校浏览上下文
-    schoolContext: null
+    schoolContext: null,
+    // 是否开启商城（由 /common/app-config 下发）
+    mallEnabled: null
   },
 
   onLaunch() {
+    const cached = wx.getStorageSync('appConfig')
+    if (cached && cached.mallEnabled != null) {
+      this.globalData.mallEnabled = !!cached.mallEnabled
+    }
+    appConfig.load(this)
+
     const userInfo = wx.getStorageSync('userInfo')
     const userId = wx.getStorageSync('userId')
     if (userInfo && userId) {

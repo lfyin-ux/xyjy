@@ -1,5 +1,21 @@
 <template>
   <div class="page-container">
+    <div class="mall-feature-card">
+      <div class="mall-feature-main">
+        <div class="mall-feature-title">小程序商城入口</div>
+        <div class="mall-feature-desc">
+          关闭后，小程序将隐藏商城 Tab、「我的商城订单」与「收货地址管理」，并拦截商城相关接口。
+        </div>
+      </div>
+      <el-switch
+        v-model="mallEnabled"
+        :loading="featureSaving"
+        active-text="已开启"
+        inactive-text="已关闭"
+        @change="onMallFeatureChange"
+      />
+    </div>
+
     <div class="search-bar">
       <el-form :inline="true">
         <el-form-item label="关键词">
@@ -121,7 +137,8 @@ import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   goodsList, goodsSave, goodsSetStatus, goodsDelete,
-  mallCategories, categorySave, categoryDelete, uploadUrl
+  mallCategories, categorySave, categoryDelete, uploadUrl,
+  mallFeatureGet, mallFeatureSet
 } from '../api'
 import { fileUrl } from '../utils/file'
 
@@ -135,6 +152,26 @@ const imageList = ref([])
 const categories = ref([])
 const categoryDialog = ref(false)
 const newCategory = ref('')
+const mallEnabled = ref(true)
+const featureSaving = ref(false)
+
+const loadMallFeature = async () => {
+  const res = await mallFeatureGet()
+  mallEnabled.value = !!res.data.mallEnabled
+}
+
+const onMallFeatureChange = async (val) => {
+  featureSaving.value = true
+  try {
+    const res = await mallFeatureSet(val)
+    mallEnabled.value = !!res.data.mallEnabled
+    ElMessage.success(val ? '已开启小程序商城' : '已关闭小程序商城')
+  } catch (e) {
+    mallEnabled.value = !val
+  } finally {
+    featureSaving.value = false
+  }
+}
 
 const load = async () => {
   loading.value = true
@@ -234,12 +271,39 @@ const delCategory = (id) => {
 }
 
 onMounted(() => {
+  loadMallFeature()
   load()
   loadCategories()
 })
 </script>
 
 <style scoped>
+.mall-feature-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 16px 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.mall-feature-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 6px;
+}
+
+.mall-feature-desc {
+  font-size: 13px;
+  color: #909399;
+  line-height: 1.5;
+  max-width: 720px;
+}
+
 .img-grid {
   display: flex;
   flex-wrap: wrap;

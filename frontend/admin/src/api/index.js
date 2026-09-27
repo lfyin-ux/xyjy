@@ -83,6 +83,9 @@ export const secondSetStatus = (id, status) =>
   request.post(`/admin/life/second/setStatus/${id}?status=${status}`)
 
 // 商城管理
+export const mallFeatureGet = () => request.get('/admin/mall/feature')
+export const mallFeatureSet = (mallEnabled) =>
+  request.post('/admin/mall/feature', null, { params: { mallEnabled } })
 export const goodsList = (params) => request.get('/admin/mall/goods/list', { params })
 export const goodsSave = (data) => request.post('/admin/mall/goods/save', data)
 export const goodsSetStatus = (id, status) =>

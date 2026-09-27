@@ -15,6 +15,7 @@ Page({
   },
 
   onShow() {
+    if (require('../../utils/appConfig').blockMallPages()) return
     this.load()
   },
 

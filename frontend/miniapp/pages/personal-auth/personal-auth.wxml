@@ -34,7 +34,7 @@
 
     <view class="face-card">
       <view class="face-title">人脸核身（拍照）</view>
-      <view class="face-tip">请使用前置摄像头拍摄本人正脸照片，系统将比对姓名与身份证信息。每人每天仅可核身 1 次（失败也计入），请确认信息无误后再拍照。正式提交仍需完成手机号验证。</view>
+      <view class="face-tip">请使用前置摄像头拍摄本人正脸照片，系统将比对姓名与身份证信息。每人每天可核身 3 次（失败也计入），请确认信息无误后再拍照。正式提交仍需完成手机号验证。</view>
       <image wx:if="{{facePreview}}" class="face-preview" src="{{facePreview}}" mode="aspectFill" />
       <view class="face-status {{faceVerified?'ok':''}}">
         {{faceVerified ? '✓ 人脸核身已完成' : (faceVerifying ? '核身进行中…' : '尚未完成人脸核身')}}

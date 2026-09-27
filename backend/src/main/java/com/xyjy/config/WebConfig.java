@@ -2,7 +2,10 @@ package com.xyjy.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.Resource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -14,11 +17,20 @@ import java.io.File;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    @Resource
+    private MallFeatureInterceptor mallFeatureInterceptor;
+
     @Value("${file.upload-dir}")
     private String uploadDir;
 
     @Value("${file.access-prefix}")
     private String accessPrefix;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(mallFeatureInterceptor)
+                .addPathPatterns("/mall/**", "/address/**");
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {

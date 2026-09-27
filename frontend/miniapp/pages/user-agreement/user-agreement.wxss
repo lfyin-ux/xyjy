@@ -1,1 +1,9 @@
 @import "../legal/legal.wxss";
+
+.legal-scroll {
+  height: 100vh;
+}
+
+.legal-li-wrap {
+  margin-bottom: 0;
+}

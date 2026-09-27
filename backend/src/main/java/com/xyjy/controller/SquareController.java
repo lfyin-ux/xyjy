@@ -79,7 +79,25 @@ public class SquareController {
         map.put("post", post);
         AppUser user = appUserMapper.selectById(post.getUserId());
         map.put("user", user);
+        map.put("previewComments", previewComments(post.getId(), 3));
         return map;
+    }
+
+    /** 广场列表展示少量公开评论预览 */
+    private List<Map<String, Object>> previewComments(Long postId, int limit) {
+        List<PostComment> list = postCommentMapper.selectList(new LambdaQueryWrapper<PostComment>()
+                .eq(PostComment::getPostId, postId)
+                .eq(PostComment::getStatus, 3)
+                .eq(PostComment::getVisibility, 3)
+                .orderByAsc(PostComment::getCreateTime)
+                .last("LIMIT " + limit));
+        return list.stream().map(c -> {
+            Map<String, Object> row = new HashMap<>();
+            row.put("content", c.getContent());
+            AppUser u = appUserMapper.selectById(c.getUserId());
+            row.put("nickname", u != null ? u.getNickname() : "用户");
+            return row;
+        }).collect(java.util.stream.Collectors.toList());
     }
 
     /**

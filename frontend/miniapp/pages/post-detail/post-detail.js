@@ -1,4 +1,5 @@
 const api = require('../../utils/api')
+const imageUtil = require('../../utils/imageUtil')
 const { formatPostSub } = require('../../utils/format')
 const schoolContext = require('../../utils/schoolContext')
 const app = getApp()
@@ -50,7 +51,8 @@ Page({
     const userId = app.globalData.userId
     const url = '/square/detail/' + id + (userId ? '?userId=' + userId : '')
     api.get(url).then((vo) => {
-      vo.firstImg = vo.post.images ? vo.post.images.split(',')[0] : ''
+      vo.firstImg = imageUtil.firstImage(vo.post.images)
+      vo.imageUrls = imageUtil.imageUrls(vo.post.images)
       vo.subText = formatPostSub(vo.user && vo.user.school, vo.post && vo.post.place)
       this.setData({ post: vo })
     })
@@ -102,7 +104,8 @@ Page({
   loadMyPosts() {
     api.get('/square/my/' + app.globalData.userId).then((list) => {
       list.forEach((item) => {
-        item.firstImg = item.images ? item.images.split(',')[0] : ''
+        item.firstImg = imageUtil.firstImage(item.images)
+        item.imageSrc = imageUtil.coverUrl(item.images)
       })
       this.setData({ myPosts: list })
     })

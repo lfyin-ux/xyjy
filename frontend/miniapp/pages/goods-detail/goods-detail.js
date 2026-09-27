@@ -19,7 +19,7 @@ Page({
   },
 
   onShow() {
-    // 从地址选择页返回时 selectedAddress 已被设置
+    if (require('../../utils/appConfig').blockMallPages()) return
   },
 
   loadGoods(id) {

@@ -19,7 +19,7 @@ module.exports = { statusText: statusText, visLabel: visLabel }
         <view class="my-post-content">{{item.content}}</view>
         <text class="my-del-btn" catchtap="delPost" data-id="{{item.id}}">删除</text>
       </view>
-      <image wx:if="{{item.images}}" src="{{imgBase}}{{item.firstImg}}" mode="aspectFill" class="my-post-img" />
+      <image wx:if="{{item.imageSrc}}" src="{{item.imageSrc}}" mode="aspectFill" class="my-post-img" />
       <view class="my-post-footer">
         <text class="status-tag" wx:if="{{fmt.statusText(item.status)}}">{{fmt.statusText(item.status)}}</text>
         <view class="my-post-stats">
@@ -46,7 +46,7 @@ module.exports = { statusText: statusText, visLabel: visLabel }
         </view>
       </view>
       <view class="post-text">{{post.post.content}}</view>
-      <image wx:if="{{post.firstImg}}" src="{{imgBase}}{{post.firstImg}}" mode="widthFix" class="detail-img" />
+      <image wx:for="{{post.imageUrls}}" wx:key="*this" src="{{item}}" mode="widthFix" class="detail-img" />
     </view>
 
     <view class="card" wx:if="{{likeUsers.length>0}}">

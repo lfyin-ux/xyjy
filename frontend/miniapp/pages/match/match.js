@@ -1,4 +1,5 @@
 const api = require('../../utils/api')
+const imageUtil = require('../../utils/imageUtil')
 const authGate = require('../../utils/authGate')
 const { formatPostSub } = require('../../utils/format')
 const schoolContext = require('../../utils/schoolContext')
@@ -18,7 +19,7 @@ Page({
   },
 
   onShow() {
-    if (this.getTabBar()) this.getTabBar().setData({ selected: 0 })
+    require('../../utils/appConfig').setTabSelected(this)
     this.refreshSchoolContext()
     this.checkAuth()
   },
@@ -33,7 +34,12 @@ Page({
       if (!ctx) return
       let banner = '当前：' + (ctx.currentSchoolName || '所属学校')
       if (ctx.viewOnly) {
-        banner += '（浏览模式，商城消费满2000元可互动，已消费¥' + ctx.mallTotalSpent + '）'
+        const appConfig = require('../../utils/appConfig')
+        if (appConfig.isMallEnabled(app)) {
+          banner += '（浏览模式，商城消费满2000元可互动，已消费¥' + ctx.mallTotalSpent + '）'
+        } else {
+          banner += '（浏览模式，暂不可在外校互动）'
+        }
       }
       this.setData({ viewOnly: ctx.viewOnly, schoolBanner: banner })
     })
@@ -76,7 +82,8 @@ Page({
     const url = '/square/list?pageNum=1&pageSize=20' + (userId ? '&userId=' + userId : '')
     api.get(url).then((page) => {
       const posts = (page.records || []).map((item) => {
-        item.firstImg = item.post.images ? item.post.images.split(',')[0] : ''
+        item.firstImg = imageUtil.firstImage(item.post.images)
+        item.imageSrc = imageUtil.coverUrl(item.post.images)
         item.liked = false
         item.subText = formatPostSub(item.user && item.user.school, item.post && item.post.place)
         return item

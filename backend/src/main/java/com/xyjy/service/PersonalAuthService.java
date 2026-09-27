@@ -16,6 +16,8 @@ import java.time.LocalDate;
 @Service
 public class PersonalAuthService {
 
+    private static final int DAILY_FACE_VERIFY_LIMIT = 3;
+
     @Resource
     private AppUserMapper appUserMapper;
     @Resource
@@ -31,15 +33,15 @@ public class PersonalAuthService {
     }
 
     /**
-     * 每人每天仅允许发起一次人脸核身（含失败），防止恶意刷接口
+     * 每人每天允许发起有限次人脸核身（含失败），防止恶意刷接口
      */
     public void reserveDailyFaceVerify(Long userId) {
         LocalDate today = LocalDate.now();
         Long count = personalVerifyDailyMapper.selectCount(new LambdaQueryWrapper<PersonalVerifyDaily>()
                 .eq(PersonalVerifyDaily::getUserId, userId)
                 .eq(PersonalVerifyDaily::getVerifyDate, today));
-        if (count != null && count > 0) {
-            throw new BusinessException("今日人脸核身次数已用完，请明天再试");
+        if (count != null && count >= DAILY_FACE_VERIFY_LIMIT) {
+            throw new BusinessException("今日人脸核身次数已用完（每日" + DAILY_FACE_VERIFY_LIMIT + "次），请明天再试");
         }
         PersonalVerifyDaily record = new PersonalVerifyDaily();
         record.setUserId(userId);

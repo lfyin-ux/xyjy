@@ -1,4 +1,5 @@
 const api = require('../../utils/api')
+const appConfig = require('../../utils/appConfig')
 const schoolContext = require('../../utils/schoolContext')
 const violationNotice = require('../../utils/violationNotice')
 const app = getApp()
@@ -13,7 +14,8 @@ Page({
     profileExtra: '',
     imgBase: '',
     schoolContext: {},
-    violationUnread: 0
+    violationUnread: 0,
+    mallEnabled: false
   },
 
   onLoad() {
@@ -21,7 +23,10 @@ Page({
   },
 
   onShow() {
-    if (this.getTabBar()) this.getTabBar().setData({ selected: 3 })
+    appConfig.setTabSelected(this)
+    appConfig.load(app).then(() => {
+      this.setData({ mallEnabled: appConfig.isMallEnabled(app) })
+    })
     this.loadUser()
   },
 
@@ -113,11 +118,13 @@ Page({
   },
 
   goOrders() {
+    if (!appConfig.isMallEnabled(app)) return
     if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/order-list/order-list' })
   },
 
   goAddress() {
+    if (!appConfig.isMallEnabled(app)) return
     if (!app.checkLogin()) return
     wx.navigateTo({ url: '/pages/address/address' })
   },

@@ -28,7 +28,7 @@
     <view class="guest-icon">👋</view>
     <view class="guest-main">
       <view class="guest-title">欢迎体验同行时空</view>
-      <view class="guest-desc">您可先浏览广场、校园生活和商城，需要发布、互动或下单时再登录。</view>
+      <view class="guest-desc">您可先浏览广场与校园生活{{mallEnabled ? '、商城' : ''}}，需要发布、互动或下单时再登录。</view>
     </view>
     <button class="guest-login" bindtap="goLogin">登录</button>
   </view>
@@ -101,14 +101,14 @@
       <text class="menu-name">我的二手商品</text>
       <text class="menu-val">›</text>
     </view>
-    <view class="menu-row" bindtap="goOrders">
+    <view wx:if="{{mallEnabled}}" class="menu-row" bindtap="goOrders">
       <text class="menu-icon">🛍️</text>
       <text class="menu-name">我的商城订单</text>
       <text class="menu-val">›</text>
     </view>
   </view>
 
-  <view class="menu">
+  <view wx:if="{{mallEnabled}}" class="menu">
     <view class="menu-row" bindtap="goAddress">
       <text class="menu-icon">📍</text>
       <text class="menu-name">收货地址管理</text>
