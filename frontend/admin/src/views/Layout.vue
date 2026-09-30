@@ -12,6 +12,7 @@
             <el-badge v-if="userPendingCount > 0" :value="userPendingCount" :max="99" class="menu-badge" />
           </span>
         </el-menu-item>
+        <el-menu-item index="/personal-audit"><el-icon><UserFilled /></el-icon><span>个人认证审核</span></el-menu-item>
         <el-menu-item index="/school-audit"><el-icon><Stamp /></el-icon><span>学校认证审核</span></el-menu-item>
         <el-sub-menu index="content">
           <template #title><el-icon><ChatDotSquare /></el-icon><span>内容管理</span></template>

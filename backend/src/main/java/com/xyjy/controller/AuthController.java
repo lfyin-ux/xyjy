@@ -23,6 +23,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +38,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+
+    private static final Set<String> SCHOOL_DOC_TYPES = new HashSet<>(Arrays.asList(
+            "学籍在线验证报告",
+            "学历证书电子注册备案表"
+    ));
 
     @Resource
     private AppUserMapper appUserMapper;
@@ -60,6 +69,8 @@ public class AuthController {
     private FaceVerifySessionService faceVerifySessionService;
     @Resource
     private PersonalAuthService personalAuthService;
+    @Resource
+    private com.xyjy.service.GracePublishService gracePublishService;
 
     /**
      * 获取当前应用模式 前端据此决定走哪种登录流程
@@ -182,12 +193,9 @@ public class AuthController {
         Map<String, Object> map = new HashMap<>();
         map.put("identityVerified", user.getIdentityVerified());
         map.put("schoolVerified", user.getSchoolVerified());
-        // TODO: 小程序审核期间暂时视为已双认证，审核通过后恢复下方逻辑
-        map.put("fullAccess", true);
-        /*
-        map.put("fullAccess", user.getIdentityVerified() != null && user.getIdentityVerified() == 1
-                && user.getSchoolVerified() != null && user.getSchoolVerified() == 1);
-        */
+        boolean fullAccess = user.getIdentityVerified() != null && user.getIdentityVerified() == 1
+                && user.getSchoolVerified() != null && user.getSchoolVerified() == 1;
+        map.put("fullAccess", fullAccess);
         PersonalAuth pa = personalAuthMapper.selectOne(new LambdaQueryWrapper<PersonalAuth>()
                 .eq(PersonalAuth::getUserId, userId).orderByDesc(PersonalAuth::getId).last("limit 1"));
         SchoolAuth sa = schoolAuthMapper.selectOne(new LambdaQueryWrapper<SchoolAuth>()
@@ -196,6 +204,7 @@ public class AuthController {
         map.put("personalReject", pa != null ? pa.getRejectReason() : null);
         map.put("schoolStatus", sa != null ? sa.getStatus() : 0);
         map.put("schoolReject", sa != null ? sa.getRejectReason() : null);
+        map.putAll(gracePublishService.graceInfo(userId));
         return Result.success(map);
     }
 
@@ -244,43 +253,38 @@ public class AuthController {
     }
 
     /**
-     * 提交个人认证（需先完成人脸核身）
+     * 提交个人认证（人工审核，暂不使用人脸核身）
      */
     @PostMapping("/personal/submit")
     public Result<Void> submitPersonal(@RequestBody PersonalAuth auth,
-                                       @RequestParam(required = false) String smsCode,
-                                       @RequestParam(required = false) String faceVerifyNo,
-                                       @RequestParam(required = false) String eidToken) {
+                                       @RequestParam(required = false) String smsCode) {
         if (auth.getUserId() == null) {
             throw new BusinessException("缺少用户ID");
         }
         personalAuthService.ensureNotVerified(auth.getUserId());
+        PersonalAuth pending = personalAuthMapper.selectOne(new LambdaQueryWrapper<PersonalAuth>()
+                .eq(PersonalAuth::getUserId, auth.getUserId())
+                .eq(PersonalAuth::getStatus, 1));
+        if (pending != null) {
+            throw new BusinessException("个人认证审核中，请耐心等待");
+        }
         if (auth.getPhone() == null || !auth.getPhone().matches("^1\\d{10}$")) {
             throw new BusinessException("请输入正确的手机号码");
         }
-        // 校验短信验证码
         if (!smsService.verifyCode(auth.getPhone(), smsCode)) {
             throw new BusinessException("验证码错误或已过期，请在" + smsService.getCodeExpireMinutes() + "分钟内使用");
         }
         if (auth.getRealName() == null || auth.getRealName().isEmpty()) {
             throw new BusinessException("请填写真实姓名");
         }
-        if (auth.getIdCard() == null || !auth.getIdCard().matches("^[1-9]\\d{16}[\\dXx]$")) {
-            throw new BusinessException("身份证号码格式不正确");
-        }
-        String verifyNo = faceVerifyNo != null && !faceVerifyNo.isEmpty()
-                ? faceVerifyNo
-                : (eidToken != null && !eidToken.isEmpty() ? eidToken : auth.getEidToken());
-        if (verifyNo == null || verifyNo.isEmpty()) {
-            throw new BusinessException("请先完成人脸核身");
-        }
-        if (!faceVerifySessionService.consume(auth.getUserId(), verifyNo, auth.getRealName(), auth.getIdCard())) {
-            throw new BusinessException("人脸核身已失效或未通过，请重新拍照核身");
+        if (auth.getIdCard() == null || !IdCardUtil.isValid(auth.getIdCard())) {
+            throw new BusinessException("身份证号码格式或校验位不正确");
         }
         auth.setIdCard(auth.getIdCard().trim().toUpperCase());
-        personalAuthMapper.delete(new LambdaQueryWrapper<PersonalAuth>().eq(PersonalAuth::getUserId, auth.getUserId()));
-        auth.setEidToken(verifyNo);
-        personalAuthService.approvePersonalAuth(auth);
+        personalAuthMapper.delete(new LambdaQueryWrapper<PersonalAuth>()
+                .eq(PersonalAuth::getUserId, auth.getUserId())
+                .in(PersonalAuth::getStatus, 0, 3));
+        personalAuthService.submitForReview(auth);
         return Result.success();
     }
 
@@ -299,8 +303,11 @@ public class AuthController {
         if (auth.getSchoolName() == null || auth.getSchoolName().isEmpty()) {
             throw new BusinessException("请填写或选择学校");
         }
+        if (auth.getDocType() == null || !SCHOOL_DOC_TYPES.contains(auth.getDocType())) {
+            throw new BusinessException("请选择学籍在线验证报告或学历证书电子注册备案表");
+        }
         if (auth.getDocImgs() == null || auth.getDocImgs().isEmpty()) {
-            throw new BusinessException("请上传学校证明材料");
+            throw new BusinessException("请上传学信网验证报告或备案表");
         }
         if (auth.getSchoolId() != null) {
             SchoolInfo school = schoolInfoService.requireById(auth.getSchoolId());

@@ -25,7 +25,7 @@
       <view class="row-icon">🎓</view>
       <view class="row-main">
         <view class="row-name">学校身份认证</view>
-        <view class="row-sub">填写学校并上传有效证明材料</view>
+        <view class="row-sub">上传学信网学籍验证报告或学历备案表</view>
       </view>
       <text class="pill">{{schoolText}}</text>
     </view>

@@ -16,3 +16,7 @@ export function firstFileUrl(value) {
   const list = splitFileUrls(value)
   return list[0] || ''
 }
+
+export function isPdfUrl(path) {
+  return (path || '').toLowerCase().includes('.pdf')
+}

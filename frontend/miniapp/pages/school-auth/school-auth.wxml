@@ -1,12 +1,14 @@
 <view class="page">
-  <view class="notice">学校认证决定你所属的校园社区。审核通过后，只能查看和联系本校用户。</view>
+  <view class="notice">学校认证需上传学信网出具的「学籍在线验证报告」或「学历证书电子注册备案表」。审核通过后，您将归属对应学校的校园社区。</view>
+
+  <view class="doc-tip">请登录中国高等教育学生信息网（学信网）申请并下载报告，上传全文清晰截图或 PDF，确保姓名、学校、学籍/学历信息可见。</view>
 
   <view class="agree-row" bindtap="toggleAgree">
     <view class="agree-check {{agreed?'on':''}}">{{agreed?'✓':''}}</view>
     <view class="agree-text">
       我已阅读
       <text class="agree-link" catchtap="openPrivacy">《隐私政策》</text>
-      ，同意平台收集并使用我的学校、院系、学号及证明材料，用于学校认证审核。
+      ，同意平台收集并使用我的学校、院系、学号及学信网验证材料，用于学校认证审核。
     </view>
   </view>
 
@@ -36,39 +38,46 @@
 
     <block wx:else>
       <view class="field">
-        <input placeholder="请输入学校全称" value="{{schoolName}}" bindinput="onSchoolManual" />
+        <input placeholder="请输入学校全称（须与学信网报告一致）" value="{{schoolName}}" bindinput="onSchoolManual" />
       </view>
       <view class="school-tip">手填学校需后台审核确认后才会加入学校字典</view>
     </block>
 
     <view class="field">
-      <text class="label">证明材料类型</text>
+      <text class="label">材料类型</text>
       <picker range="{{docTypes}}" bindchange="onDocType">
         <view class="picker-val">{{docType}}</view>
       </picker>
     </view>
     <view class="field">
-      <text class="label">院系</text>
-      <input placeholder="请输入院系" value="{{college}}" bindinput="onCollege" />
+      <text class="label">院系（选填）</text>
+      <input placeholder="与报告一致可加快审核" value="{{college}}" bindinput="onCollege" />
     </view>
     <view class="field">
-      <text class="label">学号</text>
-      <input placeholder="请输入学号" value="{{studentNo}}" bindinput="onStudentNo" />
+      <text class="label">学号（选填）</text>
+      <input placeholder="在校生可填写学号" value="{{studentNo}}" bindinput="onStudentNo" />
     </view>
 
     <view class="upload {{docImg?'has':''}}" bindtap="uploadDoc">
-      <block wx:if="{{docImg}}">
+      <block wx:if="{{docImg && !docIsPdf}}">
         <image src="{{imgBase}}{{docImg}}" mode="aspectFill" class="upload-img" />
+      </block>
+      <block wx:elif="{{docImg && docIsPdf}}">
+        <view class="upload-pdf" catchtap="previewDoc">
+          <view class="upload-icon">📑</view>
+          <text>已上传 PDF，点击预览</text>
+          <text class="upload-sub">再次点击上方区域可重新上传</text>
+        </view>
       </block>
       <block wx:else>
         <view class="upload-icon">📄</view>
-        <text>上传学校证明材料照片</text>
+        <text>上传学信网报告（图片或 PDF）</text>
       </block>
     </view>
 
     <view class="field">
       <text class="label">补充说明（选填）</text>
-      <textarea placeholder="可填写年级等辅助审核信息" value="{{remark}}" bindinput="onRemark" />
+      <textarea placeholder="如报告验证码、在读年级等" value="{{remark}}" bindinput="onRemark" />
     </view>
 
     <button class="primary" bindtap="submit" disabled="{{!agreed}}">提交学校认证审核</button>

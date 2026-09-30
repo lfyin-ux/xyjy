@@ -5,10 +5,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xyjy.common.BusinessException;
 import com.xyjy.common.Result;
 import com.xyjy.entity.AppUser;
+import com.xyjy.entity.PersonalAuth;
 import com.xyjy.entity.SchoolAuth;
 import com.xyjy.entity.SchoolInfo;
 import com.xyjy.mapper.AppUserMapper;
+import com.xyjy.mapper.PersonalAuthMapper;
 import com.xyjy.mapper.SchoolAuthMapper;
+import com.xyjy.service.GracePublishService;
+import com.xyjy.service.PersonalAuthService;
 import com.xyjy.service.SchoolInfoService;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +33,54 @@ public class AdminAuditController {
     private AppUserMapper appUserMapper;
     @Resource
     private SchoolInfoService schoolInfoService;
+    @Resource
+    private PersonalAuthMapper personalAuthMapper;
+    @Resource
+    private PersonalAuthService personalAuthService;
+    @Resource
+    private GracePublishService gracePublishService;
+
+    /**
+     * 个人认证审核队列
+     */
+    @GetMapping("/personal/list")
+    public Result<Page<Map<String, Object>>> personalList(@RequestParam(defaultValue = "1") Integer pageNum,
+                                                           @RequestParam(defaultValue = "10") Integer pageSize,
+                                                           @RequestParam(required = false) Integer status) {
+        Page<PersonalAuth> page = new Page<>(pageNum, pageSize);
+        LambdaQueryWrapper<PersonalAuth> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(PersonalAuth::getStatus, status != null ? status : 1);
+        wrapper.orderByDesc(PersonalAuth::getCreateTime);
+        Page<PersonalAuth> result = personalAuthMapper.selectPage(page, wrapper);
+        Page<Map<String, Object>> voPage = new Page<>(pageNum, pageSize, result.getTotal());
+        voPage.setRecords(result.getRecords().stream().map(a -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("auth", a);
+            map.put("user", appUserMapper.selectById(a.getUserId()));
+            return map;
+        }).collect(java.util.stream.Collectors.toList()));
+        return Result.success(voPage);
+    }
+
+    @PostMapping("/personal/pass/{id}")
+    public Result<Void> personalPass(@PathVariable Long id) {
+        PersonalAuth auth = personalAuthMapper.selectById(id);
+        if (auth == null) {
+            throw new BusinessException("认证记录不存在");
+        }
+        personalAuthService.approvePersonalAuth(auth);
+        return Result.success();
+    }
+
+    @PostMapping("/personal/reject/{id}")
+    public Result<Void> personalReject(@PathVariable Long id, @RequestParam String reason) {
+        PersonalAuth auth = personalAuthMapper.selectById(id);
+        if (auth == null) {
+            throw new BusinessException("认证记录不存在");
+        }
+        personalAuthService.rejectPersonalAuth(auth, reason);
+        return Result.success();
+    }
 
     /**
      * 学校认证审核队列
@@ -87,6 +139,7 @@ public class AdminAuditController {
             user.setGrade(auth.getGrade());
             user.setStudentNo(auth.getStudentNo());
             appUserMapper.updateById(user);
+            gracePublishService.onSchoolApproved(user.getId());
         }
         return Result.success();
     }

@@ -24,6 +24,8 @@ public class PersonalAuthService {
     private PersonalAuthMapper personalAuthMapper;
     @Resource
     private PersonalVerifyDailyMapper personalVerifyDailyMapper;
+    @Resource
+    private GracePublishService gracePublishService;
 
     public void ensureNotVerified(Long userId) {
         AppUser user = appUserMapper.selectById(userId);
@@ -50,17 +52,38 @@ public class PersonalAuthService {
     }
 
     /**
-     * 人脸核身通过后直接生效个人认证
+     * 提交个人认证，进入人工审核
+     */
+    public void submitForReview(PersonalAuth auth) {
+        auth.setStatus(1);
+        auth.setRejectReason(null);
+        auth.setFaceVerified(0);
+        personalAuthMapper.insert(auth);
+    }
+
+    /**
+     * 管理后台审核通过
      */
     public void approvePersonalAuth(PersonalAuth auth) {
         auth.setStatus(2);
         auth.setRejectReason(null);
-        auth.setFaceVerified(1);
-        personalAuthMapper.insert(auth);
+        personalAuthMapper.updateById(auth);
         AppUser user = appUserMapper.selectById(auth.getUserId());
         if (user != null) {
             user.setIdentityVerified(1);
             user.setPhone(auth.getPhone());
+            appUserMapper.updateById(user);
+            gracePublishService.onPersonalApproved(user);
+        }
+    }
+
+    public void rejectPersonalAuth(PersonalAuth auth, String reason) {
+        auth.setStatus(3);
+        auth.setRejectReason(reason);
+        personalAuthMapper.updateById(auth);
+        AppUser user = appUserMapper.selectById(auth.getUserId());
+        if (user != null) {
+            user.setIdentityVerified(0);
             appUserMapper.updateById(user);
         }
     }

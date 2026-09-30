@@ -89,6 +89,7 @@ def main():
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/18_personal_verify_daily_limit.sql'), f'{APP_DIR}/sql/18_personal_verify_daily_limit.sql')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/19_sys_app_setting.sql'), f'{APP_DIR}/sql/19_sys_app_setting.sql')
     sftp.put(os.path.join(PROJECT_ROOT, 'sql/20_mock_square_posts.sql'), f'{APP_DIR}/sql/20_mock_square_posts.sql')
+    sftp.put(os.path.join(PROJECT_ROOT, 'sql/21_personal_grace_publish.sql'), f'{APP_DIR}/sql/21_personal_grace_publish.sql')
     wechat_secret = os.environ.get('WECHAT_APP_SECRET', '')
     cloudauth_key_id = os.environ.get('ALIYUN_CLOUDAUTH_ACCESS_KEY_ID', '')
     cloudauth_key_secret = os.environ.get('ALIYUN_CLOUDAUTH_ACCESS_KEY_SECRET', '')
@@ -253,7 +254,7 @@ app:
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/05_user_address.sql', timeout=120)
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/06_refund_apply.sql', timeout=120)
     run(client, f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/07_refunded_order_status.sql', timeout=120)
-    for sql_file in ('08_school_scope.sql', '09_school_switch.sql', '10_user_follow.sql', '11_violation_read.sql', '12_second_contact.sql', '13_game_contact.sql', '14_personal_eid.sql', '15_personal_verify_daily.sql', '17_skip_profile_audit.sql', '18_personal_verify_daily_limit.sql', '19_sys_app_setting.sql', '20_mock_square_posts.sql'):
+    for sql_file in ('08_school_scope.sql', '09_school_switch.sql', '10_user_follow.sql', '11_violation_read.sql', '12_second_contact.sql', '13_game_contact.sql', '14_personal_eid.sql', '15_personal_verify_daily.sql', '17_skip_profile_audit.sql', '18_personal_verify_daily_limit.sql', '19_sys_app_setting.sql', '20_mock_square_posts.sql', '21_personal_grace_publish.sql'):
         cmd = f'mysql -uroot -p123456 xyjy < {APP_DIR}/sql/{sql_file}'
         print(f'\n>>> {cmd}')
         stdin, stdout, stderr = client.exec_command(cmd, timeout=120)

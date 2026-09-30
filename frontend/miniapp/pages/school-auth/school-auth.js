@@ -1,6 +1,8 @@
 const api = require('../../utils/api')
 const app = getApp()
 
+const DOC_TYPES = ['学籍在线验证报告', '学历证书电子注册备案表']
+
 Page({
   data: {
     schoolMode: 'select',
@@ -8,11 +10,12 @@ Page({
     schoolName: '',
     schoolKeyword: '',
     schoolOptions: [],
-    docTypes: ['录取通知书', '学生证', '校园卡', '学位证', '毕业证', '学信网证明/截图'],
-    docType: '学生证',
+    docTypes: DOC_TYPES,
+    docType: DOC_TYPES[0],
     college: '',
     studentNo: '',
     docImg: '',
+    docIsPdf: false,
     remark: '',
     imgBase: '',
     agreed: false
@@ -80,8 +83,29 @@ Page({
   onRemark(e) { this.setData({ remark: e.detail.value }) },
   onDocType(e) { this.setData({ docType: this.data.docTypes[e.detail.value] }) },
 
+  isPdfPath(url) {
+    return (url || '').toLowerCase().indexOf('.pdf') !== -1
+  },
+
+  afterDocUploaded(url) {
+    this.setData({
+      docImg: url,
+      docIsPdf: this.isPdfPath(url)
+    })
+  },
+
   uploadDoc() {
     if (!this.ensureAgreed()) return
+    wx.showActionSheet({
+      itemList: ['上传图片（截图/照片）', '上传 PDF 文件'],
+      success: (res) => {
+        if (res.tapIndex === 0) this.pickImageDoc()
+        else if (res.tapIndex === 1) this.pickPdfDoc()
+      }
+    })
+  },
+
+  pickImageDoc() {
     wx.chooseMedia({
       count: 1,
       mediaType: ['image'],
@@ -90,17 +114,52 @@ Page({
         wx.showLoading({ title: '上传中' })
         api.uploadFile(path, 'school').then((url) => {
           wx.hideLoading()
-          this.setData({ docImg: url })
+          this.afterDocUploaded(url)
         }).catch(() => wx.hideLoading())
       }
     })
+  },
+
+  pickPdfDoc() {
+    wx.chooseMessageFile({
+      count: 1,
+      type: 'file',
+      extension: ['pdf'],
+      success: (res) => {
+        const path = res.tempFiles[0].path
+        wx.showLoading({ title: '上传中' })
+        api.uploadFile(path, 'school').then((url) => {
+          wx.hideLoading()
+          this.afterDocUploaded(url)
+        }).catch(() => wx.hideLoading())
+      }
+    })
+  },
+
+  previewDoc() {
+    const url = this.data.docImg
+    if (!url) return
+    if (this.data.docIsPdf) {
+      const full = api.imgUrl(url)
+      wx.downloadFile({
+        url: full,
+        success: (res) => {
+          wx.openDocument({ filePath: res.tempFilePath, showMenu: true })
+        },
+        fail: () => wx.showToast({ title: '无法打开文件', icon: 'none' })
+      })
+    }
   },
 
   submit() {
     if (!this.ensureAgreed()) return
     const d = this.data
     if (!d.schoolName || !d.docImg) {
-      wx.showToast({ title: '请选择或输入学校并上传证明材料', icon: 'none' })
+      wx.showToast({ title: '请选择学校并上传学信网材料', icon: 'none' })
+      return
+    }
+    if (DOC_TYPES.indexOf(d.docType) < 0) {
+      wx.showToast({ title: '请选择正确的材料类型', icon: 'none' })
       return
     }
     const payload = {
@@ -118,7 +177,7 @@ Page({
     api.post('/auth/school/submit', payload).then(() => {
       wx.showModal({
         title: '材料已提交',
-        content: '后台正在审核你的学校认证材料，审核通过后认证才会生效。',
+        content: '后台将核对您上传的学信网报告，审核通过后学校认证才会生效。',
         showCancel: false,
         success: () => wx.navigateBack()
       })

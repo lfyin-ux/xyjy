@@ -25,6 +25,10 @@ export const warnUser = (userId, reason) =>
   request.post(`/admin/user/warn?userId=${userId}&reason=${encodeURIComponent(reason || '')}`)
 
 // 认证审核
+export const personalAuditList = (params) => request.get('/admin/audit/personal/list', { params })
+export const personalPass = (id) => request.post(`/admin/audit/personal/pass/${id}`)
+export const personalReject = (id, reason) =>
+  request.post(`/admin/audit/personal/reject/${id}?reason=${encodeURIComponent(reason)}`)
 export const schoolAuditList = (params) => request.get('/admin/audit/school/list', { params })
 export const schoolPass = (id, schoolId, schoolName) => {
   let url = `/admin/audit/school/pass/${id}`

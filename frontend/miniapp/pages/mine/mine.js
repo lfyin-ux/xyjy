@@ -24,6 +24,7 @@ Page({
 
   onShow() {
     appConfig.setTabSelected(this)
+    this.setData({ mallEnabled: appConfig.isMallEnabled(app) })
     appConfig.load(app).then(() => {
       this.setData({ mallEnabled: appConfig.isMallEnabled(app) })
     })

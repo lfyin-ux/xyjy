@@ -25,13 +25,17 @@
         <el-table-column label="学号" width="120">
           <template #default="{ row }">{{ row.auth.studentNo }}</template>
         </el-table-column>
-        <el-table-column label="材料类型" width="120">
+        <el-table-column label="学信网材料类型" min-width="160">
           <template #default="{ row }">{{ row.auth.docType }}</template>
         </el-table-column>
-        <el-table-column label="证明材料">
+        <el-table-column label="验证报告/备案表" min-width="140">
           <template #default="{ row }">
-            <el-image v-for="(img, i) in splitImgs(row.auth.docImgs)" :key="i" :src="img" fit="cover"
-              style="width: 60px; height: 40px; margin-right: 6px" :preview-src-list="splitImgs(row.auth.docImgs)" preview-teleported />
+            <template v-for="(img, i) in splitImgs(row.auth.docImgs)" :key="i">
+              <el-image v-if="!isPdf(img)" :src="img" fit="cover"
+                style="width: 60px; height: 40px; margin-right: 6px"
+                :preview-src-list="imageOnly(row.auth.docImgs)" preview-teleported />
+              <el-link v-else :href="img" target="_blank" type="primary" style="margin-right: 8px">PDF{{ i + 1 }}</el-link>
+            </template>
           </template>
         </el-table-column>
         <el-table-column label="状态" width="90">
@@ -91,7 +95,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { schoolAuditList, schoolPass, schoolReject, schoolDictList } from '../api'
-import { splitFileUrls } from '../utils/file'
+import { splitFileUrls, isPdfUrl } from '../utils/file'
 
 const list = ref([])
 const total = ref(0)
@@ -107,6 +111,8 @@ const schoolLoading = ref(false)
 const statusText = (s) => (s === 2 ? '已通过' : s === 3 ? '已驳回' : '审核中')
 const statusType = (s) => (s === 2 ? 'success' : s === 3 ? 'danger' : 'warning')
 const splitImgs = splitFileUrls
+const isPdf = isPdfUrl
+const imageOnly = (value) => splitFileUrls(value).filter((u) => !isPdfUrl(u))
 
 const load = async () => {
   loading.value = true

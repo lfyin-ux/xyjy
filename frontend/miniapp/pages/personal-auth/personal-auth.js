@@ -1,9 +1,6 @@
 const api = require('../../utils/api')
 const app = getApp()
 
-// 测试开关：true 时人脸核身仅需姓名+身份证，不要求手机号验证码
-const FACE_VERIFY_SKIP_PHONE = true
-
 function isValidIdCard(idCard) {
   const card = (idCard || '').trim().toUpperCase()
   if (!/^[1-9]\d{16}[\dX]$/.test(card)) return false
@@ -23,12 +20,7 @@ Page({
     agreed: false,
     smsBtnText: '获取验证码',
     smsBtnDisabled: false,
-    codeExpireText: '',
-    faceVerifyNo: '',
-    faceVerified: false,
-    faceVerifying: false,
-    facePreview: '',
-    faceError: ''
+    codeExpireText: ''
   },
 
   onLoad() {
@@ -39,6 +31,9 @@ Page({
     api.get('/auth/status/' + app.globalData.userId).then((res) => {
       if (res.personalStatus === 2 || res.identityVerified === 1) {
         wx.showToast({ title: '您已完成个人认证', icon: 'none' })
+        setTimeout(() => wx.navigateBack(), 1500)
+      } else if (res.personalStatus === 1) {
+        wx.showToast({ title: '个人认证审核中', icon: 'none' })
         setTimeout(() => wx.navigateBack(), 1500)
       }
     }).catch(() => {})
@@ -75,24 +70,8 @@ Page({
 
   onPhone(e) { this.setData({ phone: e.detail.value }) },
   onCode(e) { this.setData({ code: e.detail.value }) },
-  onName(e) {
-    this.resetFaceIfIdentityChanged()
-    this.setData({ realName: e.detail.value })
-  },
-  onIdCard(e) {
-    this.resetFaceIfIdentityChanged()
-    this.setData({ idCard: e.detail.value })
-  },
-
-  resetFaceIfIdentityChanged() {
-    if (this.data.faceVerified || this.data.faceVerifyNo) {
-      this.setData({
-        faceVerifyNo: '',
-        faceVerified: false,
-        facePreview: ''
-      })
-    }
-  },
+  onName(e) { this.setData({ realName: e.detail.value }) },
+  onIdCard(e) { this.setData({ idCard: e.detail.value }) },
 
   startResendCountdown(seconds) {
     let left = seconds
@@ -152,19 +131,6 @@ Page({
     })
   },
 
-  validateIdentityForFace() {
-    const d = this.data
-    if (!d.realName) {
-      wx.showToast({ title: '请先填写真实姓名', icon: 'none' })
-      return false
-    }
-    if (!isValidIdCard(d.idCard)) {
-      wx.showToast({ title: '身份证号码不正确，请核对18位号码', icon: 'none' })
-      return false
-    }
-    return true
-  },
-
   validateForm() {
     const d = this.data
     if (!/^1\d{10}$/.test(d.phone) || !d.code || !d.realName) {
@@ -178,139 +144,20 @@ Page({
     return true
   },
 
-  uploadFacePhoto(filePath) {
-    const d = this.data
-    if (!app.globalData.userId) {
-      wx.showToast({ title: '请先登录', icon: 'none' })
-      return Promise.reject(new Error('not login'))
-    }
-    return new Promise((resolve, reject) => {
-      wx.uploadFile({
-        url: api.getBaseUrl() + '/auth/personal/face/verify',
-        filePath,
-        name: 'file',
-        formData: {
-          userId: String(app.globalData.userId),
-          realName: d.realName,
-          idCard: d.idCard,
-          phone: d.phone || ''
-        },
-        success: (res) => {
-          if (res.statusCode === 404) {
-            const tip = '核身接口不存在，请部署新后端或改连本地'
-            this.setData({ faceError: tip })
-            wx.showModal({ title: '人脸核身失败', content: tip, showCancel: false })
-            reject(new Error(tip))
-            return
-          }
-          let data = {}
-          try {
-            data = JSON.parse(res.data)
-          } catch (e) {
-            const tip = '服务器响应异常，请检查 baseUrl 是否指向正确后端'
-            this.setData({ faceError: tip })
-            wx.showToast({ title: tip, icon: 'none', duration: 3000 })
-            reject(e)
-            return
-          }
-          if (data.code === 200 && data.data) {
-            this.setData({ faceError: '' })
-            resolve(data.data)
-          } else {
-            const tip = (data && data.msg) || ('人脸核身失败(' + (res.statusCode || '') + ')')
-            this.setData({ faceError: tip })
-            wx.showToast({ title: tip, icon: 'none', duration: 3000 })
-            reject(data)
-          }
-        },
-        fail: (err) => {
-          const tip = '上传失败，请检查网络、baseUrl 及「不校验合法域名」'
-          this.setData({ faceError: tip })
-          wx.showToast({ title: tip, icon: 'none', duration: 3000 })
-          reject(err)
-        }
-      })
-    })
-  },
-
-  startFaceVerify() {
-    if (!this.ensureAgreed()) return
-    const valid = FACE_VERIFY_SKIP_PHONE ? this.validateIdentityForFace() : this.validateForm()
-    if (!valid) return
-    if (this.data.faceVerifying) return
-
-    wx.chooseMedia({
-      count: 1,
-      mediaType: ['image'],
-      sourceType: ['camera'],
-      camera: 'front',
-      success: (chooseRes) => {
-        const tempPath = chooseRes.tempFiles && chooseRes.tempFiles[0] && chooseRes.tempFiles[0].tempFilePath
-        if (!tempPath) {
-          wx.showToast({ title: '未获取到照片', icon: 'none' })
-          return
-        }
-        this.setData({
-          faceVerifying: true,
-          faceVerifyNo: '',
-          faceVerified: false,
-          facePreview: tempPath,
-          faceError: ''
-        })
-        wx.showLoading({ title: '核身中' })
-        const compressAndUpload = (path) => {
-          this.uploadFacePhoto(path).then((res) => {
-            wx.hideLoading()
-            this.setData({
-              faceVerifyNo: res.faceVerifyNo,
-              faceVerified: true,
-              faceVerifying: false
-            })
-            wx.showToast({ title: '人脸核身完成', icon: 'success' })
-          }).catch(() => {
-            wx.hideLoading()
-            this.setData({ faceVerifying: false })
-          })
-        }
-        if (wx.compressImage) {
-          wx.compressImage({
-            src: tempPath,
-            quality: 70,
-            success: (cmp) => compressAndUpload(cmp.tempFilePath || tempPath),
-            fail: () => compressAndUpload(tempPath)
-          })
-        } else {
-          compressAndUpload(tempPath)
-        }
-      },
-      fail: (err) => {
-        if (err && err.errMsg && err.errMsg.indexOf('cancel') === -1) {
-          wx.showToast({ title: '无法打开相机', icon: 'none' })
-        }
-      }
-    })
-  },
-
   submit() {
     if (!this.ensureAgreed()) return
     if (!this.validateForm()) return
-    if (!this.data.faceVerified || !this.data.faceVerifyNo) {
-      wx.showToast({ title: '请先完成人脸核身', icon: 'none' })
-      return
-    }
     const d = this.data
-    api.post('/auth/personal/submit?smsCode=' + encodeURIComponent(d.code)
-      + '&faceVerifyNo=' + encodeURIComponent(d.faceVerifyNo), {
+    api.post('/auth/personal/submit?smsCode=' + encodeURIComponent(d.code), {
       userId: app.globalData.userId,
       phone: d.phone,
       realName: d.realName,
-      idCard: d.idCard,
-      faceVerifyNo: d.faceVerifyNo
+      idCard: d.idCard
     }).then(() => {
       this.clearTimers()
       wx.showModal({
-        title: '个人认证已完成',
-        content: '人脸核身已通过，个人认证已生效，你现在可以继续完成学校认证。',
+        title: '已提交审核',
+        content: '个人认证资料已提交，管理员审核通过后您可发布 1 条动态，并在 2 小时内完成学校认证以保留发布权限。',
         showCancel: false,
         success: () => wx.navigateBack()
       })

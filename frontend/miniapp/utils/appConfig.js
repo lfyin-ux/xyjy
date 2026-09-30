@@ -1,5 +1,7 @@
 const api = require('./api')
 
+const TAB_ROUTES = ['pages/match/match', 'pages/life/life', 'pages/mall/mall', 'pages/mine/mine']
+
 const TAB_LIST = [
   {
     pagePath: '/pages/match/match',
@@ -27,6 +29,8 @@ const TAB_LIST = [
   }
 ]
 
+let loadingPromise = null
+
 function applyMallEnabled(app, mallEnabled) {
   app.globalData.mallEnabled = mallEnabled
   wx.setStorageSync('appConfig', { mallEnabled })
@@ -44,8 +48,14 @@ function refreshMinePageMallFlag(mallEnabled) {
   }
 }
 
+/**
+ * 拉取商城开关；多 Tab 页 onShow 会重复调用，共用同一请求避免竞态。
+ */
 function load(app) {
-  return api.get('/common/app-config').then((cfg) => {
+  if (loadingPromise) {
+    return loadingPromise
+  }
+  loadingPromise = api.get('/common/app-config').then((cfg) => {
     const mallEnabled = !!(cfg && cfg.mallEnabled)
     applyMallEnabled(app, mallEnabled)
     return cfg
@@ -54,7 +64,10 @@ function load(app) {
     refreshTabBar(app)
     refreshMinePageMallFlag(mallEnabled)
     return { mallEnabled }
+  }).finally(() => {
+    loadingPromise = null
   })
+  return loadingPromise
 }
 
 function isMallEnabled(app) {
@@ -65,7 +78,8 @@ function isMallEnabled(app) {
   if (cached && cached.mallEnabled != null) {
     return !!cached.mallEnabled
   }
-  return false
+  // 与后端 app.mall-enabled 默认一致，避免配置未返回时误隐藏商城 Tab
+  return true
 }
 
 function tabListForApp(app) {
@@ -73,13 +87,17 @@ function tabListForApp(app) {
   return TAB_LIST.filter((t) => t.pagePath !== '/pages/mall/mall')
 }
 
+/** 每个 Tab 页都有独立的 custom-tab-bar 实例，需全部刷新 */
 function refreshTabBar(app) {
   const pages = getCurrentPages()
-  if (!pages.length) return
-  const page = pages[pages.length - 1]
-  if (page && typeof page.getTabBar === 'function' && page.getTabBar()) {
-    page.getTabBar().updateTabList()
-  }
+  pages.forEach((page) => {
+    if (!page || !TAB_ROUTES.includes(page.route)) return
+    if (typeof page.getTabBar !== 'function') return
+    const tabBar = page.getTabBar()
+    if (tabBar && typeof tabBar.updateTabList === 'function') {
+      tabBar.updateTabList()
+    }
+  })
 }
 
 function setTabSelected(page) {

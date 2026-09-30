@@ -19,7 +19,9 @@ Page({
   },
 
   onShow() {
-    require('../../utils/appConfig').setTabSelected(this)
+    const appConfig = require('../../utils/appConfig')
+    appConfig.setTabSelected(this)
+    appConfig.load(app)
     this.refreshSchoolContext()
     this.checkAuth()
   },
@@ -119,7 +121,18 @@ Page({
 
   goPublish() {
     if (!app.checkLogin()) return
-    if (!schoolContext.ensureWrite(app, '发布动态')) return
-    wx.navigateTo({ url: '/pages/post-publish/post-publish' })
+    authGate.checkCanPublish(app.globalData.userId, () => {
+      if (!schoolContext.ensureWrite(app, '发布动态')) return
+      wx.navigateTo({ url: '/pages/post-publish/post-publish' })
+    }, () => {
+      wx.showModal({
+        title: '暂不可发布',
+        content: '请先完成个人认证审核；通过后可在 2 小时内发布 1 条动态并完成学校认证。',
+        confirmText: '去认证',
+        success: (res) => {
+          if (res.confirm) wx.navigateTo({ url: '/pages/auth/auth' })
+        }
+      })
+    })
   }
 })

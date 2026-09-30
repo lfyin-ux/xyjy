@@ -5,7 +5,7 @@ Component({
     selected: 0,
     color: '#bbb9c4',
     selectedColor: '#171527',
-    list: appConfig.TAB_LIST
+    list: []
   },
 
   lifetimes: {

@@ -37,6 +37,8 @@ public class SquareController {
     private com.xyjy.service.BlacklistService blacklistService;
     @Resource
     private com.xyjy.service.SchoolScopeService schoolScopeService;
+    @Resource
+    private com.xyjy.service.GracePublishService gracePublishService;
 
     /**
      * 广场动态列表 仅展示已发布 附带发布者信息
@@ -125,7 +127,13 @@ public class SquareController {
         if (post.getContent() == null || post.getContent().isEmpty()) {
             throw new BusinessException("请输入动态内容");
         }
-        post.setSchoolId(schoolScopeService.requireViewSchoolIdForWrite(post.getUserId()));
+        gracePublishService.assertCanPublishSquare(post.getUserId());
+        AppUser publisher = appUserMapper.selectById(post.getUserId());
+        if (publisher != null && publisher.getSchoolVerified() != null && publisher.getSchoolVerified() == 1) {
+            post.setSchoolId(schoolScopeService.requireViewSchoolIdForWrite(post.getUserId()));
+        } else {
+            post.setSchoolId(gracePublishService.resolveSchoolIdForGrace(post.getUserId()));
+        }
         FilterService.FilterResult fr = filterService.check(post.getContent(), "动态", post.getUserId());
         Map<String, Object> result = new HashMap<>();
         if (fr.level == 2) {
@@ -148,6 +156,9 @@ public class SquareController {
         post.setLikeCount(0);
         post.setCommentCount(0);
         squarePostMapper.insert(post);
+        if (publisher != null && (publisher.getSchoolVerified() == null || publisher.getSchoolVerified() != 1)) {
+            gracePublishService.markGracePostUsed(post.getUserId(), post.getId());
+        }
         return Result.success(result);
     }
 

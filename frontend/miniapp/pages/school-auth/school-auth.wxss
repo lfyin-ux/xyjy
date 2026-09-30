@@ -12,6 +12,32 @@
   margin-bottom: 20rpx;
 }
 
+.doc-tip {
+  padding: 20rpx 24rpx;
+  margin-bottom: 20rpx;
+  font-size: 22rpx;
+  line-height: 1.55;
+  color: #888;
+  background: #fafafa;
+  border-radius: 24rpx;
+}
+
+.upload-pdf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  padding: 24rpx;
+  text-align: center;
+  font-size: 26rpx;
+  color: #444;
+}
+
+.upload-sub {
+  font-size: 22rpx;
+  color: #999;
+}
+
 .agree-row {
   display: flex;
   align-items: flex-start;

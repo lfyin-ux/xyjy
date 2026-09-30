@@ -13,7 +13,9 @@ Page({
   },
 
   onShow() {
-    require('../../utils/appConfig').setTabSelected(this)
+    const appConfig = require('../../utils/appConfig')
+    appConfig.setTabSelected(this)
+    appConfig.load(app)
     this.loadGoods()
     this.loadTasks()
   },

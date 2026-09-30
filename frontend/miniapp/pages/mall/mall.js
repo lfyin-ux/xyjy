@@ -21,12 +21,14 @@ Page({
 
   onShow() {
     const appConfig = require('../../utils/appConfig')
-    if (!appConfig.isMallEnabled(app)) {
-      wx.switchTab({ url: '/pages/match/match' })
-      return
-    }
     appConfig.setTabSelected(this)
-    this.checkAuth()
+    appConfig.load(app).then(() => {
+      if (!appConfig.isMallEnabled(app)) {
+        wx.switchTab({ url: '/pages/match/match' })
+        return
+      }
+      this.checkAuth()
+    })
   },
 
   checkAuth() {

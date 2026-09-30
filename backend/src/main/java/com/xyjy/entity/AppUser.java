@@ -36,6 +36,9 @@ public class AppUser {
     private String expect;
     private String phone;
     private Integer identityVerified;
+    private LocalDateTime personalApprovedAt;
+    private Integer gracePublishUsed;
+    private Long gracePostId;
     private Integer schoolVerified;
     private Long schoolId;
     private Long currentSchoolId;

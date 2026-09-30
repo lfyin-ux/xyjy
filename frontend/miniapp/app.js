@@ -21,6 +21,8 @@ App({
     const cached = wx.getStorageSync('appConfig')
     if (cached && cached.mallEnabled != null) {
       this.globalData.mallEnabled = !!cached.mallEnabled
+    } else {
+      this.globalData.mallEnabled = true
     }
     appConfig.load(this)
 
